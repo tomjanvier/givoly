@@ -1,0 +1,365 @@
+/*
+ * Givasso — Styles Admin
+ *
+ * Palette officielle Givasso appliquée à l'ensemble de l'interface admin.
+ * S'appuie sur les classes WordPress natives (wp-list-table, widefat…)
+ * et n'overrides que ce qui est nécessaire.
+ *
+ * Table des matières :
+ *   1. Variables
+ *   2. En-têtes de page
+ *   3. Cartes de stats
+ *   4. Tableaux
+ *   5. Badges de statut
+ *   6. Barre de progression
+ *   7. Statuts texte
+ *   8. Cards (composant partagé)
+ *   9. Menu admin
+ *  10. Notices
+ *  11. Boutons
+ */
+
+/* ── 1. Variables ─────────────────────────────────────────────────────────── */
+
+.wrap.givasso-dashboard,
+.wrap.givasso-export,
+.givasso-admin-page {
+    --dp-primary:       #1B6B4A;
+    --dp-primary-hover: #155438;
+    --dp-primary-light: #E8F5EE;
+    --dp-accent:        #2ECC71;
+    --dp-surface:       #F8FAF9;
+    --dp-border:        #C6E0D6;
+    --dp-text:          #1A2E24;
+    --dp-text-muted:    #55665F;
+    --dp-danger:        #D64545;
+    --dp-danger-light:  #FEF2F2;
+    --dp-success:       #38A169;
+    --dp-success-light: #F0FDF4;
+    --dp-warning:       #B45309;
+    --dp-warning-light: #FFFBEB;
+}
+
+/* Variables globales pour les composants utilisés dans toutes les pages */
+.givasso-stats,
+.givasso-stat-card,
+.givasso-badge,
+.givasso-progress-track,
+.givasso-progress-fill,
+.givasso-status--overdue,
+.givasso-table {
+    --dp-primary:       #1B6B4A;
+    --dp-primary-light: #E8F5EE;
+    --dp-accent:        #2ECC71;
+    --dp-border:        #C6E0D6;
+    --dp-text:          #1A2E24;
+    --dp-text-muted:    #55665F;
+    --dp-danger:        #D64545;
+    --dp-danger-light:  #FEF2F2;
+    --dp-success:       #38A169;
+    --dp-success-light: #F0FDF4;
+    --dp-warning:       #B45309;
+    --dp-warning-light: #FFFBEB;
+}
+
+/* ── 2. En-têtes de page ──────────────────────────────────────────────────── */
+
+/* Ligne verte sous le titre H1 des pages Givasso */
+.wrap.givasso-dashboard > h1,
+.wrap.givasso-export > h1 {
+    padding-bottom:  10px;
+    border-bottom:   3px solid #1B6B4A;
+    margin-bottom:   20px;
+    display:         inline-block;
+}
+
+/* ── 3. Cartes de stats ───────────────────────────────────────────────────── */
+
+.givasso-stats {
+    display:               grid;
+    grid-template-columns: repeat( auto-fill, minmax( 200px, 1fr ) );
+    gap:                   1.25rem;
+    margin:                1.5rem 0 2rem;
+}
+
+.givasso-stat-card {
+    display:        flex;
+    flex-direction: column;
+    align-items:    flex-start;
+    gap:            .375rem;
+    background:     #fff;
+    border:         1px solid var(--dp-border);
+    border-left:    4px solid var(--dp-primary);
+    border-radius:  6px;
+    padding:        1.25rem 1.5rem;
+    box-shadow:     0 1px 4px rgba(0, 0, 0, .04);
+    transition:     box-shadow .15s ease, border-color .15s ease;
+}
+
+.givasso-stat-card:hover {
+    box-shadow:   0 3px 12px rgba(27, 107, 74, .1);
+    border-color: var(--dp-primary);
+}
+
+.givasso-stat-card__icon {
+    font-size:   1.375rem;
+    line-height: 1;
+    margin-bottom: .125rem;
+}
+
+.givasso-stat-card__value {
+    font-size:   1.75rem;
+    font-weight: 700;
+    color:       var(--dp-primary);
+    line-height: 1.2;
+}
+
+.givasso-stat-card__label {
+    font-size: .8125rem;
+    color:     var(--dp-text-muted);
+    font-weight: 500;
+}
+
+/* ── 4. Tableaux ──────────────────────────────────────────────────────────── */
+
+.givasso-table {
+    margin-top: .75rem;
+}
+
+/* En-tête de tableau — teinte Givasso subtile */
+.givasso-table thead th,
+.givasso-table thead td {
+    background:  #F0F7F4;
+    color:       var(--dp-text);
+    border-bottom: 2px solid var(--dp-border);
+    font-weight: 600;
+    font-size:   .8125rem;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+}
+
+/* Cellules — padding légèrement augmenté */
+.givasso-table tbody td,
+.givasso-table tbody th {
+    padding:     10px 12px;
+    border-color: #f0f0f0;
+}
+
+/* Hover sur les lignes */
+.givasso-table.striped tbody tr:hover td {
+    background: #f7fbf9;
+}
+
+/* Liens dans les tableaux */
+.givasso-table tbody td a {
+    color:           var(--dp-primary);
+    text-decoration: none;
+    font-weight:     500;
+}
+
+.givasso-table tbody td a:hover {
+    color:           var(--dp-primary-hover);
+    text-decoration: underline;
+}
+
+/* ── 5. Badges de statut ──────────────────────────────────────────────────── */
+
+.givasso-badge {
+    display:       inline-block;
+    padding:       3px 10px;
+    border-radius: 20px;
+    font-size:     .7188rem;
+    font-weight:   600;
+    letter-spacing: .02em;
+    white-space:   nowrap;
+}
+
+/* Don complété — vert Givasso */
+.givasso-badge--completed {
+    background: var(--dp-success-light, #F0FDF4);
+    color:      var(--dp-success, #38A169);
+    border:     1px solid #86efac;
+}
+
+/* En attente — ambre */
+.givasso-badge--pending {
+    background: var(--dp-warning-light, #FFFBEB);
+    color:      var(--dp-warning, #B45309);
+    border:     1px solid #fcd34d;
+}
+
+/* Échoué / Annulé — rouge Givasso */
+.givasso-badge--failed,
+.givasso-badge--cancelled {
+    background: var(--dp-danger-light, #FEF2F2);
+    color:      var(--dp-danger, #D64545);
+    border:     1px solid #fca5a5;
+}
+
+/* Remboursé — violet neutre */
+.givasso-badge--refunded {
+    background: #f3f0ff;
+    color:      #6d28d9;
+    border:     1px solid #c4b5fd;
+}
+
+/* Reçu émis */
+.givasso-badge--issued {
+    background: var(--dp-success-light, #F0FDF4);
+    color:      var(--dp-success, #38A169);
+    border:     1px solid #86efac;
+}
+
+/* Reçu annulé / remplacé */
+.givasso-badge--replaced {
+    background: #f3f0ff;
+    color:      #6d28d9;
+    border:     1px solid #c4b5fd;
+}
+
+/* Badge "Configuré" dans les réglages */
+.givasso-badge--ok {
+    background: var(--dp-success-light, #F0FDF4);
+    color:      var(--dp-success, #38A169);
+    border:     1px solid #86efac;
+}
+
+/* Badge "Non configuré" dans les réglages */
+.givasso-badge--warn {
+    background: var(--dp-warning-light, #FFFBEB);
+    color:      var(--dp-warning, #B45309);
+    border:     1px solid #fcd34d;
+}
+
+/* ── 6. Barre de progression ──────────────────────────────────────────────── */
+
+.givasso-progress-track {
+    background:    #E8F5EE;
+    border-radius: 4px;
+    height:        8px;
+    width:         100%;
+    min-width:     80px;
+    overflow:      hidden;
+    border:        1px solid var(--dp-border, #C6E0D6);
+}
+
+.givasso-progress-fill {
+    background:    var(--dp-primary, #1B6B4A);
+    height:        100%;
+    border-radius: 3px;
+    transition:    width .3s ease;
+    min-width:     4px;
+}
+
+/* ── 7. Statuts texte ─────────────────────────────────────────────────────── */
+
+.givasso-status--overdue {
+    color:       #B45309;
+    font-weight: 500;
+}
+
+/* ── 8. Cards (composant partagé) ─────────────────────────────────────────── */
+
+.givasso-card {
+    background:    #fff;
+    border:        1px solid #e0e0e0;
+    border-radius: 8px;
+    padding:       20px 24px;
+    margin-bottom: 20px;
+    box-shadow:    0 1px 4px rgba(0, 0, 0, .04);
+}
+
+.givasso-card__title {
+    font-size:   15px;
+    font-weight: 600;
+    margin:      0 0 12px;
+    color:       #1A2E24;
+    display:     flex;
+    align-items: center;
+    gap:         8px;
+}
+
+.givasso-card__title .dashicons {
+    font-size:   18px;
+    width:       18px;
+    height:      18px;
+    line-height: 1;
+    color:       #1B6B4A;
+}
+
+.givasso-card__desc {
+    color:        #55665F;
+    font-size:    .875rem;
+    margin:       -4px 0 16px;
+    line-height:  1.5;
+}
+
+/* ── 9. Menu admin ────────────────────────────────────────────────────────── */
+
+/* Icône du menu principal Givasso */
+#adminmenu #toplevel_page_givasso .wp-menu-image img {
+    filter: brightness(0) invert(1);
+}
+
+/* Highlight de l'item de menu actif Givasso */
+#adminmenu #toplevel_page_givasso.current > a,
+#adminmenu #toplevel_page_givasso .current > a {
+    background: rgba(27, 107, 74, .12) !important;
+    border-left: 3px solid #2ECC71 !important;
+}
+
+/* ── 10. Notices ──────────────────────────────────────────────────────────── */
+
+/* Notice de succès — couleurs Givasso */
+.wrap .notice-success {
+    border-left-color: #38A169;
+}
+
+/* Notice d'avertissement Pro */
+.givasso-pro-banner {
+    border-left-color: #B45309 !important;
+    background:        #FFFBEB !important;
+}
+
+.givasso-pro-banner a {
+    color:       #1B6B4A;
+    font-weight: 600;
+}
+
+/* ── 11. Boutons spécifiques ──────────────────────────────────────────────── */
+
+/* Bouton FEC (export comptable) */
+.givasso-btn-fec {
+    border-color: #1B6B4A !important;
+    color:        #1B6B4A !important;
+}
+
+.givasso-btn-fec:hover {
+    border-color: #155438 !important;
+    color:        #155438 !important;
+    background:   #E8F5EE !important;
+}
+
+/* Zone d'actions export */
+.givasso-export-actions {
+    margin-top:  24px;
+    padding-top: 20px;
+    border-top:  1px solid #E8F5EE;
+    display:     flex;
+    gap:         12px;
+    flex-wrap:   wrap;
+    align-items: center;
+}
+
+.givasso-export-actions .button {
+    display:     inline-flex !important;
+    align-items: center;
+    gap:         6px;
+}
+
+.givasso-export-actions .dashicons {
+    font-size:   16px !important;
+    width:       16px !important;
+    height:      16px !important;
+    line-height: 1 !important;
+}
