@@ -711,7 +711,14 @@
 
 .givasso-ha-monthly { margin-bottom: 1rem; }
 .givasso-gateway-actions { display:flex; flex-direction:column; gap:.75rem; }
-.HaPayButton { display:flex; align-items:center; border:1px solid #d1d5db; border-radius:12px; text-decoration:none; background:#fff; padding:0; cursor:pointer; width:100%; min-height:56px; overflow:hidden; }
+.HaPayButton { display:flex; align-items:center; border:1px solid #d1d5db; border-radius:12px; text-decoration:none; background:#fff; padding:0; cursor:pointer; width:100%; min-height:56px; overflow:hidden; color:#111827; }
+.HaPayButton:hover,
+.HaPayButton:focus,
+.HaPayButton:visited {
+    color:#111827;
+    text-decoration:none;
+    background:#fff;
+}
 .HaPayButtonLogoWrap { width:56px; min-width:56px; display:flex; align-items:center; justify-content:center; background:#fff; border-right:1px solid #e5e7eb; }
 .HaPayButtonLogo { width:32px; height:32px; }
 .HaPayButtonLabel { color:#111827; padding:0 16px; font-weight:700; flex:1; text-align:center; background:#fff; }
