@@ -95,7 +95,7 @@ final class AjaxHandler {
         $last_name   = sanitize_text_field( wp_unslash( $_POST['last_name'] ?? '' ) );
         $campaign    = sanitize_text_field( wp_unslash( $_POST['campaign'] ?? '' ) );
         $gateway_key = sanitize_text_field( wp_unslash( $_POST['gateway'] ?? 'stripe' ) );
-        $frequency   = 'once';
+        $frequency   = sanitize_text_field( wp_unslash( $_POST['frequency'] ?? 'once' ) );
 
         if ( $amount < 1 || $amount > 100_000 ) {
             wp_send_json_error( [ 'message' => __( 'Montant invalide.', 'givasso' ) ], 422 );
@@ -108,11 +108,11 @@ final class AjaxHandler {
         try {
             if ( $gateway_key === 'helloasso' ) {
                 $checkout_url = $this->checkout_helloasso(
-                    $amount, $currency, $email, $first_name, $last_name, $campaign
+                    $amount, $currency, $email, $first_name, $last_name, $campaign, $frequency
                 );
             } else {
                 $checkout_url = $this->checkout_stripe(
-                    $amount, $currency, $email, $first_name, $last_name, $campaign
+                    $amount, $currency, $email, $first_name, $last_name, $campaign, $frequency
                 );
             }
 
@@ -129,7 +129,8 @@ final class AjaxHandler {
         string $email,
         string $first_name,
         string $last_name,
-        string $campaign
+        string $campaign,
+        string $frequency
     ): string {
         if ( ! Settings::is_configured() ) {
             throw new \RuntimeException( 'Stripe non configuré.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
@@ -148,7 +149,8 @@ final class AjaxHandler {
             donor_last_name:  $last_name,
             success_url:      $success_url,
             cancel_url:       $cancel_url,
-            campaign:         $campaign
+            campaign:         $campaign,
+            frequency:        $frequency
         );
     }
 
@@ -158,7 +160,8 @@ final class AjaxHandler {
         string $email,
         string $first_name,
         string $last_name,
-        string $campaign
+        string $campaign,
+        string $frequency
     ): string {
         if ( ! Settings::is_helloasso_configured() ) {
             throw new \RuntimeException( 'HelloAsso non configuré.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
@@ -171,6 +174,14 @@ final class AjaxHandler {
             Settings::is_helloasso_sandbox()
         );
 
+        if ( $frequency === 'monthly' ) {
+            $monthly_url = Settings::get_helloasso_monthly_url();
+            if ( $monthly_url ) {
+                return $monthly_url;
+            }
+            throw new \RuntimeException( 'Lien mensuel HelloAsso non configuré.' );
+        }
+
         $item_name = $campaign ?: __( 'Don', 'givasso' );
 
         return $gateway->create_checkout_intent(
@@ -182,7 +193,8 @@ final class AjaxHandler {
             return_url:       add_query_arg( 'givasso_success', '1', Settings::get_success_url() ),
             back_url:         Settings::get_cancel_url(),
             error_url:        Settings::get_cancel_url(),
-            campaign:         $campaign
+            campaign:         $campaign,
+            frequency:        $frequency
         );
     }
 

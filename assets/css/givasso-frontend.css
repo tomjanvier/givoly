@@ -708,3 +708,8 @@
 @keyframes givasso-spin {
     to { transform: rotate(360deg); }
 }
+
+.givasso-ha-monthly { margin-bottom: 1rem; }
+.HaPayButton { display:flex; align-items:center; border:none; text-decoration:none; }
+.HaPayButtonLogo { background:#fff; border:1px solid #4c40cf; border-radius:8px 0 0 8px; padding:10px 16px; width:56px; }
+.HaPayButtonLabel { background:#4c40cf; border:1px solid #4c40cf; color:#fff; padding:10px 16px; border-radius:0 8px 8px 0; font-weight:700; }

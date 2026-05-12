@@ -236,6 +236,7 @@ tr:has(.givasso-section-sep) th, tr:has(.givasso-section-sep) td { padding-botto
         $has_ha_sig_key   = Settings::get_helloasso_signature_key() !== '';
         $ha_webhook_url   = rest_url( 'givasso/v1/helloasso-webhook' );
         $ha_ok            = Settings::is_helloasso_configured();
+        $ha_monthly_url   = Settings::get_helloasso_monthly_url();
 
         // Général
         $default_gateway = Settings::get_default_gateway();
@@ -534,6 +535,20 @@ tr:has(.givasso-section-sep) th, tr:has(.givasso-section-sep) td { padding-botto
                                 <th scope="row">Client Secret</th>
                                 <td>
                                     <?php $this->secret_field( 'ha_client_secret', $has_ha_secret, '' ); ?>
+                                </td>
+                            </tr>
+
+
+                            <tr><th colspan="2"><div class="givasso-section-sep"><?php esc_html_e( 'Don mensuel (lien externe)', 'givasso' ); ?></div></th></tr>
+                            <tr>
+                                <th scope="row"><?php esc_html_e( 'Lien don mensuel', 'givasso' ); ?></th>
+                                <td>
+                                    <input type="url" name="ha_monthly_url"
+                                           value="<?php echo esc_attr( $ha_monthly_url ); ?>"
+                                           class="regular-text" placeholder="https://www.helloasso.com/...">
+                                    <p class="description">
+                                        <?php esc_html_e( 'Utilisé quand le donateur choisit “Don récurrent”.', 'givasso' ); ?>
+                                    </p>
                                 </td>
                             </tr>
 

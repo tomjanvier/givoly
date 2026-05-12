@@ -185,6 +185,15 @@
             const form        = wrap.closest( '.givasso-wrap' );
             const freq_input  = form ? form.querySelector( '[name="frequency"]' ) : null;
 
+            const initial = freq_input ? freq_input.value : 'once';
+            const monthlyBlock = form ? form.querySelector( '.givasso-ha-monthly' ) : null;
+            const submitBtn = form ? form.querySelector( '.givasso-form__submit' ) : null;
+            if ( monthlyBlock && submitBtn ) {
+                const isMonthly = initial === 'monthly';
+                monthlyBlock.hidden = ! isMonthly;
+                submitBtn.hidden = isMonthly;
+            }
+
             wrap.querySelectorAll( '.givasso-freq-btn' ).forEach( ( btn ) => {
                 btn.addEventListener( 'click', () => {
                     const freq = btn.dataset.freq;
@@ -198,6 +207,14 @@
 
                     if ( freq_input ) {
                         freq_input.value = freq;
+                    }
+
+                    const monthlyBlock = form ? form.querySelector( '.givasso-ha-monthly' ) : null;
+                    const submitBtn = form ? form.querySelector( '.givasso-form__submit' ) : null;
+                    if ( monthlyBlock && submitBtn ) {
+                        const isMonthly = freq === 'monthly';
+                        monthlyBlock.hidden = ! isMonthly;
+                        submitBtn.hidden = isMonthly;
                     }
 
                     wrap.querySelectorAll( '.givasso-freq-btn' ).forEach( ( b ) => b.classList.remove( 'active' ) );

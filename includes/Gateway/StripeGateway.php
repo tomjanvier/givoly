@@ -38,7 +38,8 @@ final class StripeGateway {
         string $donor_last_name,
         string $success_url,
         string $cancel_url,
-        string $campaign = ''
+        string $campaign = '',
+        string $frequency = 'once'
     ): string {
         if ( $campaign ) {
             // translators: %s is the campaign name.
@@ -47,15 +48,18 @@ final class StripeGateway {
             $product_name = __( 'Don', 'givasso' );
         }
 
+        $is_monthly = $frequency === 'monthly';
+
         $params = [
-            'mode'                                             => 'payment',
+            'mode'                                             => $is_monthly ? 'subscription' : 'payment',
             'payment_method_types[]'                          => 'card',
             'customer_email'                                  => $donor_email,
             'success_url'                                     => $success_url,
             'cancel_url'                                      => $cancel_url,
             'line_items[0][quantity]'                         => 1,
             'line_items[0][price_data][currency]'             => strtolower( $currency ),
-            'line_items[0][price_data][unit_amount]'          => $amount_cents,
+            'line_items[0][price_data][' . ( $is_monthly ? 'recurring][interval' : 'unit_amount' ) . ']' => $is_monthly ? 'month' : $amount_cents,
+            'line_items[0][price_data][unit_amount]'          => $is_monthly ? null : $amount_cents,
             'line_items[0][price_data][product_data][name]'   => $product_name,
             'metadata[donor_first_name]'                      => $donor_first_name,
             'metadata[donor_last_name]'                       => $donor_last_name,
@@ -63,6 +67,10 @@ final class StripeGateway {
             'metadata[campaign]'                              => $campaign,
             'metadata[currency]'                              => $currency,
         ];
+
+        if ( $is_monthly ) {
+            unset( $params['line_items[0][price_data][unit_amount]'] );
+        }
 
         $response = $this->post( '/checkout/sessions', $params );
 

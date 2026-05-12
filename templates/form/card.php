@@ -37,7 +37,7 @@ $wrap_style = $config->get_inline_css_vars();
         <input type="hidden" name="currency" value="<?php echo esc_attr( $config->currency ); ?>">
         <input type="hidden" name="gateway"  value="<?php echo esc_attr( $config->gateway ); ?>">
 
-        <input type="hidden" name="frequency" value="once">
+        <input type="hidden" name="frequency" value="monthly">
 
         <?php if ( $config->campaign ) : ?>
             <input type="hidden" name="campaign" value="<?php echo esc_attr( $config->campaign ); ?>">
@@ -48,6 +48,15 @@ $wrap_style = $config->get_inline_css_vars();
                 <?php echo esc_html( $config->title ); ?>
             </h2>
         <?php endif; ?>
+
+        <div class="givasso-frequency-wrap" role="group" aria-label="<?php esc_attr_e( 'Fréquence du don', 'givasso' ); ?>">
+            <button type="button" class="givasso-freq-btn active" data-freq="monthly">
+                <?php esc_html_e( 'Don récurrent', 'givasso' ); ?>
+            </button>
+            <button type="button" class="givasso-freq-btn" data-freq="once">
+                <?php esc_html_e( 'Don unique', 'givasso' ); ?>
+            </button>
+        </div>
 
         <!-- ── Sélection du montant ───────────────────────────────────── -->
         <fieldset class="givasso-form__fieldset">
@@ -177,6 +186,21 @@ $wrap_style = $config->get_inline_css_vars();
             </span>
             <span class="givasso-btn__spinner" hidden aria-hidden="true"></span>
         </button>
+
+        <?php if ( $config->gateway === 'helloasso' ) : ?>
+            <?php $ha_monthly_url = \Givasso\Admin\Settings::get_helloasso_monthly_url(); ?>
+            <div class="givasso-ha-monthly" hidden>
+                <?php if ( $ha_monthly_url ) : ?>
+                    <a class="HaPayButton" href="<?php echo esc_url( $ha_monthly_url ); ?>" target="_blank" rel="noopener">
+                        <img src="https://api.helloasso.com/v5/img/logo-ha.svg" alt="" class="HaPayButtonLogo" />
+                        <span class="HaPayButtonLabel"><?php esc_html_e( 'Payer avec HelloAsso', 'givasso' ); ?></span>
+                    </a>
+                <?php else : ?>
+                    <p class="givasso-hint"><?php esc_html_e( 'Le lien mensuel HelloAsso n\'est pas configuré.', 'givasso' ); ?></p>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+
 
         <?php
         $gateway_label = ( $config->gateway === 'helloasso' ) ? 'HelloAsso' : 'Stripe';

@@ -34,6 +34,7 @@ final class Settings {
     const OPT_HA_ORG_SLUG      = 'givasso_ha_org_slug';
     const OPT_HA_MODE          = 'givasso_ha_mode';           // 'sandbox' | 'live'
     const OPT_HA_SIGNATURE_KEY = 'givasso_ha_signature_key';  // peut être vide
+    const OPT_HA_MONTHLY_URL    = 'givasso_ha_monthly_url';
 
     // Passerelle par défaut
     const OPT_DEFAULT_GATEWAY  = 'givasso_default_gateway';   // 'stripe' | 'helloasso'
@@ -201,6 +202,10 @@ final class Settings {
         return (string) get_option( self::OPT_HA_SIGNATURE_KEY, '' );
     }
 
+    public static function get_helloasso_monthly_url(): string {
+        return (string) get_option( self::OPT_HA_MONTHLY_URL, '' );
+    }
+
     public static function is_helloasso_sandbox(): bool {
         return self::get_helloasso_mode() !== 'live';
     }
@@ -253,6 +258,7 @@ final class Settings {
         self::update_secret( self::OPT_HA_CLIENT_ID,     $post['ha_client_id']     ?? '' );
         self::update_secret( self::OPT_HA_CLIENT_SECRET, $post['ha_client_secret'] ?? '' );
         self::update_secret( self::OPT_HA_SIGNATURE_KEY, $post['ha_signature_key'] ?? '' );
+        update_option( self::OPT_HA_MONTHLY_URL, esc_url_raw( $post['ha_monthly_url'] ?? '' ), false );
 
         // Passerelle par défaut
         $default_gw = in_array( $post['default_gateway'] ?? '', [ 'stripe', 'helloasso' ], true )
