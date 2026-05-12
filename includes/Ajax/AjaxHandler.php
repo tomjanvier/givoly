@@ -88,7 +88,7 @@ final class AjaxHandler {
             );
         }
 
-        $amount      = (int) round( (float) sanitize_text_field( wp_unslash( $_POST['amount'] ?? '0' ) ) );
+        $amount_raw  = sanitize_text_field( wp_unslash( $_POST['amount'] ?? '' ) );
         $currency    = strtoupper( sanitize_text_field( wp_unslash( $_POST['currency'] ?? 'EUR' ) ) );
         $email       = sanitize_email( wp_unslash( $_POST['email'] ?? '' ) );
         $first_name  = sanitize_text_field( wp_unslash( $_POST['first_name'] ?? '' ) );
@@ -97,9 +97,13 @@ final class AjaxHandler {
         $gateway_key = sanitize_text_field( wp_unslash( $_POST['gateway'] ?? 'stripe' ) );
         $frequency   = sanitize_text_field( wp_unslash( $_POST['frequency'] ?? 'once' ) );
 
-        if ( $amount < 1 || $amount > 100_000 ) {
+        $amount_cents = $this->parse_amount_to_cents( $amount_raw );
+
+        if ( $amount_cents < 100 || $amount_cents > 100_000 * 100 ) {
             wp_send_json_error( [ 'message' => __( 'Montant invalide.', 'givasso' ) ], 422 );
         }
+
+        $amount = (int) floor( $amount_cents / 100 );
 
         if ( ! is_email( $email ) ) {
             wp_send_json_error( [ 'message' => __( 'Email invalide.', 'givasso' ) ], 422 );
@@ -108,11 +112,11 @@ final class AjaxHandler {
         try {
             if ( $gateway_key === 'helloasso' ) {
                 $checkout_url = $this->checkout_helloasso(
-                    $amount, $currency, $email, $first_name, $last_name, $campaign, $frequency
+                    $amount_cents, $currency, $email, $first_name, $last_name, $campaign, $frequency
                 );
             } else {
                 $checkout_url = $this->checkout_stripe(
-                    $amount, $currency, $email, $first_name, $last_name, $campaign, $frequency
+                    $amount_cents, $currency, $email, $first_name, $last_name, $campaign, $frequency
                 );
             }
 
@@ -124,7 +128,7 @@ final class AjaxHandler {
     }
 
     private function checkout_stripe(
-        int    $amount,
+        int    $amount_cents,
         string $currency,
         string $email,
         string $first_name,
@@ -141,8 +145,26 @@ final class AjaxHandler {
         $success_url = add_query_arg( 'givasso_success', '1', $success_url );
         $cancel_url  = Settings::get_cancel_url();
 
+        if ( $this->is_recurring_frequency( $frequency ) ) {
+            $interval = $this->normalize_recurring_interval( $frequency );
+
+            if ( ! $interval ) {
+                throw new \RuntimeException( 'Fréquence récurrente invalide.' );
+            }
+
+            return $gateway->create_recurring_payment_link(
+                amount_cents: $amount_cents,
+                currency: $currency,
+                donor_email: $email,
+                success_url: $success_url,
+                campaign: $campaign,
+                interval: $interval,
+                donation_id: uniqid( 'givasso_', true )
+            );
+        }
+
         return $gateway->create_checkout_session(
-            amount_cents:     $amount * 100,
+            amount_cents:     $amount_cents,
             currency:         $currency,
             donor_email:      $email,
             donor_first_name: $first_name,
@@ -155,7 +177,7 @@ final class AjaxHandler {
     }
 
     private function checkout_helloasso(
-        int    $amount,
+        int    $amount_cents,
         string $currency,
         string $email,
         string $first_name,
@@ -193,7 +215,7 @@ final class AjaxHandler {
         $item_name = $campaign ?: __( 'Don', 'givasso' );
 
         return $gateway->create_checkout_intent(
-            amount_cents:     $amount * 100,
+            amount_cents:     $amount_cents,
             item_name:        $item_name,
             donor_email:      $email,
             donor_first_name: $first_name,
@@ -228,6 +250,12 @@ final class AjaxHandler {
 
         if ( $event_type === 'checkout.session.completed' ) {
             $this->handle_checkout_session_completed( $event['data']['object'] ?? [] );
+        } elseif ( $event_type === 'invoice.paid' ) {
+            $this->handle_invoice_paid( $event['data']['object'] ?? [] );
+        } elseif ( $event_type === 'invoice.payment_failed' ) {
+            $this->handle_invoice_payment_failed( $event['data']['object'] ?? [] );
+        } elseif ( $event_type === 'customer.subscription.updated' || $event_type === 'customer.subscription.deleted' ) {
+            $this->handle_subscription_event( $event['data']['object'] ?? [] );
         } elseif ( $event_type === 'charge.refunded' ) {
             $this->handle_charge_refunded( $event['data']['object'] ?? [] );
         }
@@ -274,6 +302,35 @@ final class AjaxHandler {
                 [ '%s' ]
             );
         }
+
+        $subscription_id = sanitize_text_field( $session['subscription'] ?? '' );
+        $customer_id     = sanitize_text_field( $session['customer'] ?? '' );
+
+        if ( $subscription_id && $customer_id ) {
+            $donor_id = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+                $wpdb->prepare(
+                    "SELECT donor_id FROM {$wpdb->prefix}givasso_donations WHERE gateway_transaction_id = %s LIMIT 1",
+                    $transaction_id
+                )
+            );
+
+            if ( $donor_id > 0 ) {
+                $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+                    $wpdb->prepare(
+                        "INSERT INTO {$wpdb->prefix}givasso_subscriptions
+                        (donor_id, stripe_subscription_id, stripe_customer_id, amount, currency, frequency, status)
+                        VALUES (%d, %s, %s, %f, %s, %s, 'active')
+                        ON DUPLICATE KEY UPDATE stripe_customer_id = VALUES(stripe_customer_id), status = 'active'",
+                        $donor_id,
+                        $subscription_id,
+                        $customer_id,
+                        $amount_cents / 100,
+                        $currency,
+                        'month'
+                    )
+                );
+            }
+        }
     }
 
     /**
@@ -311,6 +368,67 @@ final class AjaxHandler {
             [ 'id'     => $donation_id ],
             [ '%s' ],
             [ '%d' ]
+        );
+    }
+
+    private function parse_amount_to_cents( string $raw ): int {
+        $normalized = str_replace( [ ' ', ',' ], [ '', '.' ], trim( $raw ) );
+
+        if ( $normalized === '' || ! preg_match( '/^\d+(?:\.\d{1,2})?$/', $normalized ) ) {
+            return 0;
+        }
+
+        $parts = explode( '.', $normalized, 2 );
+        $euros = (int) $parts[0];
+        $cents = isset( $parts[1] ) ? (int) str_pad( $parts[1], 2, '0' ) : 0;
+
+        return ( $euros * 100 ) + $cents;
+    }
+
+    private function is_recurring_frequency( string $frequency ): bool {
+        return $frequency !== 'once';
+    }
+
+    private function normalize_recurring_interval( string $frequency ): string {
+        $value = strtolower( trim( $frequency ) );
+
+        if ( in_array( $value, [ 'monthly', 'month' ], true ) ) {
+            return 'month';
+        }
+
+        if ( in_array( $value, [ 'yearly', 'annual', 'year' ], true ) ) {
+            return 'year';
+        }
+
+        return '';
+    }
+
+    private function handle_invoice_paid( array $invoice ): void {
+        error_log( '[Givasso] Stripe invoice.paid reçu pour subscription ' . sanitize_text_field( (string) ( $invoice['subscription'] ?? '' ) ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+    }
+
+    private function handle_invoice_payment_failed( array $invoice ): void {
+        error_log( '[Givasso] Stripe invoice.payment_failed pour subscription ' . sanitize_text_field( (string) ( $invoice['subscription'] ?? '' ) ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+    }
+
+    private function handle_subscription_event( array $subscription ): void {
+        global $wpdb;
+
+        $subscription_id = sanitize_text_field( $subscription['id'] ?? '' );
+        $status = sanitize_text_field( $subscription['status'] ?? '' );
+
+        if ( ! $subscription_id ) {
+            return;
+        }
+
+        $mapped_status = in_array( $status, [ 'active', 'past_due', 'unpaid', 'cancelled' ], true ) ? $status : 'active';
+
+        $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+            $wpdb->prefix . 'givasso_subscriptions',
+            [ 'status' => $mapped_status ],
+            [ 'stripe_subscription_id' => $subscription_id ],
+            [ '%s' ],
+            [ '%s' ]
         );
     }
 

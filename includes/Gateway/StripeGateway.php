@@ -26,7 +26,7 @@ final class StripeGateway {
     // ── API publique ───────────────────────────────────────────────────────
 
     /**
-     * Crée une Stripe Checkout Session et retourne l'URL de paiement.
+     * Crée une Stripe Checkout Session (don unique) et retourne l'URL de paiement.
      *
      * @throws \RuntimeException Si l'API retourne une erreur.
      */
@@ -73,6 +73,54 @@ final class StripeGateway {
         }
 
         $response = $this->post( '/checkout/sessions', $params );
+
+        return $response['url'];
+    }
+
+
+    /**
+     * Crée un Stripe Payment Link pour un don récurrent.
+     *
+     * @throws \RuntimeException Si l'API retourne une erreur.
+     */
+    public function create_recurring_payment_link(
+        int    $amount_cents,
+        string $currency,
+        string $donor_email,
+        string $success_url,
+        string $campaign = '',
+        string $interval = 'month',
+        string $donation_id = ''
+    ): string {
+        $product_name = $campaign
+            ? sprintf( __( 'Don récurrent — %s', 'givasso' ), $campaign )
+            : __( 'Don récurrent', 'givasso' );
+
+        $params = [
+            'line_items[0][price_data][currency]'                    => strtolower( $currency ),
+            'line_items[0][price_data][unit_amount]'                 => $amount_cents,
+            'line_items[0][price_data][product_data][name]'          => $product_name,
+            'line_items[0][price_data][recurring][interval]'         => $interval,
+            'line_items[0][price_data][recurring][interval_count]'   => 1,
+            'line_items[0][quantity]'                                => 1,
+            'submit_type'                                            => 'donate',
+            'after_completion[type]'                                 => 'redirect',
+            'after_completion[redirect][url]'                        => $success_url,
+            'metadata[donation_type]'                                => 'recurring',
+            'metadata[source]'                                       => 'wordpress',
+            'metadata[donation_id]'                                  => $donation_id,
+            'metadata[donor_email]'                                  => $donor_email,
+            'metadata[campaign]'                                     => $campaign,
+            'metadata[frequency]'                                    => $interval,
+            'subscription_data[metadata][donation_type]'             => 'recurring',
+            'subscription_data[metadata][source]'                    => 'wordpress',
+            'subscription_data[metadata][donation_id]'               => $donation_id,
+            'subscription_data[metadata][donor_email]'               => $donor_email,
+            'subscription_data[metadata][campaign]'                  => $campaign,
+            'subscription_data[metadata][frequency]'                 => $interval,
+        ];
+
+        $response = $this->post( '/payment_links', $params );
 
         return $response['url'];
     }
