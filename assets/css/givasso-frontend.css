@@ -453,7 +453,7 @@
     font-size:       .75rem;
     color:           var(--givasso-color-text-muted);
     text-align:      center;
-    margin:          0;
+    margin:          .5rem 0 0;
     flex-wrap:       wrap;
 }
 
@@ -721,8 +721,8 @@
 }
 .HaPayButtonLogoWrap { width:56px; min-width:56px; display:flex; align-items:center; justify-content:center; background:#fff; border-right:1px solid #e5e7eb; }
 .HaPayButtonLogo { width:32px; height:32px; }
-.HaPayButtonLabel { color:#111827; padding:0 16px; font-weight:700; flex:1; text-align:center; background:#fff; }
-.givasso-ha-other-payments { font-size:12px; color:#374151; text-decoration:underline; text-align:center; display:block; margin-top:-2px; }
+.HaPayButtonLabel { color:#111827; padding:0 16px; font-weight:700; flex:1; text-align:center; justify-content:center; display:flex; align-items:center; background:#fff; }
+.givasso-ha-other-payments { font-size:14px; color:#374151; text-decoration:underline; text-align:center; display:block; margin-top:2px; }
 .givasso-ha-note { margin:0; font-size:.85rem; color:var(--givasso-color-text-muted); }
 
 /* Encadré portable pour insertion dans n'importe quelle zone */
@@ -737,10 +737,25 @@
 .givasso-layout-inline .givasso-form,
 .givasso-layout-flat .givasso-form {
     max-width: 560px;
+    width: 100%;
     margin: 0 auto;
 }
 
 .givasso-textarea {
     min-height: 92px;
     resize: vertical;
+}
+
+@media (max-width: 480px) {
+    .givasso-layout-card .givasso-form,
+    .givasso-layout-inline .givasso-form,
+    .givasso-wrap .givasso-form {
+        width: 100%;
+        max-width: none;
+        padding: 1.5rem;
+    }
+
+    .HaPayButton {
+        min-height: 62px;
+    }
 }
