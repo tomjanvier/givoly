@@ -86,6 +86,7 @@ final class PaymentProcessor {
         );
 
         $donation_id = (int) $wpdb->insert_id; // phpcs:ignore -- used in future Pro hook
+        $this->send_admin_notification( $gateway, $amount, $currency, $email, $first_name, $last_name, $campaign );
     }
 
     // ── Helpers privés ─────────────────────────────────────────────────────
@@ -114,6 +115,37 @@ final class PaymentProcessor {
         );
 
         return $wpdb->insert_id ?: false;
+    }
+
+    private function send_admin_notification(
+        string $gateway,
+        float $amount,
+        string $currency,
+        string $email,
+        string $first_name,
+        string $last_name,
+        string $campaign
+    ): void {
+        $to = get_option( 'admin_email', '' );
+        if ( ! is_email( $to ) ) {
+            return;
+        }
+
+        $subject = sprintf( __( '[Givasso] Nouveau don : %s %s', 'givasso' ), number_format_i18n( $amount, 2 ), strtoupper( $currency ) );
+        $lines   = [
+            __( 'Un nouveau don a été reçu sur votre site.', 'givasso' ),
+            '',
+            sprintf( __( 'Montant : %s %s', 'givasso' ), number_format_i18n( $amount, 2 ), strtoupper( $currency ) ),
+            sprintf( __( 'Donateur : %1$s %2$s', 'givasso' ), $first_name, $last_name ),
+            sprintf( __( 'Email : %s', 'givasso' ), $email ),
+            sprintf( __( 'Passerelle : %s', 'givasso' ), ucfirst( $gateway ) ),
+        ];
+
+        if ( $campaign !== '' ) {
+            $lines[] = sprintf( __( 'Campagne : %s', 'givasso' ), $campaign );
+        }
+
+        wp_mail( $to, $subject, implode( "\n", $lines ) );
     }
 
 }

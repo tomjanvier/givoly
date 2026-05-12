@@ -110,6 +110,37 @@ $wrap_style = $config->get_inline_css_vars();
                    placeholder="<?php esc_attr_e( 'Votre email', 'givasso' ); ?>">
         </div>
 
+        <?php if ( in_array( 'phone', $config->extra_fields, true ) ) : ?>
+            <div class="givasso-field">
+                <input type="tel"
+                       name="phone"
+                       class="givasso-input"
+                       autocomplete="tel"
+                       maxlength="30"
+                       placeholder="<?php esc_attr_e( 'Votre téléphone', 'givasso' ); ?>">
+            </div>
+        <?php endif; ?>
+
+        <?php if ( in_array( 'company', $config->extra_fields, true ) ) : ?>
+            <div class="givasso-field">
+                <input type="text"
+                       name="company"
+                       class="givasso-input"
+                       maxlength="120"
+                       placeholder="<?php esc_attr_e( 'Organisation / Société', 'givasso' ); ?>">
+            </div>
+        <?php endif; ?>
+
+        <?php if ( in_array( 'message', $config->extra_fields, true ) ) : ?>
+            <div class="givasso-field">
+                <textarea name="message"
+                          class="givasso-input givasso-textarea"
+                          rows="3"
+                          maxlength="500"
+                          placeholder="<?php esc_attr_e( 'Votre message (optionnel)', 'givasso' ); ?>"></textarea>
+            </div>
+        <?php endif; ?>
+
         <!-- ── Messages retour ────────────────────────────────────────── -->
         <div class="givasso-form__messages"
              aria-live="polite"

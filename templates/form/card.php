@@ -159,6 +159,33 @@ $wrap_style = $config->get_inline_css_vars();
                        autocomplete="email"
                        maxlength="254">
             </div>
+
+            <?php if ( in_array( 'phone', $config->extra_fields, true ) ) : ?>
+                <div class="givasso-field">
+                    <label for="<?php echo esc_attr( $form_id ); ?>-phone" class="givasso-label">
+                        <?php esc_html_e( 'Téléphone', 'givasso' ); ?>
+                    </label>
+                    <input type="tel" id="<?php echo esc_attr( $form_id ); ?>-phone" name="phone" class="givasso-input" autocomplete="tel" maxlength="30">
+                </div>
+            <?php endif; ?>
+
+            <?php if ( in_array( 'company', $config->extra_fields, true ) ) : ?>
+                <div class="givasso-field">
+                    <label for="<?php echo esc_attr( $form_id ); ?>-company" class="givasso-label">
+                        <?php esc_html_e( 'Organisation / Société', 'givasso' ); ?>
+                    </label>
+                    <input type="text" id="<?php echo esc_attr( $form_id ); ?>-company" name="company" class="givasso-input" maxlength="120">
+                </div>
+            <?php endif; ?>
+
+            <?php if ( in_array( 'message', $config->extra_fields, true ) ) : ?>
+                <div class="givasso-field">
+                    <label for="<?php echo esc_attr( $form_id ); ?>-message" class="givasso-label">
+                        <?php esc_html_e( 'Message', 'givasso' ); ?>
+                    </label>
+                    <textarea id="<?php echo esc_attr( $form_id ); ?>-message" name="message" class="givasso-input givasso-textarea" rows="3" maxlength="500"></textarea>
+                </div>
+            <?php endif; ?>
         </fieldset>
 
         <!-- ── Messages retour (erreur / succès) ──────────────────────── -->

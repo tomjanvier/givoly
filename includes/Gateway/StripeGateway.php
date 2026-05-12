@@ -38,7 +38,10 @@ final class StripeGateway {
         string $donor_last_name,
         string $success_url,
         string $cancel_url,
-        string $campaign = ''
+        string $campaign = '',
+        string $phone = '',
+        string $company = '',
+        string $message = ''
     ): string {
         if ( $campaign ) {
             // translators: %s is the campaign name.
@@ -62,6 +65,9 @@ final class StripeGateway {
             'metadata[donor_email]'                           => $donor_email,
             'metadata[campaign]'                              => $campaign,
             'metadata[currency]'                              => $currency,
+            'metadata[phone]'                                 => $phone,
+            'metadata[company]'                               => $company,
+            'metadata[message]'                               => $message,
         ];
 
         $response = $this->post( '/checkout/sessions', $params );

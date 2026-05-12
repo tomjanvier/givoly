@@ -75,6 +75,15 @@
     margin:        0 auto;
 }
 
+.givasso-layout-inline .givasso-form,
+.givasso-layout-flat .givasso-form {
+    background:    var(--givasso-color-bg);
+    border:        1px solid var(--givasso-color-border);
+    border-radius: var(--givasso-radius);
+    box-shadow:    var(--givasso-shadow);
+    padding:       1.25rem;
+}
+
 /* ── 3. Titre ─────────────────────────────────────────────────────────────── */
 
 .givasso-form__title {
@@ -218,6 +227,12 @@
 
 .givasso-input--amount[type=number] {
     -moz-appearance: textfield;
+}
+
+.givasso-textarea {
+    width: 100%;
+    resize: vertical;
+    min-height: 84px;
 }
 
 /* ── 7. Labels & champs texte ─────────────────────────────────────────────── */

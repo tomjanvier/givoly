@@ -94,6 +94,9 @@ final class AjaxHandler {
         $first_name  = sanitize_text_field( wp_unslash( $_POST['first_name'] ?? '' ) );
         $last_name   = sanitize_text_field( wp_unslash( $_POST['last_name'] ?? '' ) );
         $campaign    = sanitize_text_field( wp_unslash( $_POST['campaign'] ?? '' ) );
+        $phone       = sanitize_text_field( wp_unslash( $_POST['phone'] ?? '' ) );
+        $company     = sanitize_text_field( wp_unslash( $_POST['company'] ?? '' ) );
+        $message     = sanitize_textarea_field( wp_unslash( $_POST['message'] ?? '' ) );
         $gateway_key = sanitize_text_field( wp_unslash( $_POST['gateway'] ?? 'stripe' ) );
         $frequency   = 'once';
 
@@ -112,7 +115,7 @@ final class AjaxHandler {
                 );
             } else {
                 $checkout_url = $this->checkout_stripe(
-                    $amount, $currency, $email, $first_name, $last_name, $campaign
+                    $amount, $currency, $email, $first_name, $last_name, $campaign, $phone, $company, $message
                 );
             }
 
@@ -129,7 +132,10 @@ final class AjaxHandler {
         string $email,
         string $first_name,
         string $last_name,
-        string $campaign
+        string $campaign,
+        string $phone = '',
+        string $company = '',
+        string $message = ''
     ): string {
         if ( ! Settings::is_configured() ) {
             throw new \RuntimeException( 'Stripe non configuré.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
@@ -148,7 +154,10 @@ final class AjaxHandler {
             donor_last_name:  $last_name,
             success_url:      $success_url,
             cancel_url:       $cancel_url,
-            campaign:         $campaign
+            campaign:         $campaign,
+            phone:            $phone,
+            company:          $company,
+            message:          $message
         );
     }
 

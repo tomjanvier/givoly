@@ -115,6 +115,7 @@ final class FormConfig {
     public readonly string $button_text;
     public readonly string $gateway;
     public readonly string $frequency;
+    public readonly array  $extra_fields;
 
     public function __construct( array $raw_atts ) {
         $this->campaign    = sanitize_text_field( $raw_atts['campaign']    ?? '' );
@@ -131,6 +132,7 @@ final class FormConfig {
             [ 'once' ],
             'once'
         );
+        $this->extra_fields = $this->parse_extra_fields( $raw_atts['extra_fields'] ?? '' );
     }
 
     /**
@@ -215,6 +217,24 @@ final class FormConfig {
         ];
 
         return $symbols[ $this->currency ] ?? $this->currency;
+    }
+
+    /**
+     * Champs supplémentaires activés via shortcode.
+     * Exemple: extra_fields="phone,company,message"
+     *
+     * @return string[]
+     */
+    private function parse_extra_fields( mixed $value ): array {
+        if ( ! is_string( $value ) || $value === '' ) {
+            return [];
+        }
+
+        $allowed = [ 'phone', 'company', 'message' ];
+        $items   = array_map( 'trim', explode( ',', strtolower( $value ) ) );
+        $items   = array_values( array_unique( array_intersect( $items, $allowed ) ) );
+
+        return $items;
     }
 
     // ── Helpers couleur (purs PHP, sans dépendance WordPress) ─────────────
