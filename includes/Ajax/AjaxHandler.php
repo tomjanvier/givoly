@@ -182,6 +182,14 @@ final class AjaxHandler {
             throw new \RuntimeException( 'Lien mensuel HelloAsso non configuré.' );
         }
 
+        if ( Settings::should_use_helloasso_other_payments_for_once() ) {
+            $other_payments_url = Settings::get_helloasso_other_payments_url();
+            if ( $other_payments_url ) {
+                return $other_payments_url;
+            }
+            throw new \RuntimeException( 'Lien HelloAsso pour dons uniques non configuré.' );
+        }
+
         $item_name = $campaign ?: __( 'Don', 'givasso' );
 
         return $gateway->create_checkout_intent(

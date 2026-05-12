@@ -239,6 +239,7 @@ tr:has(.givasso-section-sep) th, tr:has(.givasso-section-sep) td { padding-botto
         $ha_monthly_url   = Settings::get_helloasso_monthly_url();
         $ha_button_notice = Settings::get_helloasso_button_notice();
         $ha_other_payments_url = Settings::get_helloasso_other_payments_url();
+        $ha_once_use_other_payments_url = Settings::should_use_helloasso_other_payments_for_once();
 
         // Général
         $default_gateway = Settings::get_default_gateway();
@@ -561,6 +562,16 @@ tr:has(.givasso-section-sep) th, tr:has(.givasso-section-sep) td { padding-botto
                                            class="regular-text" placeholder="https://...">
                                 </td>
                             </tr>
+                            <tr>
+                                <th scope="row"><?php esc_html_e( 'Forcer les dons uniques via lien externe', 'givasso' ); ?></th>
+                                <td>
+                                    <label>
+                                        <input type="checkbox" name="ha_once_use_other_payments_url" value="1" <?php checked( $ha_once_use_other_payments_url ); ?>>
+                                        <?php esc_html_e( 'Utiliser le lien “autres modes de paiements” au lieu de l\'API HelloAsso pour les dons uniques.', 'givasso' ); ?>
+                                    </label>
+                                </td>
+                            </tr>
+
                             <tr>
                                 <th scope="row"><?php esc_html_e( 'Texte sous bouton HelloAsso', 'givasso' ); ?></th>
                                 <td>
