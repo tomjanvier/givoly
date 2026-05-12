@@ -86,9 +86,43 @@ final class PaymentProcessor {
         );
 
         $donation_id = (int) $wpdb->insert_id; // phpcs:ignore -- used in future Pro hook
+
+        if ( $donation_id > 0 ) {
+            $this->send_donation_notifications( $donation_id, $email, $first_name, $last_name, $amount, strtoupper( $currency ), $campaign );
+        }
     }
 
-    // ── Helpers privés ─────────────────────────────────────────────────────
+    
+    private function send_donation_notifications( int $donation_id, string $email, string $first_name, string $last_name, float $amount, string $currency, string $campaign ): void {
+        $site_name = wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
+        $amount_human = number_format_i18n( $amount, 2 ) . ' ' . $currency;
+        $campaign_label = $campaign ? $campaign : __( 'Générale', 'givasso' );
+
+        $subject_admin = sprintf( __( '[%s] Nouveau don reçu', 'givasso' ), $site_name );
+        $message_admin = sprintf(
+            __( "Un nouveau don a été reçu.\n\nID: %d\nMontant: %s\nDonateur: %s %s\nEmail: %s\nCampagne: %s", 'givasso' ),
+            $donation_id,
+            $amount_human,
+            $first_name,
+            $last_name,
+            $email,
+            $campaign_label
+        );
+
+        wp_mail( get_option( 'admin_email' ), $subject_admin, $message_admin );
+
+        if ( is_email( $email ) ) {
+            $subject_donor = sprintf( __( 'Merci pour votre don — %s', 'givasso' ), $site_name );
+            $message_donor = sprintf(
+                __( "Bonjour %s,\n\nMerci pour votre don de %s. Votre soutien est précieux.", 'givasso' ),
+                $first_name ?: __( 'et merci', 'givasso' ),
+                $amount_human
+            );
+            wp_mail( $email, $subject_donor, $message_donor );
+        }
+    }
+
+// ── Helpers privés ─────────────────────────────────────────────────────
 
     private function get_or_create_donor( string $email, string $first_name, string $last_name ): int|false {
         global $wpdb;

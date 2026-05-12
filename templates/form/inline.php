@@ -22,6 +22,27 @@ $form_id = 'givasso-form-' . wp_unique_id();
 $symbol = $config->get_currency_symbol();
 
 $wrap_style = $config->get_inline_css_vars();
+
+$render_extra_fields = static function ( string $form_id, array $extra_fields ): void {
+    foreach ( $extra_fields as $field ) {
+        if ( $field === 'phone' ) { ?>
+            <div class="givasso-field">
+                <label for="<?php echo esc_attr( $form_id ); ?>-phone" class="givasso-label"><?php esc_html_e( 'Téléphone', 'givasso' ); ?></label>
+                <input type="tel" id="<?php echo esc_attr( $form_id ); ?>-phone" name="phone" class="givasso-input" maxlength="40" autocomplete="tel">
+            </div>
+        <?php } elseif ( $field === 'company' ) { ?>
+            <div class="givasso-field">
+                <label for="<?php echo esc_attr( $form_id ); ?>-company" class="givasso-label"><?php esc_html_e( 'Organisation', 'givasso' ); ?></label>
+                <input type="text" id="<?php echo esc_attr( $form_id ); ?>-company" name="company" class="givasso-input" maxlength="120" autocomplete="organization">
+            </div>
+        <?php } elseif ( $field === 'message' ) { ?>
+            <div class="givasso-field">
+                <label for="<?php echo esc_attr( $form_id ); ?>-message" class="givasso-label"><?php esc_html_e( 'Message', 'givasso' ); ?></label>
+                <textarea id="<?php echo esc_attr( $form_id ); ?>-message" name="message" class="givasso-input givasso-textarea" rows="3" maxlength="500"></textarea>
+            </div>
+        <?php }
+    }
+};
 ?>
 <div class="givasso-wrap givasso-layout-inline <?php echo esc_attr( $config->get_wrap_classes() ); ?>"
      style="<?php echo esc_attr( $wrap_style ); ?>"
@@ -118,6 +139,8 @@ $wrap_style = $config->get_inline_css_vars();
                    maxlength="254"
                    placeholder="<?php esc_attr_e( 'Votre email', 'givasso' ); ?>">
         </div>
+
+        <?php $render_extra_fields( $form_id, $config->extra_fields ); ?>
 
         <!-- ── Messages retour ────────────────────────────────────────── -->
         <div class="givasso-form__messages"

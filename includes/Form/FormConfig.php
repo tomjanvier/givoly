@@ -115,6 +115,7 @@ final class FormConfig {
     public readonly string $button_text;
     public readonly string $gateway;
     public readonly string $frequency;
+    public readonly array  $extra_fields;
 
     public function __construct( array $raw_atts ) {
         $this->campaign    = sanitize_text_field( $raw_atts['campaign']    ?? '' );
@@ -131,6 +132,7 @@ final class FormConfig {
             [ 'once' ],
             'once'
         );
+        $this->extra_fields = $this->parse_extra_fields( $raw_atts['extra_fields'] ?? '' );
     }
 
     /**
@@ -273,6 +275,22 @@ final class FormConfig {
         return in_array( $value, $allowed, true ) ? $value : $default;
     }
 
+
+    /**
+     * Champs additionnels optionnels activables via shortcode :
+     * [givasso_form extra_fields="phone,company,message"]
+     */
+    private function parse_extra_fields( string $raw ): array {
+        $allowed = [ 'phone', 'company', 'message' ];
+        if ( trim( $raw ) === '' ) {
+            return [];
+        }
+
+        $fields = array_map( 'sanitize_key', explode( ',', strtolower( $raw ) ) );
+        $fields = array_values( array_unique( array_filter( $fields, fn( $field ) => in_array( $field, $allowed, true ) ) ) );
+
+        return $fields;
+    }
     private function parse_bool( string $raw ): bool {
         return filter_var( $raw, FILTER_VALIDATE_BOOLEAN );
     }
