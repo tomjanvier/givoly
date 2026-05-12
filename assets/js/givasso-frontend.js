@@ -182,7 +182,7 @@
 
     function init_frequency_buttons() {
         document.querySelectorAll( '.givasso-frequency-wrap' ).forEach( ( wrap ) => {
-            const form        = wrap.closest( '.givasso-wrap' );
+            const form        = wrap.closest( '.givasso-form' );
             const freq_input  = form ? form.querySelector( '[name="frequency"]' ) : null;
 
             const initial = freq_input ? freq_input.value : 'once';

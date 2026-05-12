@@ -215,9 +215,14 @@ $render_extra_fields = static function ( string $form_id, array $extra_fields ):
         <button type="submit"
                 class="HaPayButton givasso-gateway-submit"
                 data-gateway="helloasso">
-            <img src="https://api.helloasso.com/v5/img/logo-ha.svg" alt="" class="HaPayButtonLogo" />
+            <span class="HaPayButtonLogoWrap"><img src="https://api.helloasso.com/v5/img/logo-ha.svg" alt="" class="HaPayButtonLogo" /></span>
             <span class="HaPayButtonLabel"><?php esc_html_e( 'Payer avec HelloAsso*', 'givasso' ); ?></span>
         </button>
+
+        <?php $ha_other_payments_url = \Givasso\Admin\Settings::get_helloasso_other_payments_url(); ?>
+        <?php if ( $ha_other_payments_url ) : ?>
+            <a href="<?php echo esc_url( $ha_other_payments_url ); ?>" class="givasso-ha-other-payments" target="_blank" rel="noopener"><?php esc_html_e( 'Autres modes de paiements', 'givasso' ); ?></a>
+        <?php endif; ?>
 
         <?php $ha_notice = \Givasso\Admin\Settings::get_helloasso_button_notice(); ?>
         <?php if ( $ha_notice ) : ?>
@@ -230,7 +235,7 @@ $render_extra_fields = static function ( string $form_id, array $extra_fields ):
             <div class="givasso-ha-monthly" hidden>
                 <?php if ( $ha_monthly_url ) : ?>
                     <a class="HaPayButton" href="<?php echo esc_url( $ha_monthly_url ); ?>" target="_blank" rel="noopener">
-                        <img src="https://api.helloasso.com/v5/img/logo-ha.svg" alt="" class="HaPayButtonLogo" />
+                        <span class="HaPayButtonLogoWrap"><img src="https://api.helloasso.com/v5/img/logo-ha.svg" alt="" class="HaPayButtonLogo" /></span>
                         <span class="HaPayButtonLabel"><?php esc_html_e( 'Payer avec HelloAsso', 'givasso' ); ?></span>
                     </a>
                 <?php else : ?>

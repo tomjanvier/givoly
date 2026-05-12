@@ -238,6 +238,7 @@ tr:has(.givasso-section-sep) th, tr:has(.givasso-section-sep) td { padding-botto
         $ha_ok            = Settings::is_helloasso_configured();
         $ha_monthly_url   = Settings::get_helloasso_monthly_url();
         $ha_button_notice = Settings::get_helloasso_button_notice();
+        $ha_other_payments_url = Settings::get_helloasso_other_payments_url();
 
         // Général
         $default_gateway = Settings::get_default_gateway();
@@ -550,6 +551,14 @@ tr:has(.givasso-section-sep) th, tr:has(.givasso-section-sep) td { padding-botto
                                     <p class="description">
                                         <?php esc_html_e( 'Utilisé quand le donateur choisit “Don récurrent”.', 'givasso' ); ?>
                                     </p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><?php esc_html_e( 'Lien autres modes de paiements', 'givasso' ); ?></th>
+                                <td>
+                                    <input type="url" name="ha_other_payments_url"
+                                           value="<?php echo esc_attr( $ha_other_payments_url ); ?>"
+                                           class="regular-text" placeholder="https://...">
                                 </td>
                             </tr>
                             <tr>

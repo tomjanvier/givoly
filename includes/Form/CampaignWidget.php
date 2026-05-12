@@ -71,7 +71,8 @@ final class CampaignWidget {
                 'campaign'   => $this->campaign_slug,
                 'layout'     => 'flat',
                 'theme'      => $this->theme,
-                'show_title' => 'no',
+                'show_title' => 'yes',
+                'title'      => $campaign->get_title(),
             ] );
             $donation_form = new DonationForm( $form_config );
         }
