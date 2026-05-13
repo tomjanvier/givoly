@@ -28,6 +28,8 @@ final class AjaxHandler {
         add_action( 'wp_ajax_givasso_init_checkout',        [ $this, 'handle_checkout' ] );
         add_action( 'wp_ajax_nopriv_givasso_init_checkout', [ $this, 'handle_checkout' ] );
         add_action( 'wp_ajax_givasso_form_preview',         [ $this, 'handle_form_preview' ] );
+        add_action( 'wp_ajax_givasso_save_post_payment_details',        [ $this, 'handle_post_payment_details' ] );
+        add_action( 'wp_ajax_nopriv_givasso_save_post_payment_details', [ $this, 'handle_post_payment_details' ] );
 
         add_action( 'rest_api_init', [ $this, 'register_rest_routes' ] );
     }
@@ -125,6 +127,40 @@ final class AjaxHandler {
         } catch ( \RuntimeException $e ) {
             wp_send_json_error( [ 'message' => __( 'Erreur lors de la création du paiement. Veuillez réessayer.', 'givasso' ) ], 500 );
         }
+    }
+
+    public function handle_post_payment_details(): void {
+        global $wpdb;
+
+        $nonce = sanitize_text_field( wp_unslash( $_POST['givasso_nonce'] ?? '' ) );
+        if ( ! wp_verify_nonce( $nonce, 'givasso_submit_donation' ) ) {
+            wp_send_json_error( [ 'message' => __( 'Requête invalide.', 'givasso' ) ], 403 );
+        }
+
+        $email = sanitize_email( wp_unslash( $_POST['email'] ?? '' ) );
+        if ( ! is_email( $email ) ) {
+            wp_send_json_error( [ 'message' => __( 'Email invalide.', 'givasso' ) ], 422 );
+        }
+
+        $updated = $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+            $wpdb->prefix . 'givasso_donors',
+            [
+                'phone'         => sanitize_text_field( wp_unslash( $_POST['phone'] ?? '' ) ) ?: null,
+                'company'       => sanitize_text_field( wp_unslash( $_POST['company'] ?? '' ) ) ?: null,
+                'address_line1' => sanitize_text_field( wp_unslash( $_POST['address_line1'] ?? '' ) ) ?: null,
+                'postal_code'   => sanitize_text_field( wp_unslash( $_POST['postal_code'] ?? '' ) ) ?: null,
+                'city'          => sanitize_text_field( wp_unslash( $_POST['city'] ?? '' ) ) ?: null,
+            ],
+            [ 'email' => $email ],
+            [ '%s', '%s', '%s', '%s', '%s' ],
+            [ '%s' ]
+        );
+
+        if ( $updated === false ) {
+            wp_send_json_error( [ 'message' => __( 'Impossible d’enregistrer les informations.', 'givasso' ) ], 500 );
+        }
+
+        wp_send_json_success( [ 'message' => __( 'Merci, vos informations ont bien été enregistrées.', 'givasso' ) ] );
     }
 
     private function checkout_stripe(

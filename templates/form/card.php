@@ -64,11 +64,6 @@ $render_extra_fields = static function ( string $form_id, array $extra_fields ):
             <input type="hidden" name="campaign" value="<?php echo esc_attr( $config->campaign ); ?>">
         <?php endif; ?>
 
-        <?php if ( $config->show_title ) : ?>
-            <h2 class="givasso-form__title">
-                <?php echo esc_html( $config->title ); ?>
-            </h2>
-        <?php endif; ?>
 
         <div class="givasso-frequency-wrap" role="group" aria-label="<?php esc_attr_e( 'Fréquence du don', 'givasso' ); ?>">
             <button type="button" class="givasso-freq-btn active" data-freq="monthly">
@@ -202,10 +197,10 @@ $render_extra_fields = static function ( string $form_id, array $extra_fields ):
         <!-- ── Bouton de soumission ───────────────────────────────────── -->
         <div class="givasso-gateway-actions">
         <button type="submit"
-                class="givasso-btn givasso-btn--primary givasso-form__submit givasso-gateway-submit is-active"
+                class="givasso-btn givasso-btn--primary givasso-form__submit givasso-gateway-submit is-active givasso-btn--card"
                 data-gateway="stripe"
                 data-label="<?php echo esc_attr( $config->button_text ); ?>"
-                data-label-amount="<?php esc_attr_e( 'Faire un don de', 'givasso' ); ?>">
+                data-label-amount="<?php esc_attr_e( 'Payer par carte', 'givasso' ); ?>">
             <span class="givasso-btn__text">
                 <?php echo esc_html( $config->button_text ); ?>
             </span>
@@ -262,5 +257,44 @@ $render_extra_fields = static function ( string $form_id, array $extra_fields ):
         </div>
 
     </form>
+
+    <?php if ( isset( $_GET['givasso_success'] ) && '1' === wp_unslash( $_GET['givasso_success'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
+        <section class="givasso-post-payment" aria-live="polite">
+            <h3 class="givasso-post-payment__title"><?php esc_html_e( 'Complétez votre profil donateur', 'givasso' ); ?></h3>
+            <p class="givasso-hint"><?php esc_html_e( 'Merci ! Pour mieux vous accompagner, merci de compléter ces informations.', 'givasso' ); ?></p>
+            <form class="givasso-post-payment-form" novalidate>
+                <div class="givasso-row">
+                    <div class="givasso-field">
+                        <label class="givasso-label" for="<?php echo esc_attr( $form_id ); ?>-pp-email"><?php esc_html_e( 'Email utilisé pour le paiement', 'givasso' ); ?> *</label>
+                        <input class="givasso-input" type="email" required name="email" id="<?php echo esc_attr( $form_id ); ?>-pp-email" maxlength="254">
+                    </div>
+                    <div class="givasso-field">
+                        <label class="givasso-label" for="<?php echo esc_attr( $form_id ); ?>-pp-phone"><?php esc_html_e( 'Téléphone', 'givasso' ); ?></label>
+                        <input class="givasso-input" type="tel" name="phone" id="<?php echo esc_attr( $form_id ); ?>-pp-phone" maxlength="40">
+                    </div>
+                </div>
+                <div class="givasso-field">
+                    <label class="givasso-label" for="<?php echo esc_attr( $form_id ); ?>-pp-company"><?php esc_html_e( 'Organisation', 'givasso' ); ?></label>
+                    <input class="givasso-input" type="text" name="company" id="<?php echo esc_attr( $form_id ); ?>-pp-company" maxlength="150">
+                </div>
+                <div class="givasso-field">
+                    <label class="givasso-label" for="<?php echo esc_attr( $form_id ); ?>-pp-address"><?php esc_html_e( 'Adresse', 'givasso' ); ?></label>
+                    <input class="givasso-input" type="text" name="address_line1" id="<?php echo esc_attr( $form_id ); ?>-pp-address" maxlength="255">
+                </div>
+                <div class="givasso-row">
+                    <div class="givasso-field">
+                        <label class="givasso-label" for="<?php echo esc_attr( $form_id ); ?>-pp-postal"><?php esc_html_e( 'Code postal', 'givasso' ); ?></label>
+                        <input class="givasso-input" type="text" name="postal_code" id="<?php echo esc_attr( $form_id ); ?>-pp-postal" maxlength="10">
+                    </div>
+                    <div class="givasso-field">
+                        <label class="givasso-label" for="<?php echo esc_attr( $form_id ); ?>-pp-city"><?php esc_html_e( 'Ville', 'givasso' ); ?></label>
+                        <input class="givasso-input" type="text" name="city" id="<?php echo esc_attr( $form_id ); ?>-pp-city" maxlength="100">
+                    </div>
+                </div>
+                <button type="submit" class="givasso-btn givasso-btn--primary"><?php esc_html_e( 'Enregistrer mes informations', 'givasso' ); ?></button>
+                <div class="givasso-form__messages" hidden></div>
+            </form>
+        </section>
+    <?php endif; ?>
 </div>
 <?php // phpcs:enable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound

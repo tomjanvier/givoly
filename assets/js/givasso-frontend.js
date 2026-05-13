@@ -240,6 +240,38 @@
         history.replaceState( null, '', url.toString() );
     }
 
+    function init_post_payment_form() {
+        document.querySelectorAll( '.givasso-post-payment-form' ).forEach( ( form ) => {
+            form.addEventListener( 'submit', ( e ) => {
+                e.preventDefault();
+
+                const messages = form.querySelector( '.givasso-form__messages' );
+                const data = new FormData( form );
+                data.append( 'action', 'givasso_save_post_payment_details' );
+                data.append( 'givasso_nonce', form.closest( '.givasso-form' )?.querySelector( '[name="givasso_nonce"]' )?.value || '' );
+
+                fetch( givassoData.ajax_url, { method: 'POST', body: data } )
+                    .then( ( r ) => r.json() )
+                    .then( ( response ) => {
+                        messages.hidden = false;
+                        if ( response.success ) {
+                            messages.className = 'givasso-form__messages givasso-form__messages--success';
+                            messages.textContent = response.data?.message || 'Informations enregistrées.';
+                            form.reset();
+                        } else {
+                            messages.className = 'givasso-form__messages givasso-form__messages--error';
+                            messages.textContent = response.data?.message || givassoData.i18n.error;
+                        }
+                    } )
+                    .catch( () => {
+                        messages.hidden = false;
+                        messages.className = 'givasso-form__messages givasso-form__messages--error';
+                        messages.textContent = givassoData.i18n.error;
+                    } );
+            } );
+        } );
+    }
+
     // ── Initialisation ───────────────────────────────────────────────────────
 
     document.addEventListener( 'DOMContentLoaded', () => {
@@ -256,6 +288,7 @@
             } );
         } );
         show_success_on_return();
+        init_post_payment_form();
     } );
 
 } )();

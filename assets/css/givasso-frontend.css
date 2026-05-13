@@ -443,6 +443,28 @@
     border-top-color: var(--givasso-color-primary);
 }
 
+.givasso-btn--card {
+    background: #635BFF;
+    border-color: #635BFF;
+}
+
+.givasso-btn--card:hover:not(:disabled) {
+    background: #5148e6;
+    border-color: #5148e6;
+}
+
+.givasso-post-payment {
+    margin-top: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--givasso-color-border);
+    border-radius: var(--givasso-radius-sm);
+    background: var(--givasso-color-surface);
+}
+
+.givasso-post-payment__title {
+    margin: 0 0 .5rem;
+}
+
 /* ── 11. Confiance & mention légale ───────────────────────────────────────── */
 
 .givasso-form__trust {

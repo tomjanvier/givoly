@@ -50,6 +50,11 @@ final class DonationsPage {
         ?>
         <div class="wrap">
             <h1><?php esc_html_e( 'Givasso — Dons', 'givasso' ); ?></h1>
+            <p>
+                <a class="button button-primary" href="<?php echo esc_url( admin_url( 'admin.php?page=givasso-donations&export=csv' . ( $status ? '&status=' . rawurlencode( $status ) : '' ) ) ); ?>">
+                    <?php esc_html_e( 'Exporter les dons (CSV)', 'givasso' ); ?>
+                </a>
+            </p>
 
             <!-- ── Filtre par statut ───────────────────────────────────── -->
             <ul class="subsubsub">
@@ -233,4 +238,48 @@ final class DonationsPage {
 
         return $labels[ $status ] ?? $status;
     }
+
+    private function export_csv( string $status ): void {
+        global $wpdb;
+        $table_d  = $wpdb->prefix . 'givasso_donations';
+        $table_dn = $wpdb->prefix . 'givasso_donors';
+        $sql      = "SELECT d.id, d.amount, d.currency, d.status, d.created_at, d.gateway, dn.first_name, dn.last_name, dn.email
+                     FROM {$table_d} d
+                     LEFT JOIN {$table_dn} dn ON d.donor_id = dn.id";
+        if ( $status !== '' ) {
+            $rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+                $wpdb->prepare( $sql . ' WHERE d.status = %s ORDER BY d.created_at DESC', $status ) // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+            );
+        } else {
+            $rows = $wpdb->get_results( $sql . ' ORDER BY d.created_at DESC' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+        }
+
+        header( 'Content-Type: text/csv; charset=utf-8' );
+        header( 'Content-Disposition: attachment; filename="givasso-dons-' . gmdate( 'Y-m-d-His' ) . '.csv"' );
+
+        $output = fopen( 'php://output', 'w' );
+        if ( ! $output ) {
+            exit;
+        }
+
+        fputcsv( $output, [ 'id', 'date', 'donateur', 'email', 'montant', 'devise', 'statut', 'passerelle' ], ';' );
+        foreach ( $rows as $row ) {
+            fputcsv( $output, [
+                $row->id,
+                $row->created_at,
+                trim( $row->first_name . ' ' . $row->last_name ),
+                $row->email,
+                $row->amount,
+                $row->currency,
+                $row->status,
+                $row->gateway,
+            ], ';' );
+        }
+        fclose( $output );
+        exit;
+    }
 }
+        $is_export = isset( $_GET['export'] ) && 'csv' === wp_unslash( $_GET['export'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        if ( $is_export ) {
+            $this->export_csv( $status );
+        }
