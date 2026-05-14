@@ -56,16 +56,6 @@ final class AdminMenu {
         );
 
         add_submenu_page( 'givasso-dashboard',
-            __( 'Abonnements', 'givasso' ), __( 'Abonnements ✦', 'givasso' ),
-            'manage_options', 'givasso-subscriptions', [ $this, 'render_pro_page' ]
-        );
-
-        add_submenu_page( 'givasso-dashboard',
-            __( 'Export', 'givasso' ), __( 'Export ✦', 'givasso' ),
-            'manage_options', 'givasso-export', [ $this, 'render_pro_page' ]
-        );
-
-        add_submenu_page( 'givasso-dashboard',
             __( 'Réglages', 'givasso' ), __( 'Réglages', 'givasso' ),
             'manage_options', 'givasso-settings', [ $this, 'render_settings' ]
         );

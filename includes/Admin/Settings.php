@@ -27,6 +27,8 @@ final class Settings {
     const OPT_WEBHOOK_SECRET    = 'givasso_stripe_webhook_secret';
     const OPT_SUCCESS_URL       = 'givasso_success_url';
     const OPT_CANCEL_URL        = 'givasso_cancel_url';
+    const OPT_POST_PAYMENT_SHOW_PHONE   = 'givasso_post_payment_show_phone';
+    const OPT_POST_PAYMENT_SHOW_ADDRESS = 'givasso_post_payment_show_address';
 
     // HelloAsso
     const OPT_HA_CLIENT_ID     = 'givasso_ha_client_id';
@@ -95,6 +97,14 @@ final class Settings {
     public static function get_cancel_url(): string {
         $url = (string) get_option( self::OPT_CANCEL_URL, '' );
         return $url ?: home_url( '/?givasso=cancel' );
+    }
+
+    public static function should_show_post_payment_phone(): bool {
+        return (string) get_option( self::OPT_POST_PAYMENT_SHOW_PHONE, '1' ) === '1';
+    }
+
+    public static function should_show_post_payment_address(): bool {
+        return (string) get_option( self::OPT_POST_PAYMENT_SHOW_ADDRESS, '1' ) === '1';
     }
 
     // ── Getters association ────────────────────────────────────────────────
@@ -262,6 +272,8 @@ final class Settings {
         // URLs
         update_option( self::OPT_SUCCESS_URL, esc_url_raw( $post['success_url'] ?? '' ), false );
         update_option( self::OPT_CANCEL_URL,  esc_url_raw( $post['cancel_url']  ?? '' ), false );
+        update_option( self::OPT_POST_PAYMENT_SHOW_PHONE, isset( $post['post_payment_show_phone'] ) ? '1' : '0', false );
+        update_option( self::OPT_POST_PAYMENT_SHOW_ADDRESS, isset( $post['post_payment_show_address'] ) ? '1' : '0', false );
 
         // HelloAsso
         $ha_mode = in_array( $post['ha_mode'] ?? '', [ 'sandbox', 'live' ], true )

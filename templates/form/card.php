@@ -11,6 +11,9 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+$show_post_payment_phone   = \Givasso\Admin\Settings::should_show_post_payment_phone();
+$show_post_payment_address = \Givasso\Admin\Settings::should_show_post_payment_address();
+
 // ── Helpers locaux ──────────────────────────────────────────────────────────
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- template file, variables are local-scope
 
@@ -268,29 +271,33 @@ $render_extra_fields = static function ( string $form_id, array $extra_fields ):
                         <label class="givasso-label" for="<?php echo esc_attr( $form_id ); ?>-pp-email"><?php esc_html_e( 'Email utilisé pour le paiement', 'givasso' ); ?> *</label>
                         <input class="givasso-input" type="email" required name="email" id="<?php echo esc_attr( $form_id ); ?>-pp-email" maxlength="254">
                     </div>
-                    <div class="givasso-field">
-                        <label class="givasso-label" for="<?php echo esc_attr( $form_id ); ?>-pp-phone"><?php esc_html_e( 'Téléphone', 'givasso' ); ?></label>
-                        <input class="givasso-input" type="tel" name="phone" id="<?php echo esc_attr( $form_id ); ?>-pp-phone" maxlength="40">
-                    </div>
+                    <?php if ( $show_post_payment_phone ) : ?>
+                        <div class="givasso-field">
+                            <label class="givasso-label" for="<?php echo esc_attr( $form_id ); ?>-pp-phone"><?php esc_html_e( 'Téléphone', 'givasso' ); ?></label>
+                            <input class="givasso-input" type="tel" name="phone" id="<?php echo esc_attr( $form_id ); ?>-pp-phone" maxlength="40">
+                        </div>
+                    <?php endif; ?>
                 </div>
                 <div class="givasso-field">
                     <label class="givasso-label" for="<?php echo esc_attr( $form_id ); ?>-pp-company"><?php esc_html_e( 'Organisation', 'givasso' ); ?></label>
                     <input class="givasso-input" type="text" name="company" id="<?php echo esc_attr( $form_id ); ?>-pp-company" maxlength="150">
                 </div>
-                <div class="givasso-field">
-                    <label class="givasso-label" for="<?php echo esc_attr( $form_id ); ?>-pp-address"><?php esc_html_e( 'Adresse', 'givasso' ); ?></label>
-                    <input class="givasso-input" type="text" name="address_line1" id="<?php echo esc_attr( $form_id ); ?>-pp-address" maxlength="255">
-                </div>
-                <div class="givasso-row">
+                <?php if ( $show_post_payment_address ) : ?>
                     <div class="givasso-field">
-                        <label class="givasso-label" for="<?php echo esc_attr( $form_id ); ?>-pp-postal"><?php esc_html_e( 'Code postal', 'givasso' ); ?></label>
-                        <input class="givasso-input" type="text" name="postal_code" id="<?php echo esc_attr( $form_id ); ?>-pp-postal" maxlength="10">
+                        <label class="givasso-label" for="<?php echo esc_attr( $form_id ); ?>-pp-address"><?php esc_html_e( 'Adresse', 'givasso' ); ?></label>
+                        <input class="givasso-input" type="text" name="address_line1" id="<?php echo esc_attr( $form_id ); ?>-pp-address" maxlength="255">
                     </div>
-                    <div class="givasso-field">
-                        <label class="givasso-label" for="<?php echo esc_attr( $form_id ); ?>-pp-city"><?php esc_html_e( 'Ville', 'givasso' ); ?></label>
-                        <input class="givasso-input" type="text" name="city" id="<?php echo esc_attr( $form_id ); ?>-pp-city" maxlength="100">
+                    <div class="givasso-row">
+                        <div class="givasso-field">
+                            <label class="givasso-label" for="<?php echo esc_attr( $form_id ); ?>-pp-postal"><?php esc_html_e( 'Code postal', 'givasso' ); ?></label>
+                            <input class="givasso-input" type="text" name="postal_code" id="<?php echo esc_attr( $form_id ); ?>-pp-postal" maxlength="10">
+                        </div>
+                        <div class="givasso-field">
+                            <label class="givasso-label" for="<?php echo esc_attr( $form_id ); ?>-pp-city"><?php esc_html_e( 'Ville', 'givasso' ); ?></label>
+                            <input class="givasso-input" type="text" name="city" id="<?php echo esc_attr( $form_id ); ?>-pp-city" maxlength="100">
+                        </div>
                     </div>
-                </div>
+                <?php endif; ?>
                 <button type="submit" class="givasso-btn givasso-btn--primary"><?php esc_html_e( 'Enregistrer mes informations', 'givasso' ); ?></button>
                 <div class="givasso-form__messages" hidden></div>
             </form>

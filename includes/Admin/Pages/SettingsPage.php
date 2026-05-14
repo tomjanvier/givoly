@@ -245,6 +245,8 @@ tr:has(.givasso-section-sep) th, tr:has(.givasso-section-sep) td { padding-botto
         $default_gateway = Settings::get_default_gateway();
         $success_url     = (string) get_option( Settings::OPT_SUCCESS_URL, '' );
         $cancel_url      = (string) get_option( Settings::OPT_CANCEL_URL, '' );
+        $post_payment_show_phone = Settings::should_show_post_payment_phone();
+        $post_payment_show_address = Settings::should_show_post_payment_address();
 
         // Email
         $email_logo_url      = Settings::get_email_logo_url();
@@ -380,6 +382,23 @@ tr:has(.givasso-section-sep) th, tr:has(.givasso-section-sep) td { padding-botto
                                            placeholder="<?php echo esc_attr( home_url( '/don/' ) ); ?>">
                                     <p class="description">
                                         <?php esc_html_e( 'Affichée si le donateur annule le paiement.', 'givasso' ); ?>
+                                    </p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><?php esc_html_e( 'Formulaire post-paiement', 'givasso' ); ?></th>
+                                <td>
+                                    <label>
+                                        <input type="checkbox" name="post_payment_show_phone" value="1" <?php checked( $post_payment_show_phone ); ?>>
+                                        <?php esc_html_e( 'Demander le numéro de téléphone (facultatif)', 'givasso' ); ?>
+                                    </label>
+                                    <br>
+                                    <label>
+                                        <input type="checkbox" name="post_payment_show_address" value="1" <?php checked( $post_payment_show_address ); ?>>
+                                        <?php esc_html_e( 'Demander l\'adresse postale complète (facultatif)', 'givasso' ); ?>
+                                    </label>
+                                    <p class="description">
+                                        <?php esc_html_e( 'Affiché après retour de paiement réussi (paramètre givasso_success=1).', 'givasso' ); ?>
                                     </p>
                                 </td>
                             </tr>

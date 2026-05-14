@@ -177,7 +177,8 @@ final class AjaxHandler {
         }
 
         $gateway     = new StripeGateway( Settings::get_stripe_secret_key() );
-        $success_url = add_query_arg( 'session_id', '{CHECKOUT_SESSION_ID}', Settings::get_success_url() );
+        $success_url = add_query_arg( 'session_id', 'CHECKOUT_SESSION_ID', Settings::get_success_url() );
+        $success_url = str_replace( 'CHECKOUT_SESSION_ID', '{CHECKOUT_SESSION_ID}', $success_url );
         $success_url = add_query_arg( 'givasso_success', '1', $success_url );
         $cancel_url  = Settings::get_cancel_url();
 
