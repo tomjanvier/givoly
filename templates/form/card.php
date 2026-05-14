@@ -203,21 +203,22 @@ $render_extra_fields = static function ( string $form_id, array $extra_fields ):
                 class="givasso-btn givasso-btn--primary givasso-form__submit givasso-gateway-submit is-active givasso-btn--card"
                 data-gateway="stripe"
                 data-label="<?php echo esc_attr( $config->button_text ); ?>"
-                data-label-amount="<?php esc_attr_e( 'Payer par carte', 'givasso' ); ?>">
+                data-label-amount="<?php esc_attr_e( 'Payer', 'givasso' ); ?>">
             <span class="givasso-btn__text">
                 <?php echo esc_html( $config->button_text ); ?>
+            </span>
+            <span class="givasso-payment-logos givasso-payment-logos--in-button" aria-hidden="true">
+                <span class="givasso-payment-logos__item">Visa</span>
+                <span class="givasso-payment-logos__item">Mastercard</span>
+                <span class="givasso-payment-logos__item">Apple Pay</span>
+                <span class="givasso-payment-logos__item">Google Pay</span>
+                <span class="givasso-payment-logos__item">PayPal</span>
+                <span class="givasso-payment-logos__item">SEPA</span>
             </span>
             <span class="givasso-btn__spinner" hidden aria-hidden="true"></span>
         </button>
 
-        <div class="givasso-payment-logos" aria-label="<?php esc_attr_e( 'Moyens de paiement acceptés', 'givasso' ); ?>">
-            <span class="givasso-payment-logos__item">Visa</span>
-            <span class="givasso-payment-logos__item">Mastercard</span>
-            <span class="givasso-payment-logos__item">Apple Pay</span>
-            <span class="givasso-payment-logos__item">Google Pay</span>
-            <span class="givasso-payment-logos__item">PayPal</span>
-            <span class="givasso-payment-logos__item">SEPA</span>
-        </div>
+
 
         <button type="submit"
                 class="HaPayButton givasso-gateway-submit"
