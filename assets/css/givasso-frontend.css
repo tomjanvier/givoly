@@ -745,6 +745,26 @@
 .HaPayButtonLogo { width:32px; height:32px; }
 .HaPayButtonLabel { color:#111827; padding:0 16px; font-weight:700; flex:1; text-align:center; justify-content:center; display:flex; align-items:center; background:#fff; }
 .givasso-ha-other-payments { font-size:14px; color:#374151; text-decoration:underline; text-align:center; display:block; margin-top:2px; }
+
+.givasso-payment-logos {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: .35rem;
+    margin-top: -.2rem;
+}
+
+.givasso-payment-logos__item {
+    font-size: .68rem;
+    line-height: 1;
+    letter-spacing: .02em;
+    color: #6b7280;
+    border: 1px solid #e5e7eb;
+    border-radius: 999px;
+    background: #f9fafb;
+    padding: .28rem .48rem;
+    white-space: nowrap;
+}
 .givasso-ha-note { margin:0; font-size:.85rem; color:var(--givasso-color-text-muted); }
 
 /* Encadré portable pour insertion dans n'importe quelle zone */

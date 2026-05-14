@@ -210,6 +210,15 @@ $render_extra_fields = static function ( string $form_id, array $extra_fields ):
             <span class="givasso-btn__spinner" hidden aria-hidden="true"></span>
         </button>
 
+        <div class="givasso-payment-logos" aria-label="<?php esc_attr_e( 'Moyens de paiement acceptés', 'givasso' ); ?>">
+            <span class="givasso-payment-logos__item">Visa</span>
+            <span class="givasso-payment-logos__item">Mastercard</span>
+            <span class="givasso-payment-logos__item">Apple Pay</span>
+            <span class="givasso-payment-logos__item">Google Pay</span>
+            <span class="givasso-payment-logos__item">PayPal</span>
+            <span class="givasso-payment-logos__item">SEPA</span>
+        </div>
+
         <button type="submit"
                 class="HaPayButton givasso-gateway-submit"
                 data-gateway="helloasso">
