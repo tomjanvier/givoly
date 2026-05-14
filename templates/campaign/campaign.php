@@ -30,6 +30,11 @@ $currency_symbol = match ( $campaign->get_currency() ) {
 
 $format_amount = static fn( float $amount ): string =>
     number_format( $amount, 0, ',', ' ' ) . ' ' . $currency_symbol;
+
+$display_title = preg_replace( '/^\s*Don\s+[àa]\s+/iu', '', $campaign->get_title() );
+if ( ! is_string( $display_title ) || '' === trim( $display_title ) ) {
+    $display_title = $campaign->get_title();
+}
 ?>
 <div class="givasso-wrap givasso-campaign <?php echo esc_attr( $config->get_wrap_classes() ); ?>"
      style="<?php echo esc_attr( $config->get_inline_css_vars() ); ?>"
@@ -38,7 +43,7 @@ $format_amount = static fn( float $amount ): string =>
 
     <?php /* ── En-tête ──────────────────────────────────────────────────── */ ?>
     <h2 class="givasso-campaign__title">
-        <?php echo esc_html( $campaign->get_title() ); ?>
+        <?php echo esc_html( $display_title ); ?>
     </h2>
 
     <?php /* ── Formulaire ou message de fin ─────────────────────────────── */ ?>
