@@ -274,7 +274,6 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
 
         $base_url = admin_url( 'admin.php?page=givoly-settings' );
 
-        // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- all dynamic values in this block are boolean-derived CSS class toggles (hardcoded string literals, no user data)
         ?>
         <div class="wrap givoly-settings">
 
@@ -318,7 +317,7 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                 <!-- ════════════════════════════════════════════════════════
                      Onglet : GÉNÉRAL
                 ════════════════════════════════════════════════════════ -->
-                <div class="givoly-tab-panel <?php echo $active === 'general' ? 'is-active' : ''; ?>">
+                <div class="givoly-tab-panel <?php echo esc_attr( $active === 'general' ? 'is-active' : '' ); ?>">
 
                     <div class="givoly-card">
                         <h2 class="givoly-card__title">
@@ -330,7 +329,7 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                         </p>
 
                         <div class="givoly-gateway-choice">
-                            <label class="givoly-gateway-card <?php echo $default_gateway === 'stripe' ? 'is-selected' : ''; ?>">
+                            <label class="givoly-gateway-card <?php echo esc_attr( $default_gateway === 'stripe' ? 'is-selected' : '' ); ?>">
                                 <input type="radio" name="default_gateway" value="stripe"
                                     <?php checked( $default_gateway, 'stripe' ); ?>>
                                 <span class="givoly-gateway-card__icon givoly-gateway-card__icon--stripe">S</span>
@@ -342,7 +341,7 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                                 <?php endif; ?>
                             </label>
 
-                            <label class="givoly-gateway-card <?php echo $default_gateway === 'helloasso' ? 'is-selected' : ''; ?>">
+                            <label class="givoly-gateway-card <?php echo esc_attr( $default_gateway === 'helloasso' ? 'is-selected' : '' ); ?>">
                                 <input type="radio" name="default_gateway" value="helloasso"
                                     <?php checked( $default_gateway, 'helloasso' ); ?>>
                                 <span class="givoly-gateway-card__icon givoly-gateway-card__icon--ha">H</span>
@@ -412,7 +411,7 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                 <!-- ════════════════════════════════════════════════════════
                      Onglet : STRIPE
                 ════════════════════════════════════════════════════════ -->
-                <div class="givoly-tab-panel <?php echo $active === 'stripe' ? 'is-active' : ''; ?>">
+                <div class="givoly-tab-panel <?php echo esc_attr( $active === 'stripe' ? 'is-active' : '' ); ?>">
 
                     <div class="givoly-card givoly-card--stripe">
                         <h2 class="givoly-card__title">
@@ -431,12 +430,12 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                                 <th scope="row"><?php esc_html_e( 'Mode', 'givoly' ); ?></th>
                                 <td>
                                     <div class="givoly-mode-toggle">
-                                        <label class="givoly-mode-toggle__option <?php echo $stripe_mode === 'test' ? 'is-active' : ''; ?>">
+                                        <label class="givoly-mode-toggle__option <?php echo esc_attr( $stripe_mode === 'test' ? 'is-active' : '' ); ?>">
                                             <input type="radio" name="stripe_mode" value="test"
                                                 <?php checked( $stripe_mode, 'test' ); ?>>
                                             <?php esc_html_e( 'Test', 'givoly' ); ?>
                                         </label>
-                                        <label class="givoly-mode-toggle__option givoly-mode-toggle__option--live <?php echo $stripe_mode === 'live' ? 'is-active' : ''; ?>">
+                                        <label class="givoly-mode-toggle__option givoly-mode-toggle__option--live <?php echo esc_attr( $stripe_mode === 'live' ? 'is-active' : '' ); ?>">
                                             <input type="radio" name="stripe_mode" value="live"
                                                 <?php checked( $stripe_mode, 'live' ); ?>>
                                             <?php esc_html_e( 'Live', 'givoly' ); ?>
@@ -501,7 +500,7 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                 <!-- ════════════════════════════════════════════════════════
                      Onglet : HELLOASSO
                 ════════════════════════════════════════════════════════ -->
-                <div class="givoly-tab-panel <?php echo $active === 'helloasso' ? 'is-active' : ''; ?>">
+                <div class="givoly-tab-panel <?php echo esc_attr( $active === 'helloasso' ? 'is-active' : '' ); ?>">
 
                     <div class="givoly-card givoly-card--ha">
                         <h2 class="givoly-card__title">
@@ -520,12 +519,12 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                                 <th scope="row"><?php esc_html_e( 'Mode', 'givoly' ); ?></th>
                                 <td>
                                     <div class="givoly-mode-toggle">
-                                        <label class="givoly-mode-toggle__option <?php echo $ha_mode === 'sandbox' ? 'is-active' : ''; ?>">
+                                        <label class="givoly-mode-toggle__option <?php echo esc_attr( $ha_mode === 'sandbox' ? 'is-active' : '' ); ?>">
                                             <input type="radio" name="ha_mode" value="sandbox"
                                                 <?php checked( $ha_mode, 'sandbox' ); ?>>
                                             <?php esc_html_e( 'Sandbox', 'givoly' ); ?>
                                         </label>
-                                        <label class="givoly-mode-toggle__option givoly-mode-toggle__option--live <?php echo $ha_mode === 'live' ? 'is-active' : ''; ?>">
+                                        <label class="givoly-mode-toggle__option givoly-mode-toggle__option--live <?php echo esc_attr( $ha_mode === 'live' ? 'is-active' : '' ); ?>">
                                             <input type="radio" name="ha_mode" value="live"
                                                 <?php checked( $ha_mode, 'live' ); ?>>
                                             <?php esc_html_e( 'Live', 'givoly' ); ?>
@@ -611,7 +610,7 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                 <!-- ════════════════════════════════════════════════════════
                      Onglet : ASSOCIATION
                 ════════════════════════════════════════════════════════ -->
-                <div class="givoly-tab-panel <?php echo $active === 'association' ? 'is-active' : ''; ?>">
+                <div class="givoly-tab-panel <?php echo esc_attr( $active === 'association' ? 'is-active' : '' ); ?>">
 
                     <div class="givoly-card">
                         <h2 class="givoly-card__title">
@@ -673,7 +672,7 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                 <!-- ════════════════════════════════════════════════════════
                      Onglet : EMAIL
                 ════════════════════════════════════════════════════════ -->
-                <div class="givoly-tab-panel <?php echo $active === 'email' ? 'is-active' : ''; ?>">
+                <div class="givoly-tab-panel <?php echo esc_attr( $active === 'email' ? 'is-active' : '' ); ?>">
 
                     <div class="givoly-card givoly-card--email">
                         <h2 class="givoly-card__title">
@@ -779,7 +778,7 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                 <!-- ════════════════════════════════════════════════════════
                      Onglet : APPARENCE
                 ════════════════════════════════════════════════════════ -->
-                <div class="givoly-tab-panel <?php echo $active === 'appearance' ? 'is-active' : ''; ?>">
+                <div class="givoly-tab-panel <?php echo esc_attr( $active === 'appearance' ? 'is-active' : '' ); ?>">
 
                     <!-- Card Couleurs -->
                     <div class="givoly-card givoly-card--appearance">
@@ -890,7 +889,7 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                                             'pill'    => [ 'label' => 'Très arrondi', 'preview_r' => '16px', 'desc' => '20 px' ],
                                         ];
                                         foreach ( $radius_opts as $val => $opt ) : ?>
-                                            <label class="givoly-shape-card <?php echo $ap_radius === $val ? 'is-selected' : ''; ?>">
+                                            <label class="givoly-shape-card <?php echo esc_attr( $ap_radius === $val ? 'is-selected' : '' ); ?>">
                                                 <input type="radio" name="appearance_radius"
                                                        value="<?php echo esc_attr( $val ); ?>"
                                                        <?php checked( $ap_radius, $val ); ?>>
@@ -907,7 +906,7 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                                 <th scope="row"><?php esc_html_e( 'Style du bouton', 'givoly' ); ?></th>
                                 <td>
                                     <div class="givoly-shape-group">
-                                        <label class="givoly-shape-card <?php echo $ap_btn_style === 'filled' ? 'is-selected' : ''; ?>">
+                                        <label class="givoly-shape-card <?php echo esc_attr( $ap_btn_style === 'filled' ? 'is-selected' : '' ); ?>">
                                             <input type="radio" name="appearance_btn_style" value="filled"
                                                    <?php checked( $ap_btn_style, 'filled' ); ?>>
                                             <span class="givoly-shape-card__btn givoly-shape-card__btn--filled">
@@ -915,7 +914,7 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                                             </span>
                                             <span class="givoly-shape-card__label"><?php esc_html_e( 'Plein', 'givoly' ); ?></span>
                                         </label>
-                                        <label class="givoly-shape-card <?php echo $ap_btn_style === 'outline' ? 'is-selected' : ''; ?>">
+                                        <label class="givoly-shape-card <?php echo esc_attr( $ap_btn_style === 'outline' ? 'is-selected' : '' ); ?>">
                                             <input type="radio" name="appearance_btn_style" value="outline"
                                                    <?php checked( $ap_btn_style, 'outline' ); ?>>
                                             <span class="givoly-shape-card__btn givoly-shape-card__btn--outline">
@@ -1016,9 +1015,7 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
             return;
         }
 
-        if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST[ self::NONCE_FIELD ] ) ), self::NONCE_ACTION ) ) {
-            wp_die( esc_html__( 'Nonce invalide.', 'givoly' ) );
-        }
+        check_admin_referer( self::NONCE_ACTION, self::NONCE_FIELD );
 
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( esc_html__( 'Accès refusé.', 'givoly' ) );

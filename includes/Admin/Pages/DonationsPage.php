@@ -43,6 +43,12 @@ final class DonationsPage {
             $status = '';
         }
 
+        $is_export = isset( $_GET['export'] ) && 'csv' === sanitize_key( wp_unslash( $_GET['export'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        if ( $is_export ) {
+            check_admin_referer( 'givoly_export_donations' );
+            $this->export_csv( $status );
+        }
+
         $paged       = max( 1, absint( wp_unslash( $_GET['paged'] ?? 1 ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
         $total       = $this->count_donations( $status );
         $donations   = $this->get_donations( $status, $paged );
@@ -51,7 +57,7 @@ final class DonationsPage {
         <div class="wrap">
             <h1><?php esc_html_e( 'Givoly — Dons', 'givoly' ); ?></h1>
             <p>
-                <a class="button button-primary" href="<?php echo esc_url( admin_url( 'admin.php?page=givoly-donations&export=csv' . ( $status ? '&status=' . rawurlencode( $status ) : '' ) ) ); ?>">
+                <a class="button button-primary" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?page=givoly-donations&export=csv' . ( $status ? '&status=' . rawurlencode( $status ) : '' ) ), 'givoly_export_donations' ) ); ?>">
                     <?php esc_html_e( 'Exporter les dons (CSV)', 'givoly' ); ?>
                 </a>
             </p>
@@ -265,21 +271,30 @@ final class DonationsPage {
         fputcsv( $output, [ 'id', 'date', 'donateur', 'email', 'montant', 'devise', 'statut', 'passerelle' ], ';' );
         foreach ( $rows as $row ) {
             fputcsv( $output, [
-                $row->id,
-                $row->created_at,
-                trim( $row->first_name . ' ' . $row->last_name ),
-                $row->email,
-                $row->amount,
-                $row->currency,
-                $row->status,
-                $row->gateway,
+                $this->sanitize_csv_value( $row->id ),
+                $this->sanitize_csv_value( $row->created_at ),
+                $this->sanitize_csv_value( trim( $row->first_name . ' ' . $row->last_name ) ),
+                $this->sanitize_csv_value( $row->email ),
+                $this->sanitize_csv_value( $row->amount ),
+                $this->sanitize_csv_value( $row->currency ),
+                $this->sanitize_csv_value( $row->status ),
+                $this->sanitize_csv_value( $row->gateway ),
             ], ';' );
         }
         fclose( $output );
         exit;
     }
-}
-        $is_export = isset( $_GET['export'] ) && 'csv' === wp_unslash( $_GET['export'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-        if ( $is_export ) {
-            $this->export_csv( $status );
+
+    /**
+     * Évite l'injection de formules quand les administrateurs ouvrent l'export CSV.
+     */
+    private function sanitize_csv_value( mixed $value ): string {
+        $value = (string) $value;
+
+        if ( $value !== '' && preg_match( '/^[=+\-@]/', $value ) ) {
+            return "'" . $value;
         }
+
+        return $value;
+    }
+}
