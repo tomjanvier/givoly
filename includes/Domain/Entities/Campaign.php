@@ -4,10 +4,10 @@
  *
  * Classe pure : aucune dépendance WordPress ou base de données.
  *
- * @package Givasso\Domain\Entities
+ * @package Givoly\Domain\Entities
  */
 
-namespace Givasso\Domain\Entities;
+namespace Givoly\Domain\Entities;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;

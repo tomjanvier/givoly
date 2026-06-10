@@ -1,9 +1,9 @@
 /*
- * Givasso — Styles frontend
+ * Givoly — Styles frontend
  *
  * Architecture : tous les styles utilisent des CSS custom properties.
  * Les thèmes sont définis en PHP (FormConfig::THEMES) et injectés
- * en inline style sur .givasso-wrap. Pas de sélecteurs de thème ici.
+ * en inline style sur .givoly-wrap. Pas de sélecteurs de thème ici.
  *
  * Pour modifier un thème → éditer FormConfig.php, pas ce fichier.
  * Pour modifier la mise en page → éditer ce fichier.
@@ -30,46 +30,46 @@
 
 /* ── 1. Variables & reset ─────────────────────────────────────────────────── */
 
-.givasso-wrap {
-    /* Palette officielle Givasso — valeurs de secours si les vars inline ne sont pas injectées */
-    --givasso-color-primary:       #1B6B4A;
-    --givasso-color-primary-hover: #155438;
-    --givasso-color-primary-light: #E8F5EE;
-    --givasso-color-bg:            #FFFFFF;
-    --givasso-color-surface:       #F8FAF9;
-    --givasso-color-border:        #C6E0D6;
-    --givasso-color-text:          #1A2E24;
-    --givasso-color-text-muted:    #55665F;
-    --givasso-color-accent:        #2ECC71;
-    --givasso-color-success:       #38A169;
-    --givasso-color-success-bg:    #F0FDF4;
-    --givasso-color-error:         #D64545;
-    --givasso-color-error-bg:      #FEF2F2;
-    --givasso-radius:              12px;
-    --givasso-radius-sm:           8px;
-    --givasso-shadow:              0 4px 24px rgba(0, 0, 0, .06);
-    --givasso-transition:          .18s ease;
-    --givasso-btn-style:           filled;
+.givoly-wrap {
+    /* Palette officielle Givoly — valeurs de secours si les vars inline ne sont pas injectées */
+    --givoly-color-primary:       #1B6B4A;
+    --givoly-color-primary-hover: #155438;
+    --givoly-color-primary-light: #E8F5EE;
+    --givoly-color-bg:            #FFFFFF;
+    --givoly-color-surface:       #F8FAF9;
+    --givoly-color-border:        #C6E0D6;
+    --givoly-color-text:          #1A2E24;
+    --givoly-color-text-muted:    #55665F;
+    --givoly-color-accent:        #2ECC71;
+    --givoly-color-success:       #38A169;
+    --givoly-color-success-bg:    #F0FDF4;
+    --givoly-color-error:         #D64545;
+    --givoly-color-error-bg:      #FEF2F2;
+    --givoly-radius:              12px;
+    --givoly-radius-sm:           8px;
+    --givoly-shadow:              0 4px 24px rgba(0, 0, 0, .06);
+    --givoly-transition:          .18s ease;
+    --givoly-btn-style:           filled;
 
     box-sizing: border-box;
     font-family: inherit;
-    color: var(--givasso-color-text);
+    color: var(--givoly-color-text);
     line-height: 1.5;
 }
 
-.givasso-wrap *,
-.givasso-wrap *::before,
-.givasso-wrap *::after {
+.givoly-wrap *,
+.givoly-wrap *::before,
+.givoly-wrap *::after {
     box-sizing: inherit;
 }
 
 /* ── 2. Conteneur ─────────────────────────────────────────────────────────── */
 
-.givasso-layout-card .givasso-form {
-    background:    var(--givasso-color-bg);
-    border:        1px solid var(--givasso-color-border);
-    border-radius: var(--givasso-radius);
-    box-shadow:    var(--givasso-shadow);
+.givoly-layout-card .givoly-form {
+    background:    var(--givoly-color-bg);
+    border:        1px solid var(--givoly-color-border);
+    border-radius: var(--givoly-radius);
+    box-shadow:    var(--givoly-shadow);
     padding:       2rem;
     max-width:     520px;
     margin:        0 auto;
@@ -77,8 +77,8 @@
 
 /* ── 3. Titre ─────────────────────────────────────────────────────────────── */
 
-.givasso-form__title {
-    color:       var(--givasso-color-text);
+.givoly-form__title {
+    color:       var(--givoly-color-text);
     font-size:   1.375rem;
     font-weight: 700;
     margin:      0 0 1.5rem;
@@ -88,20 +88,20 @@
 
 /* ── 4. Fieldset / Légende ────────────────────────────────────────────────── */
 
-.givasso-form__fieldset {
+.givoly-form__fieldset {
     border:  none;
     margin:  0 0 1.5rem;
     padding: 0;
 }
 
-.givasso-form__fieldset:last-of-type {
+.givoly-form__fieldset:last-of-type {
     margin-bottom: 1rem;
 }
 
-.givasso-form__legend {
+.givoly-form__legend {
     display:        block;
     width:          100%;
-    color:          var(--givasso-color-text-muted);
+    color:          var(--givoly-color-text-muted);
     font-size:      .75rem;
     font-weight:    600;
     letter-spacing: .06em;
@@ -111,7 +111,7 @@
 
 /* ── 5. Grille de montants ────────────────────────────────────────────────── */
 
-.givasso-amount-grid {
+.givoly-amount-grid {
     display:               grid;
     grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
     gap:                   .5rem;
@@ -119,169 +119,169 @@
 }
 
 /* Cacher le radio natif (accessible) */
-.givasso-amount-btn__input {
+.givoly-amount-btn__input {
     position: absolute;
     opacity:  0;
     width:    0;
     height:   0;
 }
 
-.givasso-amount-btn {
+.givoly-amount-btn {
     cursor: pointer;
 }
 
-.givasso-amount-btn__label {
+.givoly-amount-btn__label {
     display:         flex;
     align-items:     center;
     justify-content: center;
     padding:         .75rem .875rem;
     min-height:      44px;
-    border:          2px solid var(--givasso-color-border);
-    border-radius:   var(--givasso-radius-sm);
-    background:      var(--givasso-color-surface);
-    color:           var(--givasso-color-text);
+    border:          2px solid var(--givoly-color-border);
+    border-radius:   var(--givoly-radius-sm);
+    background:      var(--givoly-color-surface);
+    color:           var(--givoly-color-text);
     font-size:       .9375rem;
     font-weight:     600;
     text-align:      center;
-    transition:      border-color var(--givasso-transition),
-                     background   var(--givasso-transition),
-                     color        var(--givasso-transition);
+    transition:      border-color var(--givoly-transition),
+                     background   var(--givoly-transition),
+                     color        var(--givoly-transition);
     user-select:     none;
 }
 
-.givasso-amount-btn__label:hover {
-    border-color: var(--givasso-color-accent);
-    background:   var(--givasso-color-primary-light);
-    color:        var(--givasso-color-accent);
+.givoly-amount-btn__label:hover {
+    border-color: var(--givoly-color-accent);
+    background:   var(--givoly-color-primary-light);
+    color:        var(--givoly-color-accent);
 }
 
-.givasso-amount-btn__input:checked + .givasso-amount-btn__label {
-    border-color: var(--givasso-color-accent);
-    background:   var(--givasso-color-accent);
+.givoly-amount-btn__input:checked + .givoly-amount-btn__label {
+    border-color: var(--givoly-color-accent);
+    background:   var(--givoly-color-accent);
     color:        #fff;
 }
 
 /* Focus visible au clavier */
-.givasso-amount-btn__input:focus-visible + .givasso-amount-btn__label {
-    outline:        3px solid var(--givasso-color-accent);
+.givoly-amount-btn__input:focus-visible + .givoly-amount-btn__label {
+    outline:        3px solid var(--givoly-color-accent);
     outline-offset: 2px;
 }
 
 /* ── 6. Montant libre ─────────────────────────────────────────────────────── */
 
-.givasso-custom-amount {
+.givoly-custom-amount {
     margin-top: .625rem;
-    animation:  givasso-fade-in .18s ease;
+    animation:  givoly-fade-in .18s ease;
 }
 
-.givasso-input-group {
+.givoly-input-group {
     display:       flex;
     align-items:   stretch;
-    border:        2px solid var(--givasso-color-border);
-    border-radius: var(--givasso-radius-sm);
+    border:        2px solid var(--givoly-color-border);
+    border-radius: var(--givoly-radius-sm);
     overflow:      hidden;
-    transition:    border-color var(--givasso-transition);
+    transition:    border-color var(--givoly-transition);
 }
 
-.givasso-input-group:focus-within {
-    border-color: var(--givasso-color-accent);
+.givoly-input-group:focus-within {
+    border-color: var(--givoly-color-accent);
 }
 
-.givasso-input-group__prefix {
+.givoly-input-group__prefix {
     display:      flex;
     align-items:  center;
     padding:      0 .75rem;
-    background:   var(--givasso-color-surface);
-    color:        var(--givasso-color-text-muted);
+    background:   var(--givoly-color-surface);
+    color:        var(--givoly-color-text-muted);
     font-weight:  600;
     font-size:    1rem;
-    border-right: 1px solid var(--givasso-color-border);
+    border-right: 1px solid var(--givoly-color-border);
     flex-shrink:  0;
 }
 
-.givasso-input--amount {
+.givoly-input--amount {
     border:     none;
     outline:    none;
     padding:    .625rem .75rem;
     width:      100%;
     font-size:  1rem;
-    color:      var(--givasso-color-text);
-    background: var(--givasso-color-bg);
+    color:      var(--givoly-color-text);
+    background: var(--givoly-color-bg);
 }
 
 /* Supprimer les flèches natives sur input[type=number] */
-.givasso-input--amount::-webkit-outer-spin-button,
-.givasso-input--amount::-webkit-inner-spin-button {
+.givoly-input--amount::-webkit-outer-spin-button,
+.givoly-input--amount::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
 
-.givasso-input--amount[type=number] {
+.givoly-input--amount[type=number] {
     -moz-appearance: textfield;
 }
 
 /* ── 7. Labels & champs texte ─────────────────────────────────────────────── */
 
-.givasso-row {
+.givoly-row {
     display:               grid;
     grid-template-columns: 1fr 1fr;
     gap:                   .875rem;
 }
 
-.givasso-field {
+.givoly-field {
     display:        flex;
     flex-direction: column;
     gap:            .3125rem;
     margin-bottom:  .875rem;
 }
 
-.givasso-field:last-child {
+.givoly-field:last-child {
     margin-bottom: 0;
 }
 
-.givasso-label {
+.givoly-label {
     font-size:   .875rem;
     font-weight: 500;
-    color:       var(--givasso-color-text);
+    color:       var(--givoly-color-text);
 }
 
-.givasso-required {
-    color:       var(--givasso-color-error);
+.givoly-required {
+    color:       var(--givoly-color-error);
     margin-left: .125rem;
 }
 
-.givasso-hint {
+.givoly-hint {
     font-size: .75rem;
-    color:     var(--givasso-color-text-muted);
+    color:     var(--givoly-color-text-muted);
     margin:    .25rem 0 0;
 }
 
-.givasso-input {
+.givoly-input {
     padding:       .625rem .75rem;
-    border:        2px solid var(--givasso-color-border);
-    border-radius: var(--givasso-radius-sm);
+    border:        2px solid var(--givoly-color-border);
+    border-radius: var(--givoly-radius-sm);
     font-size:     .9375rem;
-    color:         var(--givasso-color-text);
-    background:    var(--givasso-color-bg);
+    color:         var(--givoly-color-text);
+    background:    var(--givoly-color-bg);
     width:         100%;
     outline:       none;
-    transition:    border-color var(--givasso-transition);
+    transition:    border-color var(--givoly-transition);
 }
 
-.givasso-input:focus {
-    border-color: var(--givasso-color-accent);
-    outline:      3px solid var(--givasso-color-accent);
+.givoly-input:focus {
+    border-color: var(--givoly-color-accent);
+    outline:      3px solid var(--givoly-color-accent);
     outline-offset: 1px;
 }
 
-.givasso-input::placeholder {
-    color:   var(--givasso-color-text-muted);
+.givoly-input::placeholder {
+    color:   var(--givoly-color-text-muted);
     opacity: .8;
 }
 
 /* ── 8. Reçu fiscal (checkbox) ────────────────────────────────────────────── */
 
-.givasso-checkbox {
+.givoly-checkbox {
     display:     flex;
     align-items: flex-start;
     gap:         .625rem;
@@ -290,7 +290,7 @@
 }
 
 /* Cacher la checkbox native */
-.givasso-checkbox__input {
+.givoly-checkbox__input {
     position: absolute;
     opacity:  0;
     width:    0;
@@ -298,23 +298,23 @@
 }
 
 /* Checkbox stylisée */
-.givasso-checkbox__box {
+.givoly-checkbox__box {
     display:         flex;
     align-items:     center;
     justify-content: center;
     width:           24px;
     height:          24px;
     min-width:       24px;
-    border:          2px solid var(--givasso-color-border);
-    border-radius:   calc( var(--givasso-radius-sm) / 2 );
-    background:      var(--givasso-color-bg);
-    transition:      border-color var(--givasso-transition),
-                     background   var(--givasso-transition);
+    border:          2px solid var(--givoly-color-border);
+    border-radius:   calc( var(--givoly-radius-sm) / 2 );
+    background:      var(--givoly-color-bg);
+    transition:      border-color var(--givoly-transition),
+                     background   var(--givoly-transition);
     margin-top:      .125rem;
 }
 
 /* Coche SVG via pseudo-élément */
-.givasso-checkbox__box::after {
+.givoly-checkbox__box::after {
     content:     '';
     display:     none;
     width:       5px;
@@ -325,57 +325,57 @@
     transform:   rotate(45deg) translateY(-1px);
 }
 
-.givasso-checkbox__input:checked + .givasso-checkbox__box {
-    background:   var(--givasso-color-primary);
-    border-color: var(--givasso-color-primary);
+.givoly-checkbox__input:checked + .givoly-checkbox__box {
+    background:   var(--givoly-color-primary);
+    border-color: var(--givoly-color-primary);
 }
 
-.givasso-checkbox__input:checked + .givasso-checkbox__box::after {
+.givoly-checkbox__input:checked + .givoly-checkbox__box::after {
     display: block;
 }
 
-.givasso-checkbox__input:focus-visible + .givasso-checkbox__box {
-    outline:        3px solid var(--givasso-color-primary);
+.givoly-checkbox__input:focus-visible + .givoly-checkbox__box {
+    outline:        3px solid var(--givoly-color-primary);
     outline-offset: 2px;
 }
 
-.givasso-checkbox__label {
+.givoly-checkbox__label {
     font-size:   .9rem;
-    color:       var(--givasso-color-text);
+    color:       var(--givoly-color-text);
     line-height: 1.4;
     user-select: none;
 }
 
-.givasso-hint--receipt {
+ .givoly-hint--info {
     margin:    0 0 1rem 1.625rem;
     font-size: .75rem;
-    color:     var(--givasso-color-text-muted);
+    color:     var(--givoly-color-text-muted);
 }
 
 /* ── 9. Messages ──────────────────────────────────────────────────────────── */
 
-.givasso-form__messages {
+.givoly-form__messages {
     padding:       .875rem 1rem;
-    border-radius: var(--givasso-radius-sm);
+    border-radius: var(--givoly-radius-sm);
     font-size:     .9rem;
     margin-bottom: 1rem;
 }
 
-.givasso-form__messages--success {
-    background: var(--givasso-color-success-bg);
-    color:      var(--givasso-color-success);
-    border:     1px solid var(--givasso-color-success);
+.givoly-form__messages--success {
+    background: var(--givoly-color-success-bg);
+    color:      var(--givoly-color-success);
+    border:     1px solid var(--givoly-color-success);
 }
 
-.givasso-form__messages--error {
-    background: var(--givasso-color-error-bg);
-    color:      var(--givasso-color-error);
-    border:     1px solid var(--givasso-color-error);
+.givoly-form__messages--error {
+    background: var(--givoly-color-error-bg);
+    color:      var(--givoly-color-error);
+    border:     1px solid var(--givoly-color-error);
 }
 
 /* ── 10. Bouton de soumission ─────────────────────────────────────────────── */
 
-.givasso-btn--primary {
+.givoly-btn--primary {
     display:         flex;
     align-items:     center;
     justify-content: center;
@@ -383,81 +383,81 @@
     width:           100%;
     padding:         1rem 1.5rem;
     min-height:      44px;
-    background:      var(--givasso-color-accent);
+    background:      var(--givoly-color-accent);
     color:           #fff;
-    border:          2px solid var(--givasso-color-accent);
-    border-radius:   var(--givasso-radius-sm);
+    border:          2px solid var(--givoly-color-accent);
+    border-radius:   var(--givoly-radius-sm);
     font-size:       1rem;
     font-weight:     600;
     cursor:          pointer;
-    transition:      background  var(--givasso-transition),
-                     border-color var(--givasso-transition),
-                     color       var(--givasso-transition),
-                     transform   var(--givasso-transition),
-                     box-shadow  var(--givasso-transition);
+    transition:      background  var(--givoly-transition),
+                     border-color var(--givoly-transition),
+                     color       var(--givoly-transition),
+                     transform   var(--givoly-transition),
+                     box-shadow  var(--givoly-transition);
     margin-bottom:   .875rem;
 }
 
-.givasso-btn--primary:hover:not(:disabled) {
-    background:   var(--givasso-color-accent);
-    border-color: var(--givasso-color-accent);
+.givoly-btn--primary:hover:not(:disabled) {
+    background:   var(--givoly-color-accent);
+    border-color: var(--givoly-color-accent);
     transform:    translateY(-1px);
     box-shadow:   0 4px 12px rgba(0, 0, 0, .15);
 }
 
-.givasso-btn--primary:active:not(:disabled) {
+.givoly-btn--primary:active:not(:disabled) {
     transform:  translateY(0);
     box-shadow: none;
 }
 
-.givasso-btn--primary:disabled {
+.givoly-btn--primary:disabled {
     opacity: .65;
     cursor:  not-allowed;
 }
 
-/* Style outline — activé via la classe .givasso-btn-style-outline sur .givasso-wrap */
-.givasso-btn-style-outline .givasso-btn--primary {
+/* Style outline — activé via la classe .givoly-btn-style-outline sur .givoly-wrap */
+.givoly-btn-style-outline .givoly-btn--primary {
     background: transparent;
-    color:      var(--givasso-color-primary);
+    color:      var(--givoly-color-primary);
 }
 
-.givasso-btn-style-outline .givasso-btn--primary:hover:not(:disabled) {
-    background:  var(--givasso-color-primary-light);
+.givoly-btn-style-outline .givoly-btn--primary:hover:not(:disabled) {
+    background:  var(--givoly-color-primary-light);
     box-shadow:  none;
     transform:   translateY(-1px);
 }
 
 /* Spinner de chargement */
-.givasso-btn__spinner {
+.givoly-btn__spinner {
     width:         18px;
     height:        18px;
     border:        2px solid rgba(255, 255, 255, .35);
     border-top-color: #fff;
     border-radius: 50%;
-    animation:     givasso-spin .65s linear infinite;
+    animation:     givoly-spin .65s linear infinite;
     flex-shrink:   0;
 }
 
-.givasso-btn-style-outline .givasso-btn__spinner {
+.givoly-btn-style-outline .givoly-btn__spinner {
     border-color:     rgba(0, 0, 0, .2);
-    border-top-color: var(--givasso-color-primary);
+    border-top-color: var(--givoly-color-primary);
 }
 
-.givasso-btn--card {
-    background: var(--givasso-color-primary);
-    border-color: var(--givasso-color-primary);
+.givoly-btn--card {
+    background: var(--givoly-color-primary);
+    border-color: var(--givoly-color-primary);
 }
 
-.givasso-btn--card:hover:not(:disabled) {
-    background: var(--givasso-color-primary-hover);
-    border-color: var(--givasso-color-primary-hover);
+.givoly-btn--card:hover:not(:disabled) {
+    background: var(--givoly-color-primary-hover);
+    border-color: var(--givoly-color-primary-hover);
 }
 
-.givasso-payment-logos--in-button {
+.givoly-payment-logos--in-button {
     margin-top: .3rem;
 }
 
-.givasso-btn--card {
+.givoly-btn--card {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -466,125 +466,66 @@
     min-height: 72px;
 }
 
-.givasso-btn--card .givasso-payment-logos__item {
+.givoly-btn--card .givoly-payment-logos__item {
     color: rgba(255, 255, 255, .95);
     border-color: rgba(255, 255, 255, .45);
     background: rgba(255, 255, 255, .14);
 }
 
-.givasso-post-payment {
+.givoly-post-payment {
     margin-top: 1rem;
     padding: 1rem;
-    border: 1px solid var(--givasso-color-border);
-    border-radius: var(--givasso-radius-sm);
-    background: var(--givasso-color-surface);
+    border: 1px solid var(--givoly-color-border);
+    border-radius: var(--givoly-radius-sm);
+    background: var(--givoly-color-surface);
 }
 
-.givasso-post-payment__title {
+.givoly-post-payment__title {
     margin: 0 0 .5rem;
 }
 
 /* ── 11. Confiance & mention légale ───────────────────────────────────────── */
 
-.givasso-form__trust {
+.givoly-form__trust {
     display:         flex;
     align-items:     center;
     justify-content: center;
     gap:             .375rem;
     font-size:       .75rem;
-    color:           var(--givasso-color-text-muted);
+    color:           var(--givoly-color-text-muted);
     text-align:      center;
     margin:          .5rem 0 0;
     flex-wrap:       wrap;
 }
 
-.givasso-form__trust-icon {
+.givoly-form__trust-icon {
     flex-shrink: 0;
-    color:       var(--givasso-color-success);
+    color:       var(--givoly-color-success);
 }
 
-.givasso-form__trust-badge {
+.givoly-form__trust-badge {
     font-weight:    600;
-    color:          var(--givasso-color-text);
+    color:          var(--givoly-color-text);
     letter-spacing: .01em;
 }
 
-.givasso-form__trust-badge--stripe {
+.givoly-form__trust-badge--stripe {
     color:         #635BFF;
     background:    #F5F4FF;
     padding:       1px 5px;
     border-radius: 3px;
 }
 
-.givasso-form__trust-badge--helloasso {
+.givoly-form__trust-badge--helloasso {
     color:         #EB5234;
     background:    #FFF3F0;
     padding:       1px 5px;
     border-radius: 3px;
 }
 
-/* ── 12. Toggle fréquence ─────────────────────────────────────────────────── */
-
-.givasso-frequency-wrap {
-    display:       flex;
-    gap:           .25rem;
-    margin-bottom: 1.25rem;
-    background:    var(--givasso-color-surface);
-    border:        1px solid var(--givasso-color-border);
-    border-radius: var(--givasso-radius-sm);
-    padding:       .25rem;
-}
-
-.givasso-freq-btn {
-    flex:            1;
-    padding:         .5rem .5rem;
-    border:          none;
-    border-radius:   calc( var(--givasso-radius-sm) - 2px );
-    background:      transparent;
-    color:           var(--givasso-color-text-muted);
-    font-size:       .8125rem;
-    font-weight:     500;
-    cursor:          pointer;
-    transition:      background var(--givasso-transition),
-                     color      var(--givasso-transition),
-                     box-shadow var(--givasso-transition);
-    display:         flex;
-    align-items:     center;
-    justify-content: center;
-    gap:             .375rem;
-    white-space:     nowrap;
-    font-family:     inherit;
-}
-
-.givasso-freq-btn.active {
-    background:  var(--givasso-color-bg);
-    color:       var(--givasso-color-text);
-    font-weight: 600;
-    box-shadow:  0 1px 3px rgba(0, 0, 0, .08);
-}
-
-.givasso-freq-btn:hover:not(.active) {
-    color:      var(--givasso-color-text);
-    background: rgba(255, 255, 255, .5);
-}
-
-/* Badge Pro sur les boutons fréquence */
-.givasso-pro-badge {
-    display:        inline-flex;
-    align-items:    center;
-    padding:        1px 6px;
-    background:     var(--givasso-color-accent);
-    color:          #1A2E24; /* jamais texte blanc sur accent */
-    font-size:      .625rem;
-    font-weight:    700;
-    border-radius:  20px;
-    letter-spacing: .03em;
-    line-height:    1.4;
-}
-
 /* ── 13. Layout — flat ────────────────────────────────────────────────────── */
 
-.givasso-layout-flat .givasso-form {
+.givoly-layout-flat .givoly-form {
     background: transparent;
     border:     none;
     box-shadow: none;
@@ -593,104 +534,104 @@
 }
 
 /* Quand flat est imbriqué dans le widget campagne, un peu d'espace au-dessus */
-.givasso-campaign__form .givasso-layout-flat .givasso-form {
+.givoly-campaign__form .givoly-layout-flat .givoly-form {
     margin-top: 1.5rem;
 }
 
 /* ── 14. Layout — inline ──────────────────────────────────────────────────── */
 
-.givasso-layout-inline .givasso-form {
-    background:    var(--givasso-color-bg);
-    border:        1px solid var(--givasso-color-border);
-    border-radius: var(--givasso-radius);
+.givoly-layout-inline .givoly-form {
+    background:    var(--givoly-color-bg);
+    border:        1px solid var(--givoly-color-border);
+    border-radius: var(--givoly-radius);
     padding:       1.25rem;
 }
 
-.givasso-layout-inline .givasso-form__title {
+.givoly-layout-inline .givoly-form__title {
     font-size:     1.125rem;
     margin-bottom: 1rem;
 }
 
-.givasso-layout-inline .givasso-amount-grid {
+.givoly-layout-inline .givoly-amount-grid {
     grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
 }
 
-.givasso-layout-inline .givasso-field {
+.givoly-layout-inline .givoly-field {
     margin-top:    .75rem;
     margin-bottom: 0;
 }
 
-.givasso-layout-inline .givasso-btn--primary {
+.givoly-layout-inline .givoly-btn--primary {
     margin-top:    .75rem;
     margin-bottom: 0;
 }
 
 /* ── 14. Campaign widget ──────────────────────────────────────────────────── */
 
-.givasso-campaign {
+.givoly-campaign {
     padding: 2rem;
 }
 
-.givasso-campaign__title {
-    color:       var(--givasso-color-text);
+.givoly-campaign__title {
+    color:       var(--givoly-color-text);
     font-size:   1.375rem;
     font-weight: 700;
     margin:      0 0 1rem;
     line-height: 1.3;
 }
 
-.givasso-campaign__description {
-    color:         var(--givasso-color-text);
+.givoly-campaign__description {
+    color:         var(--givoly-color-text);
     margin-bottom: 1.5rem;
     line-height:   1.6;
 }
 
-.givasso-campaign__bar-track {
-    background:    var(--givasso-color-surface);
-    border:        1px solid var(--givasso-color-border);
-    border-radius: var(--givasso-radius-sm);
+.givoly-campaign__bar-track {
+    background:    var(--givoly-color-surface);
+    border:        1px solid var(--givoly-color-border);
+    border-radius: var(--givoly-radius-sm);
     height:        12px;
     overflow:      hidden;
     margin-bottom: .625rem;
 }
 
-.givasso-campaign__bar-fill {
-    background:    var(--givasso-color-primary);
+.givoly-campaign__bar-fill {
+    background:    var(--givoly-color-primary);
     height:        100%;
     border-radius: inherit;
     transition:    width .4s ease;
     min-width:     4px;
 }
 
-.givasso-campaign__progress-row {
+.givoly-campaign__progress-row {
     display:         flex;
     justify-content: space-between;
     align-items:     baseline;
     font-size:       .9rem;
     margin-bottom:   1.25rem;
-    color:           var(--givasso-color-text);
+    color:           var(--givoly-color-text);
     gap:             1rem;
 }
 
-.givasso-campaign__collected {
+.givoly-campaign__collected {
     font-weight: 700;
     font-size:   1rem;
 }
 
-.givasso-campaign__goal {
-    color:     var(--givasso-color-text-muted);
+.givoly-campaign__goal {
+    color:     var(--givoly-color-text-muted);
     font-size: .875rem;
     white-space: nowrap;
 }
 
-.givasso-campaign__percentage {
+.givoly-campaign__percentage {
     font-weight: 600;
-    color:       var(--givasso-color-primary);
+    color:       var(--givoly-color-primary);
     white-space: nowrap;
 }
 
-.givasso-campaign__meta {
-    color:         var(--givasso-color-text-muted);
+.givoly-campaign__meta {
+    color:         var(--givoly-color-text-muted);
     font-size:     .875rem;
     margin-bottom: 1.5rem;
     display:       flex;
@@ -698,19 +639,19 @@
     flex-wrap:     wrap;
 }
 
-.givasso-campaign__total {
+.givoly-campaign__total {
     font-size:     1.125rem;
     font-weight:   600;
-    color:         var(--givasso-color-text);
+    color:         var(--givoly-color-text);
     margin-bottom: 1.25rem;
 }
 
-.givasso-campaign__ended {
-    background:    var(--givasso-color-surface);
-    border-left:   4px solid var(--givasso-color-border);
+.givoly-campaign__ended {
+    background:    var(--givoly-color-surface);
+    border-left:   4px solid var(--givoly-color-border);
     padding:       1rem 1.25rem;
-    border-radius: 0 var(--givasso-radius-sm) var(--givasso-radius-sm) 0;
-    color:         var(--givasso-color-text-muted);
+    border-radius: 0 var(--givoly-radius-sm) var(--givoly-radius-sm) 0;
+    color:         var(--givoly-color-text-muted);
     font-size:     .9rem;
     margin-top:    1rem;
 }
@@ -718,40 +659,39 @@
 /* ── 15. Responsive ───────────────────────────────────────────────────────── */
 
 @media (max-width: 480px) {
-    .givasso-layout-card .givasso-form {
+    .givoly-layout-card .givoly-form {
         padding: 1.25rem;
     }
 
-    .givasso-row {
+    .givoly-row {
         grid-template-columns: 1fr;
     }
 
-    .givasso-amount-grid {
+    .givoly-amount-grid {
         grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
     }
 
-    .givasso-campaign {
+    .givoly-campaign {
         padding: 1.25rem;
     }
 
-    .givasso-campaign__progress-row {
+    .givoly-campaign__progress-row {
         flex-wrap: wrap;
     }
 }
 
 /* ── 16. Animations ───────────────────────────────────────────────────────── */
 
-@keyframes givasso-fade-in {
+@keyframes givoly-fade-in {
     from { opacity: 0; transform: translateY(-4px); }
     to   { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes givasso-spin {
+@keyframes givoly-spin {
     to { transform: rotate(360deg); }
 }
 
-.givasso-ha-monthly { margin-bottom: 1rem; }
-.givasso-gateway-actions { display:flex; flex-direction:column; gap:.75rem; }
+.givoly-gateway-actions { display:flex; flex-direction:column; gap:.75rem; }
 .HaPayButton { display:flex; align-items:center; border:1px solid #e5e7eb; border-radius:12px; text-decoration:none; background:#fff; padding:0; cursor:pointer; width:100%; min-height:56px; overflow:hidden; color:#111827; }
 .HaPayButton:hover,
 .HaPayButton:focus,
@@ -764,9 +704,9 @@
 .HaPayButtonLogoWrap { width:56px; min-width:56px; display:flex; align-items:center; justify-content:center; background:#fff; border-right:1px solid #e5e7eb; }
 .HaPayButtonLogo { width:32px; height:32px; }
 .HaPayButtonLabel { color:#111827; padding:0 16px; font-weight:700; flex:1; text-align:center; justify-content:center; display:flex; align-items:center; background:transparent; }
-.givasso-ha-other-payments { font-size:14px; color:#374151; text-decoration:underline; text-align:center; display:block; margin-top:2px; }
+.givoly-ha-other-payments { font-size:14px; color:#374151; text-decoration:underline; text-align:center; display:block; margin-top:2px; }
 
-.givasso-payment-logos {
+.givoly-payment-logos {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -774,7 +714,7 @@
     margin-top: -.2rem;
 }
 
-.givasso-payment-logos__item {
+.givoly-payment-logos__item {
     font-size: .68rem;
     line-height: 1;
     letter-spacing: .02em;
@@ -785,33 +725,33 @@
     padding: .28rem .48rem;
     white-space: nowrap;
 }
-.givasso-ha-note { margin:0; font-size:.85rem; color:var(--givasso-color-text-muted); }
+.givoly-ha-note { margin:0; font-size:.85rem; color:var(--givoly-color-text-muted); }
 
 /* Encadré portable pour insertion dans n'importe quelle zone */
-.givasso-wrap .givasso-form {
-    background: var(--givasso-color-bg);
-    border: 1px solid var(--givasso-color-border);
-    border-radius: var(--givasso-radius);
-    box-shadow: var(--givasso-shadow);
+.givoly-wrap .givoly-form {
+    background: var(--givoly-color-bg);
+    border: 1px solid var(--givoly-color-border);
+    border-radius: var(--givoly-radius);
+    box-shadow: var(--givoly-shadow);
     padding: 1.25rem;
 }
 
-.givasso-layout-inline .givasso-form,
-.givasso-layout-flat .givasso-form {
+.givoly-layout-inline .givoly-form,
+.givoly-layout-flat .givoly-form {
     max-width: 560px;
     width: 100%;
     margin: 0 auto;
 }
 
-.givasso-textarea {
+.givoly-textarea {
     min-height: 92px;
     resize: vertical;
 }
 
 @media (max-width: 480px) {
-    .givasso-layout-card .givasso-form,
-    .givasso-layout-inline .givasso-form,
-    .givasso-wrap .givasso-form {
+    .givoly-layout-card .givoly-form,
+    .givoly-layout-inline .givoly-form,
+    .givoly-wrap .givoly-form {
         width: 100%;
         max-width: none;
         padding: 1.5rem;

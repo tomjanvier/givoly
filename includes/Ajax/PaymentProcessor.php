@@ -2,13 +2,13 @@
 /**
  * Traitement d'un paiement complété — logique partagée entre passerelles.
  *
- * Crée le donateur, enregistre le don et émet le reçu fiscal.
+ * Crée le donateur, enregistre le don.
  * Utilisé par le webhook Stripe et le webhook HelloAsso.
  *
- * @package Givasso\Ajax
+ * @package Givoly\Ajax
  */
 
-namespace Givasso\Ajax;
+namespace Givoly\Ajax;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -44,7 +44,7 @@ final class PaymentProcessor {
         // Idempotence : ignorer si ce paiement est déjà enregistré
         $exists = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prepare(
-                "SELECT id FROM {$wpdb->prefix}givasso_donations WHERE gateway_transaction_id = %s",
+                "SELECT id FROM {$wpdb->prefix}givoly_donations WHERE gateway_transaction_id = %s",
                 $transaction_id
             )
         );
@@ -58,7 +58,7 @@ final class PaymentProcessor {
 
         if ( ! $donor_id ) {
             error_log( sprintf( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-                '[Givasso] WEBHOOK ERREUR — Impossible de créer/retrouver le donateur. '
+                '[Givoly] WEBHOOK ERREUR — Impossible de créer/retrouver le donateur. '
                 . 'Gateway : %s | Transaction : %s | Email : %s',
                 $gateway,
                 $transaction_id,
@@ -71,7 +71,7 @@ final class PaymentProcessor {
         $amount = $amount_cents / 100;
 
         $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-            $wpdb->prefix . 'givasso_donations',
+            $wpdb->prefix . 'givoly_donations',
             [
                 'donor_id'               => $donor_id,
                 'campaign_id'            => $campaign_id > 0 ? $campaign_id : null,
@@ -85,7 +85,7 @@ final class PaymentProcessor {
             [ '%d', '%d', '%f', '%s', '%s', '%s', '%s', '%s' ]
         );
 
-        $donation_id = (int) $wpdb->insert_id; // phpcs:ignore -- used in future Pro hook
+        $donation_id = (int) $wpdb->insert_id;
 
         if ( $donation_id > 0 ) {
             $this->send_donation_notifications( $donation_id, $email, $first_name, $last_name, $amount, strtoupper( $currency ), $campaign );
@@ -96,11 +96,11 @@ final class PaymentProcessor {
     private function send_donation_notifications( int $donation_id, string $email, string $first_name, string $last_name, float $amount, string $currency, string $campaign ): void {
         $site_name = wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
         $amount_human = number_format_i18n( $amount, 2 ) . ' ' . $currency;
-        $campaign_label = $campaign ? $campaign : __( 'Générale', 'givasso' );
+        $campaign_label = $campaign ? $campaign : __( 'Générale', 'givoly' );
 
-        $subject_admin = sprintf( __( '[%s] Nouveau don reçu', 'givasso' ), $site_name );
+        $subject_admin = sprintf( __( '[%s] Nouveau don reçu', 'givoly' ), $site_name );
         $message_admin = sprintf(
-            __( "Un nouveau don a été reçu.\n\nID: %d\nMontant: %s\nDonateur: %s %s\nEmail: %s\nCampagne: %s", 'givasso' ),
+            __( "Un nouveau don a été reçu.\n\nID: %d\nMontant: %s\nDonateur: %s %s\nEmail: %s\nCampagne: %s", 'givoly' ),
             $donation_id,
             $amount_human,
             $first_name,
@@ -115,12 +115,12 @@ final class PaymentProcessor {
             $variables = [
                 '{site_name}'  => $site_name,
                 '{amount}'     => $amount_human,
-                '{first_name}' => $first_name ?: __( 'donateur', 'givasso' ),
+                '{first_name}' => $first_name ?: __( 'donateur', 'givoly' ),
                 '{last_name}'  => $last_name,
                 '{campaign}'   => $campaign_label,
             ];
-            $subject_donor = strtr( \Givasso\Admin\Settings::get_email_thank_subject(), $variables );
-            $message_donor = strtr( \Givasso\Admin\Settings::get_email_thank_body(), $variables );
+            $subject_donor = strtr( \Givoly\Admin\Settings::get_email_thank_subject(), $variables );
+            $message_donor = strtr( \Givoly\Admin\Settings::get_email_thank_body(), $variables );
             wp_mail( $email, $subject_donor, $message_donor );
         }
     }
@@ -130,7 +130,7 @@ final class PaymentProcessor {
     private function get_or_create_donor( string $email, string $first_name, string $last_name ): int|false {
         global $wpdb;
 
-        $table = $wpdb->prefix . 'givasso_donors';
+        $table = $wpdb->prefix . 'givoly_donors';
 
         $existing = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name from $wpdb->prefix
             $wpdb->prepare( "SELECT id FROM {$table} WHERE email = %s", $email ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared

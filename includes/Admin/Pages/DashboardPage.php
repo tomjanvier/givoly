@@ -1,17 +1,17 @@
 <?php
 /**
- * Page Tableau de bord Givasso.
+ * Page Tableau de bord Givoly.
  *
  * Affiche :
  * - 3 cartes de stats (total collecté, nb dons, nb donateurs)
  * - Tableau des 10 derniers dons
  *
- * @package Givasso\Admin\Pages
+ * @package Givoly\Admin\Pages
  */
 
-namespace Givasso\Admin\Pages;
+namespace Givoly\Admin\Pages;
 
-use Givasso\Admin\Settings;
+use Givoly\Admin\Settings;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -21,77 +21,77 @@ final class DashboardPage {
 
     public function render(): void {
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( esc_html__( 'Accès refusé.', 'givasso' ) );
+            wp_die( esc_html__( 'Accès refusé.', 'givoly' ) );
         }
 
         $stats          = $this->get_stats();
         $recent_donations = $this->get_recent_donations();
         ?>
-        <div class="wrap givasso-dashboard">
+        <div class="wrap givoly-dashboard">
 
-            <h1><?php esc_html_e( 'Givasso — Tableau de bord', 'givasso' ); ?></h1>
+            <h1><?php esc_html_e( 'Givoly — Tableau de bord', 'givoly' ); ?></h1>
 
             <?php if ( ! Settings::is_configured() ) : ?>
                 <div class="notice notice-warning inline">
                     <p>
-                        <?php esc_html_e( 'Stripe n\'est pas encore configuré.', 'givasso' ); ?>
-                        <a href="<?php echo esc_url( admin_url( 'admin.php?page=givasso-settings' ) ); ?>">
-                            <?php esc_html_e( 'Configurer maintenant →', 'givasso' ); ?>
+                        <?php esc_html_e( 'Stripe n\'est pas encore configuré.', 'givoly' ); ?>
+                        <a href="<?php echo esc_url( admin_url( 'admin.php?page=givoly-settings' ) ); ?>">
+                            <?php esc_html_e( 'Configurer maintenant →', 'givoly' ); ?>
                         </a>
                     </p>
                 </div>
             <?php endif; ?>
 
             <!-- ── Cartes de stats ─────────────────────────────────────── -->
-            <div class="givasso-stats">
+            <div class="givoly-stats">
 
-                <div class="givasso-stat-card">
-                    <span class="givasso-stat-card__icon">💰</span>
-                    <span class="givasso-stat-card__value">
+                <div class="givoly-stat-card">
+                    <span class="givoly-stat-card__icon">💰</span>
+                    <span class="givoly-stat-card__value">
                         <?php echo esc_html( number_format( $stats['total_amount'], 2, ',', ' ' ) . ' €' ); ?>
                     </span>
-                    <span class="givasso-stat-card__label">
-                        <?php esc_html_e( 'Total collecté', 'givasso' ); ?>
+                    <span class="givoly-stat-card__label">
+                        <?php esc_html_e( 'Total collecté', 'givoly' ); ?>
                     </span>
                 </div>
 
-                <div class="givasso-stat-card">
-                    <span class="givasso-stat-card__icon">🎁</span>
-                    <span class="givasso-stat-card__value">
+                <div class="givoly-stat-card">
+                    <span class="givoly-stat-card__icon">🎁</span>
+                    <span class="givoly-stat-card__value">
                         <?php echo esc_html( number_format( $stats['total_donations'] ) ); ?>
                     </span>
-                    <span class="givasso-stat-card__label">
-                        <?php esc_html_e( 'Dons complétés', 'givasso' ); ?>
+                    <span class="givoly-stat-card__label">
+                        <?php esc_html_e( 'Dons complétés', 'givoly' ); ?>
                     </span>
                 </div>
 
-                <div class="givasso-stat-card">
-                    <span class="givasso-stat-card__icon">👥</span>
-                    <span class="givasso-stat-card__value">
+                <div class="givoly-stat-card">
+                    <span class="givoly-stat-card__icon">👥</span>
+                    <span class="givoly-stat-card__value">
                         <?php echo esc_html( number_format( $stats['total_donors'] ) ); ?>
                     </span>
-                    <span class="givasso-stat-card__label">
-                        <?php esc_html_e( 'Donateurs', 'givasso' ); ?>
+                    <span class="givoly-stat-card__label">
+                        <?php esc_html_e( 'Donateurs', 'givoly' ); ?>
                     </span>
                 </div>
 
             </div>
 
             <!-- ── Derniers dons ───────────────────────────────────────── -->
-            <h2><?php esc_html_e( 'Derniers dons', 'givasso' ); ?></h2>
+            <h2><?php esc_html_e( 'Derniers dons', 'givoly' ); ?></h2>
 
             <?php if ( empty( $recent_donations ) ) : ?>
-                <p><?php esc_html_e( 'Aucun don enregistré pour l\'instant.', 'givasso' ); ?></p>
+                <p><?php esc_html_e( 'Aucun don enregistré pour l\'instant.', 'givoly' ); ?></p>
             <?php else : ?>
-                <table class="wp-list-table widefat fixed striped givasso-table">
+                <table class="wp-list-table widefat fixed striped givoly-table">
                     <thead>
                         <tr>
-                            <th><?php esc_html_e( 'Donateur', 'givasso' ); ?></th>
-                            <th><?php esc_html_e( 'Email', 'givasso' ); ?></th>
-                            <th><?php esc_html_e( 'Montant', 'givasso' ); ?></th>
-                            <th><?php esc_html_e( 'Campagne', 'givasso' ); ?></th>
-                            <th><?php esc_html_e( 'Statut', 'givasso' ); ?></th>
-                            <th><?php esc_html_e( 'Date', 'givasso' ); ?></th>
+                            <th><?php esc_html_e( 'Donateur', 'givoly' ); ?></th>
+                            <th><?php esc_html_e( 'Email', 'givoly' ); ?></th>
+                            <th><?php esc_html_e( 'Montant', 'givoly' ); ?></th>
+                            <th><?php esc_html_e( 'Campagne', 'givoly' ); ?></th>
+                            <th><?php esc_html_e( 'Statut', 'givoly' ); ?></th>
+                            <th><?php esc_html_e( 'Date', 'givoly' ); ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -110,7 +110,7 @@ final class DashboardPage {
                                     <?php echo $donation->donor_message ? esc_html( $donation->donor_message ) : '—'; ?>
                                 </td>
                                 <td>
-                                    <span class="givasso-badge givasso-badge--<?php echo esc_attr( $donation->status ); ?>">
+                                    <span class="givoly-badge givoly-badge--<?php echo esc_attr( $donation->status ); ?>">
                                         <?php echo esc_html( $this->format_status( $donation->status ) ); ?>
                                     </span>
                                 </td>
@@ -132,8 +132,8 @@ final class DashboardPage {
     private function get_stats(): array {
         global $wpdb;
 
-        $donations_table = $wpdb->prefix . 'givasso_donations';
-        $donors_table    = $wpdb->prefix . 'givasso_donors';
+        $donations_table = $wpdb->prefix . 'givoly_donations';
+        $donors_table    = $wpdb->prefix . 'givoly_donors';
 
         // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table names from $wpdb->prefix (trusted)
         $total_amount = (float) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -159,8 +159,8 @@ final class DashboardPage {
             $wpdb->prepare(
                 "SELECT d.amount, d.currency, d.status, d.donor_message, d.created_at,
                         dn.first_name, dn.last_name, dn.email
-                 FROM {$wpdb->prefix}givasso_donations d
-                 JOIN {$wpdb->prefix}givasso_donors dn ON d.donor_id = dn.id
+                 FROM {$wpdb->prefix}givoly_donations d
+                 JOIN {$wpdb->prefix}givoly_donors dn ON d.donor_id = dn.id
                  ORDER BY d.created_at DESC
                  LIMIT %d",
                 $limit
@@ -172,11 +172,11 @@ final class DashboardPage {
 
     private function format_status( string $status ): string {
         $labels = [
-            'completed' => __( 'Complété', 'givasso' ),
-            'pending'   => __( 'En attente', 'givasso' ),
-            'failed'    => __( 'Échoué', 'givasso' ),
-            'refunded'  => __( 'Remboursé', 'givasso' ),
-            'cancelled' => __( 'Annulé', 'givasso' ),
+            'completed' => __( 'Complété', 'givoly' ),
+            'pending'   => __( 'En attente', 'givoly' ),
+            'failed'    => __( 'Échoué', 'givoly' ),
+            'refunded'  => __( 'Remboursé', 'givoly' ),
+            'cancelled' => __( 'Annulé', 'givoly' ),
         ];
 
         return $labels[ $status ] ?? $status;

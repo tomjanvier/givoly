@@ -3,14 +3,14 @@
  * Accès aux données des campagnes.
  *
  * Toutes les requêtes passent par $wpdb->prepare().
- * Ce repository est le seul endroit autorisé à lire/écrire givasso_campaigns.
+ * Ce repository est le seul endroit autorisé à lire/écrire givoly_campaigns.
  *
- * @package Givasso\Repository
+ * @package Givoly\Repository
  */
 
-namespace Givasso\Repository;
+namespace Givoly\Repository;
 
-use Givasso\Domain\Entities\Campaign;
+use Givoly\Domain\Entities\Campaign;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -22,7 +22,7 @@ final class CampaignRepository {
 
     public function __construct() {
         global $wpdb;
-        $this->table = $wpdb->prefix . 'givasso_campaigns';
+        $this->table = $wpdb->prefix . 'givoly_campaigns';
     }
 
     public function find_by_id( int $id ): ?Campaign {
@@ -100,7 +100,7 @@ final class CampaignRepository {
             $wpdb->prepare(
                 "SELECT COALESCE( SUM(amount), 0 ) AS amount,
                         COUNT( DISTINCT donor_id )  AS donors
-                 FROM {$wpdb->prefix}givasso_donations
+                 FROM {$wpdb->prefix}givoly_donations
                  WHERE campaign_id = %d AND status = 'completed'",
                 $campaign_id
             ),
@@ -149,7 +149,7 @@ final class CampaignRepository {
         // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,PluginCheck.Security.DirectDB.UnescapedDBParameter -- $placeholders built by array_fill('%d'), table name from $wpdb->prefix (trusted)
         $rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prepare(
-                "SELECT campaign_id, COALESCE( SUM(amount), 0 ) AS amount, COUNT( DISTINCT donor_id ) AS donors FROM {$wpdb->prefix}givasso_donations WHERE campaign_id IN ($placeholders) AND status = 'completed' GROUP BY campaign_id", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,PluginCheck.Security.DirectDB.UnescapedDBParameter
+                "SELECT campaign_id, COALESCE( SUM(amount), 0 ) AS amount, COUNT( DISTINCT donor_id ) AS donors FROM {$wpdb->prefix}givoly_donations WHERE campaign_id IN ($placeholders) AND status = 'completed' GROUP BY campaign_id", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,PluginCheck.Security.DirectDB.UnescapedDBParameter
                 ...$ids
             ),
             ARRAY_A

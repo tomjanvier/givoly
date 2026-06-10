@@ -2,18 +2,18 @@
 /**
  * Widget affichant le total collecté pour une campagne.
  *
- * Usage shortcode : [givasso_total campaign="ramadan-2025" format="amount" display="bar"]
+ * Usage shortcode : [givoly_total campaign="ramadan-2025" format="amount" display="bar"]
  *
  * Stratégie de requête (v0.7+) :
  *  - Si slug correspond à une campagne en DB → filtre par campaign_id
  *  - Sinon → fallback sur donor_message (rétrocompat pré-v0.7)
  *
- * @package Givasso\Form
+ * @package Givoly\Form
  */
 
-namespace Givasso\Form;
+namespace Givoly\Form;
 
-use Givasso\Repository\CampaignRepository;
+use Givoly\Repository\CampaignRepository;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -42,9 +42,9 @@ final class CampaignTotalWidget {
         if ( $this->display === 'bar' && $campaign_obj && $campaign_obj->has_goal() ) {
             $pct = $campaign_obj->get_progress_percentage( $total );
             return sprintf(
-                '<div class="givasso-total givasso-total--bar" style="background:var(--givasso-campaign-bar-bg,#e9ecef);border-radius:8px;height:12px;overflow:hidden;">'
+                '<div class="givoly-total givoly-total--bar" style="background:var(--givoly-campaign-bar-bg,#e9ecef);border-radius:8px;height:12px;overflow:hidden;">'
                 . '<div role="progressbar" aria-valuenow="%1$s" aria-valuemin="0" aria-valuemax="100" '
-                . 'style="background:var(--givasso-campaign-bar-fill,#28a745);height:100%%;width:%1$s%%;border-radius:8px;"></div>'
+                . 'style="background:var(--givoly-campaign-bar-fill,#28a745);height:100%%;width:%1$s%%;border-radius:8px;"></div>'
                 . '</div>',
                 esc_attr( $pct )
             );
@@ -53,10 +53,10 @@ final class CampaignTotalWidget {
         $effective_format = $this->display ?: $this->format;
 
         return match ( $effective_format ) {
-            'count'  => '<span class="givasso-total givasso-total--count">'
+            'count'  => '<span class="givoly-total givoly-total--count">'
                         . esc_html( $count . ' don' . ( $count > 1 ? 's' : '' ) )
                         . '</span>',
-            default  => '<span class="givasso-total givasso-total--amount">'
+            default  => '<span class="givoly-total givoly-total--amount">'
                         . esc_html( number_format( $total, 2, ',', ' ' ) . ' €' )
                         . '</span>',
         };
@@ -70,11 +70,11 @@ final class CampaignTotalWidget {
      *  2. Sinon → fallback sur donor_message (rétrocompat campagnes pré-v0.7)
      *  3. Sans slug → toutes les donations complétées
      *
-     * @return array{float, int, ?\Givasso\Domain\Entities\Campaign}
+     * @return array{float, int, ?\Givoly\Domain\Entities\Campaign}
      */
     private function fetch_data(): array {
         global $wpdb;
-        $table = $wpdb->prefix . 'givasso_donations';
+        $table = $wpdb->prefix . 'givoly_donations';
 
         if ( $this->campaign !== '' ) {
             $repo         = new CampaignRepository();

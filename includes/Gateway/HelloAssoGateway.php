@@ -13,10 +13,10 @@
  * Note : l'API HelloAsso (Cloudflare/Azure) bloque le user-agent WordPress
  * par défaut. Tous les appels HTTP utilisent un user-agent neutre.
  *
- * @package Givasso\Gateway
+ * @package Givoly\Gateway
  */
 
-namespace Givasso\Gateway;
+namespace Givoly\Gateway;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -27,12 +27,12 @@ final class HelloAssoGateway {
     const API_LIVE    = 'https://api.helloasso.com';
     const API_SANDBOX = 'https://api.helloasso-sandbox.com';
 
-    const OPT_ACCESS_TOKEN  = 'givasso_ha_access_token';
-    const OPT_REFRESH_TOKEN = 'givasso_ha_refresh_token';
-    const OPT_EXPIRES_AT    = 'givasso_ha_expires_at';
+    const OPT_ACCESS_TOKEN  = 'givoly_ha_access_token';
+    const OPT_REFRESH_TOKEN = 'givoly_ha_refresh_token';
+    const OPT_EXPIRES_AT    = 'givoly_ha_expires_at';
 
     /** User-agent neutre — évite le blocage Cloudflare/Azure sur le user-agent WordPress. */
-    const USER_AGENT = 'Givasso/1.0';
+    const USER_AGENT = 'Givoly/1.0';
 
     public function __construct(
         private readonly string $client_id,

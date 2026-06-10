@@ -5,10 +5,10 @@
  * Classe pure : aucune dépendance WordPress ou base de données.
  * Si tu peux lire cette classe sans connaître WordPress, elle est bien écrite.
  *
- * @package Givasso\Domain\Entities
+ * @package Givoly\Domain\Entities
  */
 
-namespace Givasso\Domain\Entities;
+namespace Givoly\Domain\Entities;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -48,15 +48,6 @@ final class Donor {
             return $this->company;
         }
         return trim( $this->first_name . ' ' . $this->last_name );
-    }
-
-    /**
-     * Adresse complète requise pour l'émission d'un CERFA.
-     */
-    public function has_complete_address(): bool {
-        return $this->address_line1 !== null
-            && $this->postal_code   !== null
-            && $this->city          !== null;
     }
 
     public function is_organization(): bool {

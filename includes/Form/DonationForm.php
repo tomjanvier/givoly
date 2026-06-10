@@ -10,10 +10,10 @@
  * 1. Créer templates/form/{nom}.php
  * 2. Ajouter le nom dans FormConfig::LAYOUTS
  *
- * @package Givasso\Form
+ * @package Givoly\Form
  */
 
-namespace Givasso\Form;
+namespace Givoly\Form;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -40,11 +40,11 @@ final class DonationForm {
     private function load_template( string $layout ): void {
         // flat utilise la même structure que card — seule la classe CSS diffère.
         $template = ( $layout === 'flat' ) ? 'card' : $layout;
-        $path     = GIVASSO_PLUGIN_DIR . "templates/form/{$template}.php";
+        $path     = GIVOLY_PLUGIN_DIR . "templates/form/{$template}.php";
 
         // Fallback sur le layout card si le fichier n'existe pas.
         if ( ! file_exists( $path ) ) {
-            $path = GIVASSO_PLUGIN_DIR . 'templates/form/card.php';
+            $path = GIVOLY_PLUGIN_DIR . 'templates/form/card.php';
         }
 
         // $config est accessible dans le template.

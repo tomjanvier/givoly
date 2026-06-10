@@ -9,10 +9,10 @@
  * Fail-open : en cas d'erreur de cache la requête est autorisée — on ne bloque
  *             jamais un donateur légitime à cause d'un problème d'infra.
  *
- * @package Givasso\Security
+ * @package Givoly\Security
  */
 
-namespace Givasso\Security;
+namespace Givoly\Security;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -27,7 +27,7 @@ final class RateLimiter {
     private const WINDOW_SECONDS = 60;
 
     /** Groupe de cache (utilisé par l'object cache, ignoré par les transients). */
-    private const CACHE_GROUP    = 'givasso_rl';
+    private const CACHE_GROUP    = 'givoly_rl';
 
     /**
      * Vérifie si l'IP cliente peut effectuer l'action demandée.
@@ -46,7 +46,7 @@ final class RateLimiter {
         }
 
         $window = (int) floor( time() / self::WINDOW_SECONDS );
-        $key    = 'givasso_rl_' . substr( hash( 'sha256', $action . $ip ), 0, 16 ) . '_' . $window;
+        $key    = 'givoly_rl_' . substr( hash( 'sha256', $action . $ip ), 0, 16 ) . '_' . $window;
 
         $count = wp_using_ext_object_cache()
             ? self::increment_object_cache( $key )
@@ -107,11 +107,11 @@ final class RateLimiter {
      *
      * Source par défaut : REMOTE_ADDR (fiable, non falsifiable).
      *
-     * Un filtre `givasso_client_ip` permet aux administrateurs dont le site
+     * Un filtre `givoly_client_ip` permet aux administrateurs dont le site
      * est derrière un reverse proxy de confiance (Cloudflare, nginx, AWS ELB)
      * de passer leur propre logique d'extraction d'IP réelle :
      *
-     *   add_filter( 'givasso_client_ip', function( $ip ) {
+     *   add_filter( 'givoly_client_ip', function( $ip ) {
      *       $cf_ip = sanitize_text_field( $_SERVER['HTTP_CF_CONNECTING_IP'] ?? '' );
      *       return filter_var( $cf_ip, FILTER_VALIDATE_IP ) ? $cf_ip : $ip;
      *   } );
@@ -122,7 +122,7 @@ final class RateLimiter {
         $ip = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ?? '' ) );
 
         /** @var string $ip */
-        $ip = (string) apply_filters( 'givasso_client_ip', $ip );
+        $ip = (string) apply_filters( 'givoly_client_ip', $ip );
 
         return filter_var( $ip, FILTER_VALIDATE_IP ) ? $ip : '';
     }

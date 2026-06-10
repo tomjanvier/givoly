@@ -3,14 +3,14 @@
  * Enregistre tous les shortcodes du plugin.
  *
  * Usage :
- *   [givasso_form]
- *   [givasso_form campaign="ramadan-2025" amounts="10,25,50,100"]
- *   [givasso_total campaign="ramadan-2025"]
+ *   [givoly_form]
+ *   [givoly_form campaign="ramadan-2025" amounts="10,25,50,100"]
+ *   [givoly_total campaign="ramadan-2025"]
  *
- * @package Givasso\Form
+ * @package Givoly\Form
  */
 
-namespace Givasso\Form;
+namespace Givoly\Form;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -21,9 +21,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class ShortcodeManager {
 
     public function register(): void {
-        add_shortcode( 'givasso_form',     [ $this, 'render_form' ] );
-        add_shortcode( 'givasso_total',    [ $this, 'render_total' ] );
-        add_shortcode( 'givasso_campaign', [ $this, 'render_campaign' ] );
+        add_shortcode( 'givoly_form',     [ $this, 'render_form' ] );
+        add_shortcode( 'givoly_total',    [ $this, 'render_total' ] );
+        add_shortcode( 'givoly_campaign', [ $this, 'render_campaign' ] );
     }
 
     public function render_form( $atts ): string {
@@ -32,17 +32,16 @@ final class ShortcodeManager {
             'amounts'     => '10,25,50,100',
             'currency'    => 'EUR',
             'show_title'  => 'yes',
-            'theme'       => 'givasso',
+            'theme'       => 'givoly',
             'layout'      => 'card',   /* card | inline | flat */
             'title'       => '',
             'button_text' => '',
             'gateway'     => '',
-            'frequency'   => '',
-        ], $atts, 'givasso_form' );
+        ], $atts, 'givoly_form' );
 
         // Charger les assets uniquement quand le shortcode est présent
-        wp_enqueue_style( 'givasso-frontend' );
-        wp_enqueue_script( 'givasso-frontend' );
+        wp_enqueue_style( 'givoly-frontend' );
+        wp_enqueue_script( 'givoly-frontend' );
 
         $config = new FormConfig( $atts );
 
@@ -54,7 +53,7 @@ final class ShortcodeManager {
             'campaign' => '',
             'format'   => 'amount',
             'display'  => '',
-        ], $atts, 'givasso_total' );
+        ], $atts, 'givoly_total' );
 
         return ( new CampaignTotalWidget( $atts ) )->render();
     }
@@ -66,7 +65,7 @@ final class ShortcodeManager {
             'show_form'        => 'yes',
             'layout'           => 'card',
             'theme'            => 'classic',
-        ], $atts, 'givasso_campaign' );
+        ], $atts, 'givoly_campaign' );
 
         return ( new CampaignWidget( $atts ) )->render();
     }

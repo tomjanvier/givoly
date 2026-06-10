@@ -5,12 +5,12 @@
  * Tableau paginé (20/page) avec filtre par statut, bouton de remboursement Stripe
  * et lien vers le dashboard HelloAsso pour les dons HelloAsso.
  *
- * @package Givasso\Admin\Pages
+ * @package Givoly\Admin\Pages
  */
 
-namespace Givasso\Admin\Pages;
+namespace Givoly\Admin\Pages;
 
-use Givasso\Admin\Settings;
+use Givoly\Admin\Settings;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -22,18 +22,18 @@ final class DonationsPage {
 
     public function render(): void {
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( esc_html__( 'Accès refusé.', 'givasso' ) );
+            wp_die( esc_html__( 'Accès refusé.', 'givoly' ) );
         }
 
         // Notices
-        if ( isset( $_GET['givasso_refunded'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        if ( isset( $_GET['givoly_refunded'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
             echo '<div class="notice notice-success is-dismissible"><p>'
-                . esc_html__( 'Don remboursé avec succès.', 'givasso' )
+                . esc_html__( 'Don remboursé avec succès.', 'givoly' )
                 . '</p></div>';
         }
-        if ( isset( $_GET['givasso_refund_error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        if ( isset( $_GET['givoly_refund_error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
             echo '<div class="notice notice-error is-dismissible"><p>'
-                . esc_html__( 'Erreur lors du remboursement. Vérifiez vos clés Stripe ou effectuez le remboursement depuis le dashboard Stripe.', 'givasso' )
+                . esc_html__( 'Erreur lors du remboursement. Vérifiez vos clés Stripe ou effectuez le remboursement depuis le dashboard Stripe.', 'givoly' )
                 . '</p></div>';
         }
 
@@ -49,10 +49,10 @@ final class DonationsPage {
         $total_pages = (int) ceil( $total / self::PER_PAGE );
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'Givasso — Dons', 'givasso' ); ?></h1>
+            <h1><?php esc_html_e( 'Givoly — Dons', 'givoly' ); ?></h1>
             <p>
-                <a class="button button-primary" href="<?php echo esc_url( admin_url( 'admin.php?page=givasso-donations&export=csv' . ( $status ? '&status=' . rawurlencode( $status ) : '' ) ) ); ?>">
-                    <?php esc_html_e( 'Exporter les dons (CSV)', 'givasso' ); ?>
+                <a class="button button-primary" href="<?php echo esc_url( admin_url( 'admin.php?page=givoly-donations&export=csv' . ( $status ? '&status=' . rawurlencode( $status ) : '' ) ) ); ?>">
+                    <?php esc_html_e( 'Exporter les dons (CSV)', 'givoly' ); ?>
                 </a>
             </p>
 
@@ -60,16 +60,16 @@ final class DonationsPage {
             <ul class="subsubsub">
                 <?php
                 $filters = [
-                    ''          => __( 'Tous', 'givasso' ),
-                    'completed' => __( 'Complétés', 'givasso' ),
-                    'pending'   => __( 'En attente', 'givasso' ),
-                    'failed'    => __( 'Échoués', 'givasso' ),
-                    'refunded'  => __( 'Remboursés', 'givasso' ),
-                    'cancelled' => __( 'Annulés', 'givasso' ),
+                    ''          => __( 'Tous', 'givoly' ),
+                    'completed' => __( 'Complétés', 'givoly' ),
+                    'pending'   => __( 'En attente', 'givoly' ),
+                    'failed'    => __( 'Échoués', 'givoly' ),
+                    'refunded'  => __( 'Remboursés', 'givoly' ),
+                    'cancelled' => __( 'Annulés', 'givoly' ),
                 ];
                 $links = [];
                 foreach ( $filters as $s => $label ) {
-                    $url     = admin_url( 'admin.php?page=givasso-donations' . ( $s !== '' ? '&status=' . rawurlencode( $s ) : '' ) );
+                    $url     = admin_url( 'admin.php?page=givoly-donations' . ( $s !== '' ? '&status=' . rawurlencode( $s ) : '' ) );
                     $current = $status === $s ? ' class="current"' : '';
                     $links[] = '<li><a href="' . esc_url( $url ) . '"' . $current . '>' . esc_html( $label ) . '</a></li>';
                 }
@@ -78,17 +78,17 @@ final class DonationsPage {
             </ul>
 
             <?php if ( empty( $donations ) ) : ?>
-                <p><?php esc_html_e( 'Aucun don enregistré pour l\'instant.', 'givasso' ); ?></p>
+                <p><?php esc_html_e( 'Aucun don enregistré pour l\'instant.', 'givoly' ); ?></p>
             <?php else : ?>
-                <table class="wp-list-table widefat fixed striped givasso-table">
+                <table class="wp-list-table widefat fixed striped givoly-table">
                     <thead>
                         <tr>
-                            <th><?php esc_html_e( 'Donateur', 'givasso' ); ?></th>
-                            <th><?php esc_html_e( 'Email', 'givasso' ); ?></th>
-                            <th><?php esc_html_e( 'Montant', 'givasso' ); ?></th>
-                            <th><?php esc_html_e( 'Statut', 'givasso' ); ?></th>
-                            <th><?php esc_html_e( 'Date', 'givasso' ); ?></th>
-                            <th><?php esc_html_e( 'Actions', 'givasso' ); ?></th>
+                            <th><?php esc_html_e( 'Donateur', 'givoly' ); ?></th>
+                            <th><?php esc_html_e( 'Email', 'givoly' ); ?></th>
+                            <th><?php esc_html_e( 'Montant', 'givoly' ); ?></th>
+                            <th><?php esc_html_e( 'Statut', 'givoly' ); ?></th>
+                            <th><?php esc_html_e( 'Date', 'givoly' ); ?></th>
+                            <th><?php esc_html_e( 'Actions', 'givoly' ); ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -102,7 +102,7 @@ final class DonationsPage {
                                     </strong>
                                 </td>
                                 <td>
-                                    <span class="givasso-badge givasso-badge--<?php echo esc_attr( $row->status ); ?>">
+                                    <span class="givoly-badge givoly-badge--<?php echo esc_attr( $row->status ); ?>">
                                         <?php echo esc_html( $this->format_status( $row->status ) ); ?>
                                     </span>
                                 </td>
@@ -116,12 +116,12 @@ final class DonationsPage {
                                         <form method="post"
                                               action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>"
                                               style="display:inline;"
-                                              onsubmit="return confirm('<?php esc_attr_e( 'Confirmer le remboursement de ce don ? Cette action est irréversible.', 'givasso' ); ?>')">
-                                            <?php wp_nonce_field( 'givasso_refund_donation_' . $row->id ); ?>
-                                            <input type="hidden" name="action"      value="givasso_refund_donation">
+                                              onsubmit="return confirm('<?php esc_attr_e( 'Confirmer le remboursement de ce don ? Cette action est irréversible.', 'givoly' ); ?>')">
+                                            <?php wp_nonce_field( 'givoly_refund_donation_' . $row->id ); ?>
+                                            <input type="hidden" name="action"      value="givoly_refund_donation">
                                             <input type="hidden" name="donation_id" value="<?php echo esc_attr( $row->id ); ?>">
                                             <button type="submit" class="button button-small button-link-delete">
-                                                <?php esc_html_e( 'Rembourser', 'givasso' ); ?>
+                                                <?php esc_html_e( 'Rembourser', 'givoly' ); ?>
                                             </button>
                                         </form>
                                     <?php elseif (
@@ -139,8 +139,8 @@ final class DonationsPage {
                                            target="_blank"
                                            rel="noopener"
                                            class="button button-small"
-                                           title="<?php esc_attr_e( 'Rembourser depuis le dashboard HelloAsso', 'givasso' ); ?>">
-                                            <?php esc_html_e( 'Rembourser ↗', 'givasso' ); ?>
+                                           title="<?php esc_attr_e( 'Rembourser depuis le dashboard HelloAsso', 'givoly' ); ?>">
+                                            <?php esc_html_e( 'Rembourser ↗', 'givoly' ); ?>
                                         </a>
                                     <?php else : ?>
                                         —
@@ -163,8 +163,8 @@ final class DonationsPage {
         global $wpdb;
 
         $offset   = ( $page - 1 ) * self::PER_PAGE;
-        $table_d  = $wpdb->prefix . 'givasso_donations';
-        $table_dn = $wpdb->prefix . 'givasso_donors';
+        $table_d  = $wpdb->prefix . 'givoly_donations';
+        $table_dn = $wpdb->prefix . 'givoly_donors';
 
         $select = "SELECT d.id, d.amount, d.currency, d.status, d.created_at,
                           d.gateway, d.gateway_refund_ref,
@@ -195,7 +195,7 @@ final class DonationsPage {
     private function count_donations( string $status ): int {
         global $wpdb;
 
-        $table = $wpdb->prefix . 'givasso_donations';
+        $table = $wpdb->prefix . 'givoly_donations';
 
         if ( $status !== '' ) {
             return (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name from $wpdb->prefix
@@ -213,7 +213,7 @@ final class DonationsPage {
             return;
         }
 
-        $base_url = admin_url( 'admin.php?page=givasso-donations' . ( $status !== '' ? '&status=' . rawurlencode( $status ) : '' ) );
+        $base_url = admin_url( 'admin.php?page=givoly-donations' . ( $status !== '' ? '&status=' . rawurlencode( $status ) : '' ) );
 
         echo '<div class="tablenav"><div class="tablenav-pages">';
         echo paginate_links( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -229,11 +229,11 @@ final class DonationsPage {
 
     private function format_status( string $status ): string {
         $labels = [
-            'completed' => __( 'Complété', 'givasso' ),
-            'pending'   => __( 'En attente', 'givasso' ),
-            'failed'    => __( 'Échoué', 'givasso' ),
-            'refunded'  => __( 'Remboursé', 'givasso' ),
-            'cancelled' => __( 'Annulé', 'givasso' ),
+            'completed' => __( 'Complété', 'givoly' ),
+            'pending'   => __( 'En attente', 'givoly' ),
+            'failed'    => __( 'Échoué', 'givoly' ),
+            'refunded'  => __( 'Remboursé', 'givoly' ),
+            'cancelled' => __( 'Annulé', 'givoly' ),
         ];
 
         return $labels[ $status ] ?? $status;
@@ -241,8 +241,8 @@ final class DonationsPage {
 
     private function export_csv( string $status ): void {
         global $wpdb;
-        $table_d  = $wpdb->prefix . 'givasso_donations';
-        $table_dn = $wpdb->prefix . 'givasso_donors';
+        $table_d  = $wpdb->prefix . 'givoly_donations';
+        $table_dn = $wpdb->prefix . 'givoly_donors';
         $sql      = "SELECT d.id, d.amount, d.currency, d.status, d.created_at, d.gateway, dn.first_name, dn.last_name, dn.email
                      FROM {$table_d} d
                      LEFT JOIN {$table_dn} dn ON d.donor_id = dn.id";
@@ -255,7 +255,7 @@ final class DonationsPage {
         }
 
         header( 'Content-Type: text/csv; charset=utf-8' );
-        header( 'Content-Disposition: attachment; filename="givasso-dons-' . gmdate( 'Y-m-d-His' ) . '.csv"' );
+        header( 'Content-Disposition: attachment; filename="givoly-dons-' . gmdate( 'Y-m-d-His' ) . '.csv"' );
 
         $output = fopen( 'php://output', 'w' );
         if ( ! $output ) {

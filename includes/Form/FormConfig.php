@@ -8,14 +8,14 @@
  * ──────────────────────────────────────────────────────────────────────────
  *
  * Usage shortcode :
- *   [givasso_form theme="ocean" layout="card" amounts="10,25,50,100"]
+ *   [givoly_form theme="ocean" layout="card" amounts="10,25,50,100"]
  *
- * @package Givasso\Form
+ * @package Givoly\Form
  */
 
-namespace Givasso\Form;
+namespace Givoly\Form;
 
-use Givasso\Admin\Settings;
+use Givoly\Admin\Settings;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -30,77 +30,77 @@ final class FormConfig {
     const THEMES = [
 
         'classic' => [
-            '--givasso-color-primary'       => '#4f46e5',
-            '--givasso-color-primary-hover'  => '#4338ca',
-            '--givasso-color-primary-light'  => '#ede9fe',
-            '--givasso-color-bg'             => '#ffffff',
-            '--givasso-color-surface'        => '#f8fafc',
-            '--givasso-color-border'         => '#e2e8f0',
-            '--givasso-color-text'           => '#1e293b',
-            '--givasso-color-text-muted'     => '#64748b',
-            '--givasso-radius'               => '12px',
-            '--givasso-radius-sm'            => '8px',
+            '--givoly-color-primary'       => '#4f46e5',
+            '--givoly-color-primary-hover'  => '#4338ca',
+            '--givoly-color-primary-light'  => '#ede9fe',
+            '--givoly-color-bg'             => '#ffffff',
+            '--givoly-color-surface'        => '#f8fafc',
+            '--givoly-color-border'         => '#e2e8f0',
+            '--givoly-color-text'           => '#1e293b',
+            '--givoly-color-text-muted'     => '#64748b',
+            '--givoly-radius'               => '12px',
+            '--givoly-radius-sm'            => '8px',
         ],
 
         'ocean' => [
-            '--givasso-color-primary'       => '#0891b2',
-            '--givasso-color-primary-hover'  => '#0e7490',
-            '--givasso-color-primary-light'  => '#cffafe',
-            '--givasso-color-bg'             => '#ffffff',
-            '--givasso-color-surface'        => '#f0f9ff',
-            '--givasso-color-border'         => '#bae6fd',
-            '--givasso-color-text'           => '#0c4a6e',
-            '--givasso-color-text-muted'     => '#0369a1',
-            '--givasso-radius'               => '16px',
-            '--givasso-radius-sm'            => '10px',
+            '--givoly-color-primary'       => '#0891b2',
+            '--givoly-color-primary-hover'  => '#0e7490',
+            '--givoly-color-primary-light'  => '#cffafe',
+            '--givoly-color-bg'             => '#ffffff',
+            '--givoly-color-surface'        => '#f0f9ff',
+            '--givoly-color-border'         => '#bae6fd',
+            '--givoly-color-text'           => '#0c4a6e',
+            '--givoly-color-text-muted'     => '#0369a1',
+            '--givoly-radius'               => '16px',
+            '--givoly-radius-sm'            => '10px',
         ],
 
         'sunset' => [
-            '--givasso-color-primary'       => '#ea580c',
-            '--givasso-color-primary-hover'  => '#c2410c',
-            '--givasso-color-primary-light'  => '#ffedd5',
-            '--givasso-color-bg'             => '#ffffff',
-            '--givasso-color-surface'        => '#fff7ed',
-            '--givasso-color-border'         => '#fed7aa',
-            '--givasso-color-text'           => '#431407',
-            '--givasso-color-text-muted'     => '#9a3412',
-            '--givasso-radius'               => '8px',
-            '--givasso-radius-sm'            => '4px',
+            '--givoly-color-primary'       => '#ea580c',
+            '--givoly-color-primary-hover'  => '#c2410c',
+            '--givoly-color-primary-light'  => '#ffedd5',
+            '--givoly-color-bg'             => '#ffffff',
+            '--givoly-color-surface'        => '#fff7ed',
+            '--givoly-color-border'         => '#fed7aa',
+            '--givoly-color-text'           => '#431407',
+            '--givoly-color-text-muted'     => '#9a3412',
+            '--givoly-radius'               => '8px',
+            '--givoly-radius-sm'            => '4px',
         ],
 
         'minimal' => [
-            '--givasso-color-primary'       => '#18181b',
-            '--givasso-color-primary-hover'  => '#3f3f46',
-            '--givasso-color-primary-light'  => '#f4f4f5',
-            '--givasso-color-bg'             => '#ffffff',
-            '--givasso-color-surface'        => '#fafafa',
-            '--givasso-color-border'         => '#e4e4e7',
-            '--givasso-color-text'           => '#18181b',
-            '--givasso-color-text-muted'     => '#71717a',
-            '--givasso-radius'               => '4px',
-            '--givasso-radius-sm'            => '2px',
+            '--givoly-color-primary'       => '#18181b',
+            '--givoly-color-primary-hover'  => '#3f3f46',
+            '--givoly-color-primary-light'  => '#f4f4f5',
+            '--givoly-color-bg'             => '#ffffff',
+            '--givoly-color-surface'        => '#fafafa',
+            '--givoly-color-border'         => '#e4e4e7',
+            '--givoly-color-text'           => '#18181b',
+            '--givoly-color-text-muted'     => '#71717a',
+            '--givoly-radius'               => '4px',
+            '--givoly-radius-sm'            => '2px',
         ],
 
-        // Palette officielle Givasso — ONG / fundraising
-        'givasso' => [
-            '--givasso-color-primary'       => '#2b1533',
-            '--givasso-color-primary-hover'  => '#1f0f24',
-            '--givasso-color-primary-light'  => '#efe8f1',
-            '--givasso-color-bg'             => '#FFFFFF',
-            '--givasso-color-surface'        => '#F8FAF9',
-            '--givasso-color-border'         => '#C6E0D6',
-            '--givasso-color-text'           => '#1A2E24',
-            '--givasso-color-text-muted'     => '#55665F',
-            '--givasso-radius'               => '12px',
-            '--givasso-radius-sm'            => '8px',
-            '--givasso-color-accent'         => '#2ECC71',
+        // Palette officielle Givoly — ONG / fundraising
+        'givoly' => [
+            '--givoly-color-primary'       => '#2b1533',
+            '--givoly-color-primary-hover'  => '#1f0f24',
+            '--givoly-color-primary-light'  => '#efe8f1',
+            '--givoly-color-bg'             => '#FFFFFF',
+            '--givoly-color-surface'        => '#F8FAF9',
+            '--givoly-color-border'         => '#C6E0D6',
+            '--givoly-color-text'           => '#1A2E24',
+            '--givoly-color-text-muted'     => '#55665F',
+            '--givoly-radius'               => '12px',
+            '--givoly-radius-sm'            => '8px',
+            '--givoly-color-accent'         => '#2ECC71',
         ],
 
     ];
 
     const LAYOUTS = [ 'card', 'inline', 'flat' ];
 
-    const DEFAULT_THEME  = 'givasso';
+    const DEFAULT_THEME  = 'givoly';
     const DEFAULT_LAYOUT = 'card';
 
     // ── Propriétés publiques (readonly = immuables après construction) ─────
@@ -114,7 +114,6 @@ final class FormConfig {
     public readonly string $title;
     public readonly string $button_text;
     public readonly string $gateway;
-    public readonly string $frequency;
     public readonly array  $extra_fields;
 
     public function __construct( array $raw_atts ) {
@@ -124,14 +123,9 @@ final class FormConfig {
         $this->amounts     = $this->parse_amounts( $raw_atts['amounts']    ?? '10,25,50,100' );
         $this->theme       = $this->parse_enum( $raw_atts['theme']  ?? '', array_keys( self::THEMES ), self::DEFAULT_THEME );
         $this->layout      = $this->parse_enum( $raw_atts['layout'] ?? '', self::LAYOUTS,              self::DEFAULT_LAYOUT );
-        $this->title       = sanitize_text_field( ! empty( $raw_atts['title'] )       ? $raw_atts['title']       : __( 'Faire un don', 'givasso' ) );
-        $this->button_text = sanitize_text_field( ! empty( $raw_atts['button_text'] ) ? $raw_atts['button_text'] : __( 'Donner maintenant', 'givasso' ) );
+        $this->title       = sanitize_text_field( ! empty( $raw_atts['title'] )       ? $raw_atts['title']       : __( 'Faire un don', 'givoly' ) );
+        $this->button_text = sanitize_text_field( ! empty( $raw_atts['button_text'] ) ? $raw_atts['button_text'] : __( 'Donner maintenant', 'givoly' ) );
         $this->gateway     = $this->parse_enum( $raw_atts['gateway'] ?? '', [ 'stripe', 'helloasso' ], Settings::get_default_gateway() );
-        $this->frequency   = $this->parse_enum(
-            $raw_atts['frequency'] ?? '',
-            [ 'once' ],
-            'once'
-        );
         $this->extra_fields = $this->parse_extra_fields( $raw_atts['extra_fields'] ?? '' );
     }
 
@@ -148,21 +142,21 @@ final class FormConfig {
         // 2. Override couleur principale depuis les réglages admin
         $custom_primary = Settings::get_appearance_primary_color();
         if ( $custom_primary !== '' ) {
-            $vars['--givasso-color-primary']      = $custom_primary;
-            $vars['--givasso-color-primary-hover'] = $this->darken_hex( $custom_primary );
-            $vars['--givasso-color-primary-light'] = $this->lighten_hex( $custom_primary );
+            $vars['--givoly-color-primary']      = $custom_primary;
+            $vars['--givoly-color-primary-hover'] = $this->darken_hex( $custom_primary );
+            $vars['--givoly-color-primary-light'] = $this->lighten_hex( $custom_primary );
         }
 
         // 3. Accentuation alignée sur la couleur principale (source unique)
         //    On garde la variable CSS pour éviter de casser le CSS existant,
         //    mais sa valeur suit systématiquement la couleur principale.
-        $vars['--givasso-color-accent'] = $vars['--givasso-color-primary'];
+        $vars['--givoly-color-accent'] = $vars['--givoly-color-primary'];
 
         // 4. Rayon des coins depuis les réglages admin
         $radius_map = [
-            'square'  => [ '--givasso-radius' => '0px',  '--givasso-radius-sm' => '0px'  ],
-            'rounded' => [ '--givasso-radius' => '12px', '--givasso-radius-sm' => '8px'  ],
-            'pill'    => [ '--givasso-radius' => '20px', '--givasso-radius-sm' => '14px' ],
+            'square'  => [ '--givoly-radius' => '0px',  '--givoly-radius-sm' => '0px'  ],
+            'rounded' => [ '--givoly-radius' => '12px', '--givoly-radius-sm' => '8px'  ],
+            'pill'    => [ '--givoly-radius' => '20px', '--givoly-radius-sm' => '14px' ],
         ];
         $radius_key = Settings::get_appearance_radius();
         if ( isset( $radius_map[ $radius_key ] ) ) {
@@ -170,7 +164,7 @@ final class FormConfig {
         }
 
         // 5. Style bouton
-        $vars['--givasso-btn-style'] = Settings::get_appearance_btn_style();
+        $vars['--givoly-btn-style'] = Settings::get_appearance_btn_style();
 
         // Sérialisation
         $pairs = [];
@@ -182,14 +176,14 @@ final class FormConfig {
     }
 
     /**
-     * Retourne les classes CSS supplémentaires à ajouter sur .givasso-wrap.
+     * Retourne les classes CSS supplémentaires à ajouter sur .givoly-wrap.
      * Permet au CSS de cibler les variantes de style sans sélecteur [style*=].
      */
     public function get_wrap_classes(): string {
         $classes = [];
 
         if ( Settings::get_appearance_btn_style() === 'outline' ) {
-            $classes[] = 'givasso-btn-style-outline';
+            $classes[] = 'givoly-btn-style-outline';
         }
 
         return implode( ' ', $classes );
@@ -277,7 +271,7 @@ final class FormConfig {
 
     /**
      * Champs additionnels optionnels activables via shortcode :
-     * [givasso_form extra_fields="phone,company,message"]
+     * [givoly_form extra_fields="phone,company,message"]
      */
     private function parse_extra_fields( string $raw ): array {
         $allowed = [ 'phone', 'company', 'message' ];

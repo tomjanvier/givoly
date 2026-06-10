@@ -4,10 +4,10 @@
  *
  * Classe pure : aucune dépendance WordPress ou base de données.
  *
- * @package Givasso\Domain\Entities
+ * @package Givoly\Domain\Entities
  */
 
-namespace Givasso\Domain\Entities;
+namespace Givoly\Domain\Entities;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -31,8 +31,6 @@ final class Donation {
         private readonly \DateTimeImmutable $created_at,
         private readonly ?int               $campaign_id            = null,
         private readonly ?string            $gateway_transaction_id = null,
-        private readonly bool               $is_recurring           = false,
-        private readonly ?int               $receipt_id             = null,
     ) {}
 
     public function get_id(): int                         { return $this->id; }
@@ -43,26 +41,10 @@ final class Donation {
     public function get_gateway(): string                 { return $this->gateway; }
     public function get_campaign_id(): ?int               { return $this->campaign_id; }
     public function get_gateway_transaction_id(): ?string { return $this->gateway_transaction_id; }
-    public function get_receipt_id(): ?int                { return $this->receipt_id; }
     public function get_created_at(): \DateTimeImmutable  { return $this->created_at; }
 
     public function is_completed(): bool {
         return $this->status === self::STATUS_COMPLETED;
-    }
-
-    public function is_recurring(): bool {
-        return $this->is_recurring;
-    }
-
-    public function has_receipt(): bool {
-        return $this->receipt_id !== null;
-    }
-
-    /**
-     * Un don est éligible au CERFA s'il est complété et sans reçu existant.
-     */
-    public function is_eligible_for_receipt(): bool {
-        return $this->is_completed() && ! $this->has_receipt();
     }
 
     /**

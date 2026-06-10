@@ -2,13 +2,13 @@
 /**
  * Gestionnaire des actions admin POST (remboursement Stripe).
  *
- * @package Givasso\Admin
+ * @package Givoly\Admin
  */
 
-namespace Givasso\Admin;
+namespace Givoly\Admin;
 
-use Givasso\Gateway\StripeGateway;
-use Givasso\Admin\Settings;
+use Givoly\Gateway\StripeGateway;
+use Givoly\Admin\Settings;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -17,22 +17,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class AdminActions {
 
     public function register(): void {
-        add_action( 'admin_post_givasso_refund_donation', [ $this, 'handle_refund_donation' ] );
+        add_action( 'admin_post_givoly_refund_donation', [ $this, 'handle_refund_donation' ] );
     }
 
     public function handle_refund_donation(): void {
         $donation_id = (int) ( isset( $_POST['donation_id'] ) ? wp_unslash( $_POST['donation_id'] ) : 0 ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
-        check_admin_referer( 'givasso_refund_donation_' . $donation_id );
+        check_admin_referer( 'givoly_refund_donation_' . $donation_id );
 
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( esc_html__( 'Accès refusé.', 'givasso' ) );
+            wp_die( esc_html__( 'Accès refusé.', 'givoly' ) );
         }
 
-        $redirect_base = admin_url( 'admin.php?page=givasso-donations' );
+        $redirect_base = admin_url( 'admin.php?page=givoly-donations' );
 
         if ( ! $donation_id ) {
-            wp_safe_redirect( add_query_arg( 'givasso_refund_error', '1', $redirect_base ) );
+            wp_safe_redirect( add_query_arg( 'givoly_refund_error', '1', $redirect_base ) );
             exit;
         }
 
@@ -41,7 +41,7 @@ final class AdminActions {
         $donation = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prepare(
                 "SELECT id, gateway, status, gateway_refund_ref
-                 FROM {$wpdb->prefix}givasso_donations
+                 FROM {$wpdb->prefix}givoly_donations
                  WHERE id = %d",
                 $donation_id
             ),
@@ -54,7 +54,7 @@ final class AdminActions {
             || $donation['gateway'] !== 'stripe'
             || empty( $donation['gateway_refund_ref'] )
         ) {
-            wp_safe_redirect( add_query_arg( 'givasso_refund_error', '1', $redirect_base ) );
+            wp_safe_redirect( add_query_arg( 'givoly_refund_error', '1', $redirect_base ) );
             exit;
         }
 
@@ -63,18 +63,18 @@ final class AdminActions {
             $gateway->refund( $donation['gateway_refund_ref'] );
 
             $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-                $wpdb->prefix . 'givasso_donations',
+                $wpdb->prefix . 'givoly_donations',
                 [ 'status' => 'refunded' ],
                 [ 'id'     => $donation_id ],
                 [ '%s' ],
                 [ '%d' ]
             );
 
-            wp_safe_redirect( add_query_arg( 'givasso_refunded', '1', $redirect_base ) );
+            wp_safe_redirect( add_query_arg( 'givoly_refunded', '1', $redirect_base ) );
 
         } catch ( \RuntimeException $e ) {
-            error_log( '[Givasso] Erreur remboursement don #' . $donation_id . ' : ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-            wp_safe_redirect( add_query_arg( 'givasso_refund_error', '1', $redirect_base ) );
+            error_log( '[Givoly] Erreur remboursement don #' . $donation_id . ' : ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            wp_safe_redirect( add_query_arg( 'givoly_refund_error', '1', $redirect_base ) );
         }
 
         exit;

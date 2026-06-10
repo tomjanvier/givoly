@@ -5,10 +5,10 @@
  * Chef d'orchestre : instancie et connecte tous les modules.
  * Ne contient aucune logique métier.
  *
- * @package Givasso\Core
+ * @package Givoly\Core
  */
 
-namespace Givasso\Core;
+namespace Givoly\Core;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -37,12 +37,12 @@ final class Plugin {
      */
     public function boot(): void {
         Installer::maybe_upgrade();
-        ( new \Givasso\Core\AssetsLoader() )->register();
-        ( new \Givasso\Admin\AdminMenu() )->register();
-        ( new \Givasso\Admin\AdminActions() )->register();
-        ( new \Givasso\Admin\Pages\SettingsPage() )->register();
-        ( new \Givasso\Admin\Pages\CampaignsPage() )->register();
-        ( new \Givasso\Form\ShortcodeManager() )->register();
-        ( new \Givasso\Ajax\AjaxHandler() )->register();
+        ( new \Givoly\Core\AssetsLoader() )->register();
+        ( new \Givoly\Admin\AdminMenu() )->register();
+        ( new \Givoly\Admin\AdminActions() )->register();
+        ( new \Givoly\Admin\Pages\SettingsPage() )->register();
+        ( new \Givoly\Admin\Pages\CampaignsPage() )->register();
+        ( new \Givoly\Form\ShortcodeManager() )->register();
+        ( new \Givoly\Ajax\AjaxHandler() )->register();
     }
 }

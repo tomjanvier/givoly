@@ -2,18 +2,18 @@
 /**
  * Widget de campagne — jauge de progression + formulaire de don intégré.
  *
- * Utilisé par le shortcode [givasso_campaign campaign="slug"].
+ * Utilisé par le shortcode [givoly_campaign campaign="slug"].
  *
  * Le template est overridable dans le thème actif :
- *   {theme}/givasso/campaign/campaign.php
+ *   {theme}/givoly/campaign/campaign.php
  *
- * @package Givasso\Form
+ * @package Givoly\Form
  */
 
-namespace Givasso\Form;
+namespace Givoly\Form;
 
-use Givasso\Domain\Entities\Campaign;
-use Givasso\Repository\CampaignRepository;
+use Givoly\Domain\Entities\Campaign;
+use Givoly\Repository\CampaignRepository;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -64,8 +64,8 @@ final class CampaignWidget {
         // Préparer le formulaire de don si la campagne est ouverte
         $donation_form = null;
         if ( $this->show_form && ! $is_ended ) {
-            wp_enqueue_style( 'givasso-frontend' );
-            wp_enqueue_script( 'givasso-frontend' );
+            wp_enqueue_style( 'givoly-frontend' );
+            wp_enqueue_script( 'givoly-frontend' );
 
             $form_config   = new FormConfig( [
                 'campaign'   => $this->campaign_slug,
@@ -93,8 +93,8 @@ final class CampaignWidget {
         bool          $show_description = true
     ): void {
         // Cherche d'abord dans le thème actif (overridable).
-        $theme_path  = get_stylesheet_directory() . '/givasso/campaign/campaign.php';
-        $plugin_path = GIVASSO_PLUGIN_DIR . 'templates/campaign/campaign.php';
+        $theme_path  = get_stylesheet_directory() . '/givoly/campaign/campaign.php';
+        $plugin_path = GIVOLY_PLUGIN_DIR . 'templates/campaign/campaign.php';
 
         $path = file_exists( $theme_path ) ? $theme_path : $plugin_path;
 

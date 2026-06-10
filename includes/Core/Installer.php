@@ -6,10 +6,10 @@
  * - Créer les tables MySQL à l'activation
  * - Stocker la version DB pour les migrations futures
  *
- * @package Givasso\Core
+ * @package Givoly\Core
  */
 
-namespace Givasso\Core;
+namespace Givoly\Core;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class Installer {
 
-    const DB_VERSION_OPTION = 'givasso_db_version';
+    const DB_VERSION_OPTION = 'givoly_db_version';
     const DB_VERSION        = '1.4';
 
     public static function activate(): void {
@@ -51,7 +51,7 @@ final class Installer {
     private static function run_migrations(): void {
         global $wpdb;
 
-        $table = $wpdb->prefix . 'givasso_donations';
+        $table = $wpdb->prefix . 'givoly_donations';
 
         // v1.3 → v1.4 : renommer stripe_payment_intent_id → gateway_refund_ref
         $old_col = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -121,7 +121,7 @@ final class Installer {
         $charset = $wpdb->get_charset_collate();
 
         // ── Donateurs ────────────────────────────────────────────────────────
-        dbDelta( "CREATE TABLE {$wpdb->prefix}givasso_donors (
+        dbDelta( "CREATE TABLE {$wpdb->prefix}givoly_donors (
             id              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             email           VARCHAR(254)    NOT NULL,
             first_name      VARCHAR(100)    NOT NULL DEFAULT '',
@@ -142,7 +142,7 @@ final class Installer {
         ) $charset;" );
 
         // ── Dons ─────────────────────────────────────────────────────────────
-        dbDelta( "CREATE TABLE {$wpdb->prefix}givasso_donations (
+        dbDelta( "CREATE TABLE {$wpdb->prefix}givoly_donations (
             id                      BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             donor_id                BIGINT UNSIGNED NOT NULL,
             campaign_id             BIGINT UNSIGNED          DEFAULT NULL,
@@ -152,9 +152,6 @@ final class Installer {
             gateway                 VARCHAR(50)     NOT NULL DEFAULT 'stripe',
             gateway_transaction_id  VARCHAR(255)             DEFAULT NULL,
             gateway_refund_ref      VARCHAR(255)             DEFAULT NULL,
-            is_recurring            TINYINT(1)      NOT NULL DEFAULT 0,
-            frequency               VARCHAR(20)              DEFAULT NULL,
-            receipt_id              BIGINT UNSIGNED          DEFAULT NULL,
             donor_message           TEXT                     DEFAULT NULL,
             created_at              DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at              DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -165,28 +162,8 @@ final class Installer {
             KEY                     idx_refund_ref     (gateway_refund_ref)
         ) $charset;" );
 
-        // ── Abonnements ───────────────────────────────────────────────────────
-        dbDelta( "CREATE TABLE {$wpdb->prefix}givasso_subscriptions (
-            id                      BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-            donor_id                BIGINT UNSIGNED NOT NULL,
-            stripe_subscription_id  VARCHAR(255)    NOT NULL,
-            stripe_customer_id      VARCHAR(255)    NOT NULL,
-            amount                  DECIMAL(10,2)   NOT NULL,
-            currency                CHAR(3)         NOT NULL DEFAULT 'EUR',
-            frequency               VARCHAR(20)     NOT NULL,
-            status                  ENUM('active','cancelled','past_due','unpaid') NOT NULL DEFAULT 'active',
-            next_payment_at         DATETIME                 DEFAULT NULL,
-            cancelled_at            DATETIME                 DEFAULT NULL,
-            created_at              DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            updated_at              DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            PRIMARY KEY             (id),
-            UNIQUE KEY              uq_stripe_sub (stripe_subscription_id),
-            KEY                     idx_donor      (donor_id),
-            KEY                     idx_status     (status)
-        ) $charset;" );
-
         // ── Campagnes ─────────────────────────────────────────────────────────
-        dbDelta( "CREATE TABLE {$wpdb->prefix}givasso_campaigns (
+        dbDelta( "CREATE TABLE {$wpdb->prefix}givoly_campaigns (
             id              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             title           VARCHAR(255)    NOT NULL,
             slug            VARCHAR(255)    NOT NULL,
@@ -204,23 +181,5 @@ final class Installer {
             KEY             idx_status (status)
         ) $charset;" );
 
-        // ── Reçus CERFA ───────────────────────────────────────────────────────
-        dbDelta( "CREATE TABLE {$wpdb->prefix}givasso_receipts (
-            id              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-            donation_id     BIGINT UNSIGNED NOT NULL,
-            receipt_number  VARCHAR(20)     NOT NULL,
-            fiscal_year     SMALLINT        NOT NULL,
-            status          ENUM('issued','cancelled','replaced') NOT NULL DEFAULT 'issued',
-            replaces_id     BIGINT UNSIGNED          DEFAULT NULL,
-            pdf_path        VARCHAR(512)             DEFAULT NULL,
-            sent_at         DATETIME                 DEFAULT NULL,
-            issued_at       DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            cancelled_at    DATETIME                 DEFAULT NULL,
-            cancel_reason   VARCHAR(255)             DEFAULT NULL,
-            PRIMARY KEY     (id),
-            UNIQUE KEY      uq_receipt_number (receipt_number),
-            KEY             idx_donation    (donation_id),
-            KEY             idx_fiscal_year (fiscal_year)
-        ) $charset;" );
     }
 }

@@ -1,7 +1,7 @@
 /*
- * Givasso — Styles Admin
+ * Givoly — Styles Admin
  *
- * Palette officielle Givasso appliquée à l'ensemble de l'interface admin.
+ * Palette officielle Givoly appliquée à l'ensemble de l'interface admin.
  * S'appuie sur les classes WordPress natives (wp-list-table, widefat…)
  * et n'overrides que ce qui est nécessaire.
  *
@@ -21,9 +21,9 @@
 
 /* ── 1. Variables ─────────────────────────────────────────────────────────── */
 
-.wrap.givasso-dashboard,
-.wrap.givasso-export,
-.givasso-admin-page {
+.wrap.givoly-dashboard,
+.wrap.givoly-export,
+.givoly-admin-page {
     --dp-primary:       #1B6B4A;
     --dp-primary-hover: #155438;
     --dp-primary-light: #E8F5EE;
@@ -41,13 +41,13 @@
 }
 
 /* Variables globales pour les composants utilisés dans toutes les pages */
-.givasso-stats,
-.givasso-stat-card,
-.givasso-badge,
-.givasso-progress-track,
-.givasso-progress-fill,
-.givasso-status--overdue,
-.givasso-table {
+.givoly-stats,
+.givoly-stat-card,
+.givoly-badge,
+.givoly-progress-track,
+.givoly-progress-fill,
+.givoly-status--overdue,
+.givoly-table {
     --dp-primary:       #1B6B4A;
     --dp-primary-light: #E8F5EE;
     --dp-accent:        #2ECC71;
@@ -64,9 +64,9 @@
 
 /* ── 2. En-têtes de page ──────────────────────────────────────────────────── */
 
-/* Ligne verte sous le titre H1 des pages Givasso */
-.wrap.givasso-dashboard > h1,
-.wrap.givasso-export > h1 {
+/* Ligne verte sous le titre H1 des pages Givoly */
+.wrap.givoly-dashboard > h1,
+.wrap.givoly-export > h1 {
     padding-bottom:  10px;
     border-bottom:   3px solid #1B6B4A;
     margin-bottom:   20px;
@@ -75,14 +75,14 @@
 
 /* ── 3. Cartes de stats ───────────────────────────────────────────────────── */
 
-.givasso-stats {
+.givoly-stats {
     display:               grid;
     grid-template-columns: repeat( auto-fill, minmax( 200px, 1fr ) );
     gap:                   1.25rem;
     margin:                1.5rem 0 2rem;
 }
 
-.givasso-stat-card {
+.givoly-stat-card {
     display:        flex;
     flex-direction: column;
     align-items:    flex-start;
@@ -96,25 +96,25 @@
     transition:     box-shadow .15s ease, border-color .15s ease;
 }
 
-.givasso-stat-card:hover {
+.givoly-stat-card:hover {
     box-shadow:   0 3px 12px rgba(27, 107, 74, .1);
     border-color: var(--dp-primary);
 }
 
-.givasso-stat-card__icon {
+.givoly-stat-card__icon {
     font-size:   1.375rem;
     line-height: 1;
     margin-bottom: .125rem;
 }
 
-.givasso-stat-card__value {
+.givoly-stat-card__value {
     font-size:   1.75rem;
     font-weight: 700;
     color:       var(--dp-primary);
     line-height: 1.2;
 }
 
-.givasso-stat-card__label {
+.givoly-stat-card__label {
     font-size: .8125rem;
     color:     var(--dp-text-muted);
     font-weight: 500;
@@ -122,13 +122,13 @@
 
 /* ── 4. Tableaux ──────────────────────────────────────────────────────────── */
 
-.givasso-table {
+.givoly-table {
     margin-top: .75rem;
 }
 
-/* En-tête de tableau — teinte Givasso subtile */
-.givasso-table thead th,
-.givasso-table thead td {
+/* En-tête de tableau — teinte Givoly subtile */
+.givoly-table thead th,
+.givoly-table thead td {
     background:  #F0F7F4;
     color:       var(--dp-text);
     border-bottom: 2px solid var(--dp-border);
@@ -139,32 +139,32 @@
 }
 
 /* Cellules — padding légèrement augmenté */
-.givasso-table tbody td,
-.givasso-table tbody th {
+.givoly-table tbody td,
+.givoly-table tbody th {
     padding:     10px 12px;
     border-color: #f0f0f0;
 }
 
 /* Hover sur les lignes */
-.givasso-table.striped tbody tr:hover td {
+.givoly-table.striped tbody tr:hover td {
     background: #f7fbf9;
 }
 
 /* Liens dans les tableaux */
-.givasso-table tbody td a {
+.givoly-table tbody td a {
     color:           var(--dp-primary);
     text-decoration: none;
     font-weight:     500;
 }
 
-.givasso-table tbody td a:hover {
+.givoly-table tbody td a:hover {
     color:           var(--dp-primary-hover);
     text-decoration: underline;
 }
 
 /* ── 5. Badges de statut ──────────────────────────────────────────────────── */
 
-.givasso-badge {
+.givoly-badge {
     display:       inline-block;
     padding:       3px 10px;
     border-radius: 20px;
@@ -174,58 +174,58 @@
     white-space:   nowrap;
 }
 
-/* Don complété — vert Givasso */
-.givasso-badge--completed {
+/* Don complété — vert Givoly */
+.givoly-badge--completed {
     background: var(--dp-success-light, #F0FDF4);
     color:      var(--dp-success, #38A169);
     border:     1px solid #86efac;
 }
 
 /* En attente — ambre */
-.givasso-badge--pending {
+.givoly-badge--pending {
     background: var(--dp-warning-light, #FFFBEB);
     color:      var(--dp-warning, #B45309);
     border:     1px solid #fcd34d;
 }
 
-/* Échoué / Annulé — rouge Givasso */
-.givasso-badge--failed,
-.givasso-badge--cancelled {
+/* Échoué / Annulé — rouge Givoly */
+.givoly-badge--failed,
+.givoly-badge--cancelled {
     background: var(--dp-danger-light, #FEF2F2);
     color:      var(--dp-danger, #D64545);
     border:     1px solid #fca5a5;
 }
 
 /* Remboursé — violet neutre */
-.givasso-badge--refunded {
+.givoly-badge--refunded {
     background: #f3f0ff;
     color:      #6d28d9;
     border:     1px solid #c4b5fd;
 }
 
 /* Reçu émis */
-.givasso-badge--issued {
+.givoly-badge--issued {
     background: var(--dp-success-light, #F0FDF4);
     color:      var(--dp-success, #38A169);
     border:     1px solid #86efac;
 }
 
 /* Reçu annulé / remplacé */
-.givasso-badge--replaced {
+.givoly-badge--replaced {
     background: #f3f0ff;
     color:      #6d28d9;
     border:     1px solid #c4b5fd;
 }
 
 /* Badge "Configuré" dans les réglages */
-.givasso-badge--ok {
+.givoly-badge--ok {
     background: var(--dp-success-light, #F0FDF4);
     color:      var(--dp-success, #38A169);
     border:     1px solid #86efac;
 }
 
 /* Badge "Non configuré" dans les réglages */
-.givasso-badge--warn {
+.givoly-badge--warn {
     background: var(--dp-warning-light, #FFFBEB);
     color:      var(--dp-warning, #B45309);
     border:     1px solid #fcd34d;
@@ -233,7 +233,7 @@
 
 /* ── 6. Barre de progression ──────────────────────────────────────────────── */
 
-.givasso-progress-track {
+.givoly-progress-track {
     background:    #E8F5EE;
     border-radius: 4px;
     height:        8px;
@@ -243,7 +243,7 @@
     border:        1px solid var(--dp-border, #C6E0D6);
 }
 
-.givasso-progress-fill {
+.givoly-progress-fill {
     background:    var(--dp-primary, #1B6B4A);
     height:        100%;
     border-radius: 3px;
@@ -253,14 +253,14 @@
 
 /* ── 7. Statuts texte ─────────────────────────────────────────────────────── */
 
-.givasso-status--overdue {
+.givoly-status--overdue {
     color:       #B45309;
     font-weight: 500;
 }
 
 /* ── 8. Cards (composant partagé) ─────────────────────────────────────────── */
 
-.givasso-card {
+.givoly-card {
     background:    #fff;
     border:        1px solid #e0e0e0;
     border-radius: 8px;
@@ -269,7 +269,7 @@
     box-shadow:    0 1px 4px rgba(0, 0, 0, .04);
 }
 
-.givasso-card__title {
+.givoly-card__title {
     font-size:   15px;
     font-weight: 600;
     margin:      0 0 12px;
@@ -279,7 +279,7 @@
     gap:         8px;
 }
 
-.givasso-card__title .dashicons {
+.givoly-card__title .dashicons {
     font-size:   18px;
     width:       18px;
     height:      18px;
@@ -287,7 +287,7 @@
     color:       #1B6B4A;
 }
 
-.givasso-card__desc {
+.givoly-card__desc {
     color:        #55665F;
     font-size:    .875rem;
     margin:       -4px 0 16px;
@@ -296,52 +296,41 @@
 
 /* ── 9. Menu admin ────────────────────────────────────────────────────────── */
 
-/* Icône du menu principal Givasso */
-#adminmenu #toplevel_page_givasso .wp-menu-image img {
+/* Icône du menu principal Givoly */
+#adminmenu #toplevel_page_givoly .wp-menu-image img {
     filter: brightness(0) invert(1);
 }
 
-/* Highlight de l'item de menu actif Givasso */
-#adminmenu #toplevel_page_givasso.current > a,
-#adminmenu #toplevel_page_givasso .current > a {
+/* Highlight de l'item de menu actif Givoly */
+#adminmenu #toplevel_page_givoly.current > a,
+#adminmenu #toplevel_page_givoly .current > a {
     background: rgba(27, 107, 74, .12) !important;
     border-left: 3px solid #2ECC71 !important;
 }
 
 /* ── 10. Notices ──────────────────────────────────────────────────────────── */
 
-/* Notice de succès — couleurs Givasso */
+/* Notice de succès — couleurs Givoly */
 .wrap .notice-success {
     border-left-color: #38A169;
-}
-
-/* Notice d'avertissement Pro */
-.givasso-pro-banner {
-    border-left-color: #B45309 !important;
-    background:        #FFFBEB !important;
-}
-
-.givasso-pro-banner a {
-    color:       #1B6B4A;
-    font-weight: 600;
 }
 
 /* ── 11. Boutons spécifiques ──────────────────────────────────────────────── */
 
 /* Bouton FEC (export comptable) */
-.givasso-btn-fec {
+.givoly-btn-fec {
     border-color: #1B6B4A !important;
     color:        #1B6B4A !important;
 }
 
-.givasso-btn-fec:hover {
+.givoly-btn-fec:hover {
     border-color: #155438 !important;
     color:        #155438 !important;
     background:   #E8F5EE !important;
 }
 
 /* Zone d'actions export */
-.givasso-export-actions {
+.givoly-export-actions {
     margin-top:  24px;
     padding-top: 20px;
     border-top:  1px solid #E8F5EE;
@@ -351,13 +340,13 @@
     align-items: center;
 }
 
-.givasso-export-actions .button {
+.givoly-export-actions .button {
     display:     inline-flex !important;
     align-items: center;
     gap:         6px;
 }
 
-.givasso-export-actions .dashicons {
+.givoly-export-actions .dashicons {
     font-size:   16px !important;
     width:       16px !important;
     height:      16px !important;

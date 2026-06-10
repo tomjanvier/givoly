@@ -4,10 +4,10 @@
  *
  * Tableau : nom, email, total donné (dons complétés), nb de dons, dernier don.
  *
- * @package Givasso\Admin\Pages
+ * @package Givoly\Admin\Pages
  */
 
-namespace Givasso\Admin\Pages;
+namespace Givoly\Admin\Pages;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -17,25 +17,25 @@ final class DonorsPage {
 
     public function render(): void {
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( esc_html__( 'Accès refusé.', 'givasso' ) );
+            wp_die( esc_html__( 'Accès refusé.', 'givoly' ) );
         }
 
         $donors = $this->get_donors();
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'Givasso — Donateurs', 'givasso' ); ?></h1>
+            <h1><?php esc_html_e( 'Givoly — Donateurs', 'givoly' ); ?></h1>
 
             <?php if ( empty( $donors ) ) : ?>
-                <p><?php esc_html_e( 'Aucun donateur enregistré pour l\'instant.', 'givasso' ); ?></p>
+                <p><?php esc_html_e( 'Aucun donateur enregistré pour l\'instant.', 'givoly' ); ?></p>
             <?php else : ?>
-                <table class="wp-list-table widefat fixed striped givasso-table">
+                <table class="wp-list-table widefat fixed striped givoly-table">
                     <thead>
                         <tr>
-                            <th><?php esc_html_e( 'Donateur', 'givasso' ); ?></th>
-                            <th><?php esc_html_e( 'Email', 'givasso' ); ?></th>
-                            <th><?php esc_html_e( 'Total donné', 'givasso' ); ?></th>
-                            <th><?php esc_html_e( 'Nb de dons', 'givasso' ); ?></th>
-                            <th><?php esc_html_e( 'Dernier don', 'givasso' ); ?></th>
+                            <th><?php esc_html_e( 'Donateur', 'givoly' ); ?></th>
+                            <th><?php esc_html_e( 'Email', 'givoly' ); ?></th>
+                            <th><?php esc_html_e( 'Total donné', 'givoly' ); ?></th>
+                            <th><?php esc_html_e( 'Nb de dons', 'givoly' ); ?></th>
+                            <th><?php esc_html_e( 'Dernier don', 'givoly' ); ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -80,8 +80,8 @@ final class DonorsPage {
     private function get_donors(): array {
         global $wpdb;
 
-        $table_dn = $wpdb->prefix . 'givasso_donors';
-        $table_d  = $wpdb->prefix . 'givasso_donations';
+        $table_dn = $wpdb->prefix . 'givoly_donors';
+        $table_d  = $wpdb->prefix . 'givoly_donations';
 
         // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table names from $wpdb->prefix (trusted)
         return $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching

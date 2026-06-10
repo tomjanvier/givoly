@@ -2,13 +2,13 @@
 /**
  * Gestionnaire des réglages du plugin.
  *
- * Source unique pour lire/écrire toutes les options Givasso.
+ * Source unique pour lire/écrire toutes les options Givoly.
  * Toutes les autres classes passent par ici — jamais get_option() en direct.
  *
- * @package Givasso\Admin
+ * @package Givoly\Admin
  */
 
-namespace Givasso\Admin;
+namespace Givoly\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -19,53 +19,52 @@ final class Settings {
     // ── Noms des options WordPress ─────────────────────────────────────────
 
     // Stripe
-    const OPT_STRIPE_MODE       = 'givasso_stripe_mode';
-    const OPT_STRIPE_PK_TEST    = 'givasso_stripe_pk_test';
-    const OPT_STRIPE_SK_TEST    = 'givasso_stripe_sk_test';
-    const OPT_STRIPE_PK_LIVE    = 'givasso_stripe_pk_live';
-    const OPT_STRIPE_SK_LIVE    = 'givasso_stripe_sk_live';
-    const OPT_WEBHOOK_SECRET    = 'givasso_stripe_webhook_secret';
-    const OPT_SUCCESS_URL       = 'givasso_success_url';
-    const OPT_CANCEL_URL        = 'givasso_cancel_url';
-    const OPT_POST_PAYMENT_SHOW_PHONE   = 'givasso_post_payment_show_phone';
-    const OPT_POST_PAYMENT_SHOW_ADDRESS = 'givasso_post_payment_show_address';
+    const OPT_STRIPE_MODE       = 'givoly_stripe_mode';
+    const OPT_STRIPE_PK_TEST    = 'givoly_stripe_pk_test';
+    const OPT_STRIPE_SK_TEST    = 'givoly_stripe_sk_test';
+    const OPT_STRIPE_PK_LIVE    = 'givoly_stripe_pk_live';
+    const OPT_STRIPE_SK_LIVE    = 'givoly_stripe_sk_live';
+    const OPT_WEBHOOK_SECRET    = 'givoly_stripe_webhook_secret';
+    const OPT_SUCCESS_URL       = 'givoly_success_url';
+    const OPT_CANCEL_URL        = 'givoly_cancel_url';
+    const OPT_POST_PAYMENT_SHOW_PHONE   = 'givoly_post_payment_show_phone';
+    const OPT_POST_PAYMENT_SHOW_ADDRESS = 'givoly_post_payment_show_address';
 
     // HelloAsso
-    const OPT_HA_CLIENT_ID     = 'givasso_ha_client_id';
-    const OPT_HA_CLIENT_SECRET = 'givasso_ha_client_secret';
-    const OPT_HA_ORG_SLUG      = 'givasso_ha_org_slug';
-    const OPT_HA_MODE          = 'givasso_ha_mode';           // 'sandbox' | 'live'
-    const OPT_HA_SIGNATURE_KEY = 'givasso_ha_signature_key';  // peut être vide
-    const OPT_HA_MONTHLY_URL    = 'givasso_ha_monthly_url';
-    const OPT_HA_BUTTON_NOTICE  = 'givasso_ha_button_notice';
-    const OPT_HA_OTHER_PAYMENTS_URL = 'givasso_ha_other_payments_url';
-    const OPT_HA_ONCE_USE_OTHER_PAYMENTS_URL = 'givasso_ha_once_use_other_payments_url';
+    const OPT_HA_CLIENT_ID     = 'givoly_ha_client_id';
+    const OPT_HA_CLIENT_SECRET = 'givoly_ha_client_secret';
+    const OPT_HA_ORG_SLUG      = 'givoly_ha_org_slug';
+    const OPT_HA_MODE          = 'givoly_ha_mode';           // 'sandbox' | 'live'
+    const OPT_HA_SIGNATURE_KEY = 'givoly_ha_signature_key';  // peut être vide
+    const OPT_HA_BUTTON_NOTICE  = 'givoly_ha_button_notice';
+    const OPT_HA_OTHER_PAYMENTS_URL = 'givoly_ha_other_payments_url';
+    const OPT_HA_ONCE_USE_OTHER_PAYMENTS_URL = 'givoly_ha_once_use_other_payments_url';
 
     // Passerelle par défaut
-    const OPT_DEFAULT_GATEWAY  = 'givasso_default_gateway';   // 'stripe' | 'helloasso'
+    const OPT_DEFAULT_GATEWAY  = 'givoly_default_gateway';   // 'stripe' | 'helloasso'
 
     // Email — personnalisation des emails envoyés aux donateurs
-    const OPT_EMAIL_LOGO_URL      = 'givasso_email_logo_url';
-    const OPT_EMAIL_PRIMARY_COLOR = 'givasso_email_primary_color';  // hex, ex: #4f46e5
-    const OPT_EMAIL_SENDER_NAME   = 'givasso_email_sender_name';    // défaut : nom association
-    const OPT_EMAIL_THANK_SUBJECT = 'givasso_email_thank_subject';
-    const OPT_EMAIL_THANK_BODY    = 'givasso_email_thank_body';
+    const OPT_EMAIL_LOGO_URL      = 'givoly_email_logo_url';
+    const OPT_EMAIL_PRIMARY_COLOR = 'givoly_email_primary_color';  // hex, ex: #4f46e5
+    const OPT_EMAIL_SENDER_NAME   = 'givoly_email_sender_name';    // défaut : nom association
+    const OPT_EMAIL_THANK_SUBJECT = 'givoly_email_thank_subject';
+    const OPT_EMAIL_THANK_BODY    = 'givoly_email_thank_body';
 
     // Apparence — personnalisation visuelle du formulaire frontend
-    const OPT_APPEARANCE_PRIMARY_COLOR = 'givasso_appearance_primary_color'; // hex, ex: #1B6B4A
-    const OPT_APPEARANCE_ACCENT_COLOR  = 'givasso_appearance_accent_color';  // hex, ex: #2ECC71
-    const OPT_APPEARANCE_RADIUS        = 'givasso_appearance_radius';        // 'square'|'rounded'|'pill'
-    const OPT_APPEARANCE_BTN_STYLE     = 'givasso_appearance_btn_style';     // 'filled'|'outline'
+    const OPT_APPEARANCE_PRIMARY_COLOR = 'givoly_appearance_primary_color'; // hex, ex: #1B6B4A
+    const OPT_APPEARANCE_ACCENT_COLOR  = 'givoly_appearance_accent_color';  // hex, ex: #2ECC71
+    const OPT_APPEARANCE_RADIUS        = 'givoly_appearance_radius';        // 'square'|'rounded'|'pill'
+    const OPT_APPEARANCE_BTN_STYLE     = 'givoly_appearance_btn_style';     // 'filled'|'outline'
 
-    // Association — apparaissent sur les reçus CERFA
-    const OPT_ASSOC_NAME        = 'givasso_assoc_name';
-    const OPT_ASSOC_ADDRESS     = 'givasso_assoc_address';
-    const OPT_ASSOC_POSTAL_CODE = 'givasso_assoc_postal_code';
-    const OPT_ASSOC_CITY        = 'givasso_assoc_city';
-    const OPT_ASSOC_SIRET       = 'givasso_assoc_siret';
-    const OPT_ASSOC_RNA         = 'givasso_assoc_rna';
-    const OPT_ASSOC_FISCAL_ID   = 'givasso_assoc_fiscal_id';
-    const OPT_ASSOC_EMAIL       = 'givasso_assoc_email';
+    // Association
+    const OPT_ASSOC_NAME        = 'givoly_assoc_name';
+    const OPT_ASSOC_ADDRESS     = 'givoly_assoc_address';
+    const OPT_ASSOC_POSTAL_CODE = 'givoly_assoc_postal_code';
+    const OPT_ASSOC_CITY        = 'givoly_assoc_city';
+    const OPT_ASSOC_SIRET       = 'givoly_assoc_siret';
+    const OPT_ASSOC_RNA         = 'givoly_assoc_rna';
+    const OPT_ASSOC_FISCAL_ID   = 'givoly_assoc_fiscal_id';
+    const OPT_ASSOC_EMAIL       = 'givoly_assoc_email';
 
     // ── Lecture ────────────────────────────────────────────────────────────
 
@@ -93,12 +92,12 @@ final class Settings {
 
     public static function get_success_url(): string {
         $url = (string) get_option( self::OPT_SUCCESS_URL, '' );
-        return $url ?: home_url( '/?givasso=success' );
+        return $url ?: home_url( '/?givoly=success' );
     }
 
     public static function get_cancel_url(): string {
         $url = (string) get_option( self::OPT_CANCEL_URL, '' );
-        return $url ?: home_url( '/?givasso=cancel' );
+        return $url ?: home_url( '/?givoly=cancel' );
     }
 
     public static function should_show_post_payment_phone(): bool {
@@ -151,12 +150,12 @@ final class Settings {
 
     public static function get_email_thank_subject(): string {
         $subject = (string) get_option( self::OPT_EMAIL_THANK_SUBJECT, '' );
-        return $subject !== '' ? $subject : __( 'Merci pour votre don — {site_name}', 'givasso' );
+        return $subject !== '' ? $subject : __( 'Merci pour votre don — {site_name}', 'givoly' );
     }
 
     public static function get_email_thank_body(): string {
         $body = (string) get_option( self::OPT_EMAIL_THANK_BODY, '' );
-        return $body !== '' ? $body : __( "Bonjour {first_name},\n\nMerci pour votre don de {amount}. Votre soutien est précieux.", 'givasso' );
+        return $body !== '' ? $body : __( "Bonjour {first_name},\n\nMerci pour votre don de {amount}. Votre soutien est précieux.", 'givoly' );
     }
 
     // ── Getters apparence ──────────────────────────────────────────────────
@@ -227,9 +226,7 @@ final class Settings {
         return (string) get_option( self::OPT_HA_SIGNATURE_KEY, '' );
     }
 
-    public static function get_helloasso_monthly_url(): string {
-        return (string) get_option( self::OPT_HA_MONTHLY_URL, '' );
-    }
+
     public static function get_helloasso_button_notice(): string {
         return (string) get_option( self::OPT_HA_BUTTON_NOTICE, '' );
     }
@@ -296,7 +293,6 @@ final class Settings {
         self::update_secret( self::OPT_HA_CLIENT_ID,     $post['ha_client_id']     ?? '' );
         self::update_secret( self::OPT_HA_CLIENT_SECRET, $post['ha_client_secret'] ?? '' );
         self::update_secret( self::OPT_HA_SIGNATURE_KEY, $post['ha_signature_key'] ?? '' );
-        update_option( self::OPT_HA_MONTHLY_URL, esc_url_raw( $post['ha_monthly_url'] ?? '' ), false );
         update_option( self::OPT_HA_BUTTON_NOTICE, sanitize_text_field( $post['ha_button_notice'] ?? '' ), false );
         update_option( self::OPT_HA_OTHER_PAYMENTS_URL, esc_url_raw( $post['ha_other_payments_url'] ?? '' ), false );
         update_option( self::OPT_HA_ONCE_USE_OTHER_PAYMENTS_URL, isset( $post['ha_once_use_other_payments_url'] ) ? '1' : '0', false );

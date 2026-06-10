@@ -8,10 +8,10 @@
  * On utilise wp_remote_post() plutôt que le SDK Stripe pour éviter
  * une dépendance Composer. Le SDK pourra être ajouté en v0.3.0 si besoin.
  *
- * @package Givasso\Gateway
+ * @package Givoly\Gateway
  */
 
-namespace Givasso\Gateway;
+namespace Givoly\Gateway;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -38,28 +38,24 @@ final class StripeGateway {
         string $donor_last_name,
         string $success_url,
         string $cancel_url,
-        string $campaign = '',
-        string $frequency = 'once'
+        string $campaign = ''
     ): string {
         if ( $campaign ) {
             // translators: %s is the campaign name.
-            $product_name = sprintf( __( 'Don — %s', 'givasso' ), $campaign );
+            $product_name = sprintf( __( 'Don — %s', 'givoly' ), $campaign );
         } else {
-            $product_name = __( 'Don', 'givasso' );
+            $product_name = __( 'Don', 'givoly' );
         }
 
-        $is_monthly = $frequency === 'monthly';
-
         $params = [
-            'mode'                                             => $is_monthly ? 'subscription' : 'payment',
+            'mode'                                             => 'payment',
             'payment_method_types[]'                          => 'card',
             'customer_email'                                  => $donor_email,
             'success_url'                                     => $success_url,
             'cancel_url'                                      => $cancel_url,
             'line_items[0][quantity]'                         => 1,
             'line_items[0][price_data][currency]'             => strtolower( $currency ),
-            'line_items[0][price_data][' . ( $is_monthly ? 'recurring][interval' : 'unit_amount' ) . ']' => $is_monthly ? 'month' : $amount_cents,
-            'line_items[0][price_data][unit_amount]'          => $is_monthly ? null : $amount_cents,
+            'line_items[0][price_data][unit_amount]'          => $amount_cents,
             'line_items[0][price_data][product_data][name]'   => $product_name,
             'metadata[donor_first_name]'                      => $donor_first_name,
             'metadata[donor_last_name]'                       => $donor_last_name,
@@ -68,82 +64,13 @@ final class StripeGateway {
             'metadata[currency]'                              => $currency,
         ];
 
-        if ( $is_monthly ) {
-            unset( $params['line_items[0][price_data][unit_amount]'] );
-        }
-
         $response = $this->post( '/checkout/sessions', $params );
 
         return $response['url'];
     }
 
-
-    /**
-     * Crée un Stripe Payment Link pour un don récurrent.
-     *
-     * @throws \RuntimeException Si l'API retourne une erreur.
-     */
-    public function create_recurring_payment_link(
-        int    $amount_cents,
-        string $currency,
-        string $donor_email,
-        string $success_url,
-        string $campaign = '',
-        string $interval = 'month',
-        string $donation_id = ''
-    ): string {
-        $product_name = $campaign
-            ? sprintf( __( 'Don récurrent — %s', 'givasso' ), $campaign )
-            : __( 'Don récurrent', 'givasso' );
-
-        $params = [
-            'line_items[0][price_data][currency]'                    => strtolower( $currency ),
-            'line_items[0][price_data][unit_amount]'                 => $amount_cents,
-            'line_items[0][price_data][product_data][name]'          => $product_name,
-            'line_items[0][price_data][recurring][interval]'         => $interval,
-            'line_items[0][price_data][recurring][interval_count]'   => 1,
-            'line_items[0][quantity]'                                => 1,
-            'submit_type'                                            => 'donate',
-            'after_completion[type]'                                 => 'redirect',
-            'after_completion[redirect][url]'                        => $success_url,
-            'metadata[donation_type]'                                => 'recurring',
-            'metadata[source]'                                       => 'wordpress',
-            'metadata[donation_id]'                                  => $donation_id,
-            'metadata[donor_email]'                                  => $donor_email,
-            'metadata[campaign]'                                     => $campaign,
-            'metadata[frequency]'                                    => $interval,
-            'subscription_data[metadata][donation_type]'             => 'recurring',
-            'subscription_data[metadata][source]'                    => 'wordpress',
-            'subscription_data[metadata][donation_id]'               => $donation_id,
-            'subscription_data[metadata][donor_email]'               => $donor_email,
-            'subscription_data[metadata][campaign]'                  => $campaign,
-            'subscription_data[metadata][frequency]'                 => $interval,
-        ];
-
-        $response = $this->post( '/payment_links', $params );
-
-        return $response['url'];
-    }
-
-    /**
-     * Rembourse un paiement Stripe via son PaymentIntent ID.
-     *
-     * Remboursement total uniquement (V1).
-     * Pour un remboursement partiel, passer le paramètre `amount` en V2.
-     *
-     * @throws \RuntimeException Si l'API Stripe retourne une erreur.
-     */
     public function refund( string $payment_intent_id ): void {
         $this->post( '/refunds', [ 'payment_intent' => $payment_intent_id ] );
-    }
-
-    /**
-     * Annule un abonnement Stripe immédiatement.
-     *
-     * @throws \RuntimeException Si l'API retourne une erreur.
-     */
-    public function cancel_subscription( string $subscription_id ): void {
-        $this->delete( '/subscriptions/' . rawurlencode( $subscription_id ) );
     }
 
     /**
