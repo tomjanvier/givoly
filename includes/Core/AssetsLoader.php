@@ -44,6 +44,7 @@ final class AssetsLoader
             'ajax_url'    => admin_url('admin-ajax.php'),
             'nonce'       => wp_create_nonce('givoly_frontend_nonce'),
             'success'     => ! empty( $_GET['givoly_success'] ), // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- redirect parameter only, no sensitive data
+            'branding'    => \Givoly\Form\DonationForm::get_branding_html(),
             'i18n'        => [
                 'error'           => __('Une erreur est survenue. Veuillez réessayer.', 'givoly'),
                 'invalid_amount'  => __('Veuillez sélectionner ou saisir un montant valide (min. 1 €).', 'givoly'),

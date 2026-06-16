@@ -761,3 +761,31 @@
         min-height: 62px;
     }
 }
+
+/* ── Branding Givoly obligatoire ─────────────────────────────────────────── */
+.givoly-branding {
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    margin: .75rem 0 0;
+    min-height: 28px;
+    opacity: .82;
+    user-select: none;
+}
+
+.givoly-branding__link {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+    text-decoration: none;
+}
+
+.givoly-branding__logo {
+    display: block !important;
+    width: auto;
+    max-width: 74px;
+    max-height: 28px;
+    height: auto;
+    pointer-events: none;
+}

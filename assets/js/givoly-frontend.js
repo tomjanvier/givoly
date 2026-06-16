@@ -239,6 +239,60 @@
         } );
     }
 
+
+    function protect_branding() {
+        const requiredMarkup = givolyData?.branding || '';
+        if ( ! requiredMarkup ) return;
+
+        document.querySelectorAll( '.givoly-form' ).forEach( ( form ) => {
+            const ensureBranding = () => {
+                let branding = form.querySelector( '[data-givoly-branding="required"]' );
+                const submitTrust = form.querySelector( '.givoly-form__trust' );
+
+                if ( ! branding ) {
+                    form.insertAdjacentHTML( 'beforeend', requiredMarkup );
+                    branding = form.querySelector( '[data-givoly-branding="required"]' );
+                }
+
+                branding.removeAttribute( 'style' );
+                branding.className = 'givoly-branding';
+
+                const link = branding?.querySelector( 'a' );
+                const logo = branding?.querySelector( 'img' );
+
+                if ( link ) {
+                    link.className = 'givoly-branding__link';
+                    link.setAttribute( 'target', '_blank' );
+                    link.setAttribute( 'rel', 'noopener noreferrer' );
+                    link.removeAttribute( 'style' );
+                }
+
+                if ( logo ) {
+                    logo.className = 'givoly-branding__logo';
+                    logo.alt = 'Givoly';
+                    logo.removeAttribute( 'style' );
+                }
+
+                if ( link && link.href !== 'https://givoly.org/' ) {
+                    link.href = 'https://givoly.org';
+                }
+
+                if ( logo && ! logo.src.includes( 'Black-and-Red-Foundation-Community-Non-Profit-Logo.png' ) ) {
+                    logo.src = 'https://givoly.org/wp-content/uploads/2026/06/Black-and-Red-Foundation-Community-Non-Profit-Logo.png';
+                }
+
+                if ( submitTrust?.nextElementSibling !== branding ) {
+                    submitTrust?.after( branding );
+                }
+            };
+
+            ensureBranding();
+
+            const observer = new MutationObserver( ensureBranding );
+            observer.observe( form, { childList: true, subtree: true, attributes: true, attributeFilter: [ 'href', 'src', 'style', 'class' ] } );
+        } );
+    }
+
     // ── Initialisation ───────────────────────────────────────────────────────
 
     document.addEventListener( 'DOMContentLoaded', () => {
@@ -255,6 +309,7 @@
         } );
         show_success_on_return();
         init_post_payment_form();
+        protect_branding();
     } );
 
 } )();

@@ -182,6 +182,8 @@ $render_extra_fields = static function ( string $form_id, array $extra_fields ):
             </span>
         </p>
 
+        <?php \Givoly\Form\DonationForm::output_branding(); ?>
+
     </form>
 </div>
 <?php // phpcs:enable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound

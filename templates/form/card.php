@@ -246,6 +246,8 @@ $render_extra_fields = static function ( string $form_id, array $extra_fields ):
             </span>
         </div>
 
+        <?php \Givoly\Form\DonationForm::output_branding(); ?>
+
     </form>
 
     <?php if ( isset( $_GET['givoly_success'] ) && '1' === wp_unslash( $_GET['givoly_success'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
