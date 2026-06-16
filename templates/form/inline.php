@@ -71,6 +71,19 @@ $render_extra_fields = static function ( string $form_id, array $extra_fields ):
             </h2>
         <?php endif; ?>
 
+        <div class="givoly-amount-grid givoly-frequency" role="group" aria-label="<?php esc_attr_e( 'Fréquence', 'givoly' ); ?>">
+            <label class="givoly-amount-btn">
+                <input type="radio" name="frequency" value="once" class="givoly-frequency__input" checked>
+                <span class="givoly-amount-btn__label"><?php esc_html_e( 'Une fois', 'givoly' ); ?></span>
+            </label>
+            <?php if ( $config->gateway === 'stripe' ) : ?>
+            <label class="givoly-amount-btn">
+                <input type="radio" name="frequency" value="monthly" class="givoly-frequency__input">
+                <span class="givoly-amount-btn__label"><?php esc_html_e( 'Mensuel', 'givoly' ); ?></span>
+            </label>
+            <?php endif; ?>
+        </div>
+
         <!-- ── Montants ───────────────────────────────────────────────── -->
         <div class="givoly-amount-grid"
              role="group"

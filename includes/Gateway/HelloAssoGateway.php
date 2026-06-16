@@ -95,8 +95,9 @@ final class HelloAssoGateway {
         $code = wp_remote_retrieve_response_code( $response );
         $data = json_decode( wp_remote_retrieve_body( $response ), true );
 
-        if ( $code !== 200 || empty( $data['redirectUrl'] ) ) {
-            throw new \RuntimeException( 'HelloAsso checkout intent failed: HTTP ' . $code ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+        if ( ! in_array( $code, [ 200, 201 ], true ) || empty( $data['redirectUrl'] ) ) {
+            $message = $data['message'] ?? $data['error'] ?? $data['title'] ?? ( 'HTTP ' . $code );
+            throw new \RuntimeException( 'HelloAsso checkout intent failed: ' . $message ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
 
         return $data['redirectUrl'];

@@ -38,7 +38,8 @@ final class StripeGateway {
         string $donor_last_name,
         string $success_url,
         string $cancel_url,
-        string $campaign = ''
+        string $campaign = '',
+        string $frequency = 'once'
     ): string {
         if ( $campaign ) {
             // translators: %s is the campaign name.
@@ -48,7 +49,7 @@ final class StripeGateway {
         }
 
         $params = [
-            'mode'                                             => 'payment',
+            'mode'                                             => $frequency === 'monthly' ? 'subscription' : 'payment',
             'payment_method_types[]'                          => 'card',
             'customer_email'                                  => $donor_email,
             'success_url'                                     => $success_url,
@@ -62,7 +63,18 @@ final class StripeGateway {
             'metadata[donor_email]'                           => $donor_email,
             'metadata[campaign]'                              => $campaign,
             'metadata[currency]'                              => $currency,
+            'metadata[frequency]'                             => $frequency,
         ];
+
+        if ( $frequency === 'monthly' ) {
+            $params['line_items[0][price_data][recurring][interval]'] = 'month';
+            $params['subscription_data[metadata][donor_first_name]']  = $donor_first_name;
+            $params['subscription_data[metadata][donor_last_name]']   = $donor_last_name;
+            $params['subscription_data[metadata][donor_email]']       = $donor_email;
+            $params['subscription_data[metadata][campaign]']          = $campaign;
+            $params['subscription_data[metadata][currency]']          = $currency;
+            $params['subscription_data[metadata][frequency]']         = $frequency;
+        }
 
         $response = $this->post( '/checkout/sessions', $params );
 

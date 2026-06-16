@@ -95,6 +95,8 @@ final class AjaxHandler {
         $last_name   = sanitize_text_field( wp_unslash( $_POST['last_name'] ?? '' ) );
         $campaign    = sanitize_text_field( wp_unslash( $_POST['campaign'] ?? '' ) );
         $gateway_key = sanitize_text_field( wp_unslash( $_POST['gateway'] ?? 'stripe' ) );
+        $frequency   = sanitize_text_field( wp_unslash( $_POST['frequency'] ?? 'once' ) );
+        $frequency   = in_array( $frequency, [ 'once', 'monthly' ], true ) ? $frequency : 'once';
 
         $amount_cents = $this->parse_amount_to_cents( $amount_raw );
 
@@ -109,11 +111,11 @@ final class AjaxHandler {
         try {
             if ( $gateway_key === 'helloasso' ) {
                 $checkout_url = $this->checkout_helloasso(
-                    $amount_cents, $currency, $email, $first_name, $last_name, $campaign
+                    $amount_cents, $currency, $email, $first_name, $last_name, $campaign, $frequency
                 );
             } else {
                 $checkout_url = $this->checkout_stripe(
-                    $amount_cents, $currency, $email, $first_name, $last_name, $campaign
+                    $amount_cents, $currency, $email, $first_name, $last_name, $campaign, $frequency
                 );
             }
 
@@ -163,7 +165,8 @@ final class AjaxHandler {
         string $email,
         string $first_name,
         string $last_name,
-        string $campaign
+        string $campaign,
+        string $frequency = 'once'
     ): string {
         if ( ! Settings::is_configured() ) {
             throw new \RuntimeException( 'Stripe non configuré.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
@@ -183,7 +186,8 @@ final class AjaxHandler {
             donor_last_name:  $last_name,
             success_url:      $success_url,
             cancel_url:       $cancel_url,
-            campaign:         $campaign
+            campaign:         $campaign,
+            frequency:        $frequency
         );
     }
 
@@ -193,8 +197,13 @@ final class AjaxHandler {
         string $email,
         string $first_name,
         string $last_name,
-        string $campaign
+        string $campaign,
+        string $frequency = 'once'
     ): string {
+        if ( $frequency === 'monthly' ) {
+            throw new \RuntimeException( 'Le don mensuel est disponible avec Stripe.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+        }
+
         if ( ! Settings::is_helloasso_configured() ) {
             throw new \RuntimeException( 'HelloAsso non configuré.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
@@ -336,6 +345,67 @@ final class AjaxHandler {
             [ '%s' ],
             [ '%d' ]
         );
+    }
+
+    public function handle_helloasso_webhook( \WP_REST_Request $request ): \WP_REST_Response {
+        $payload   = $request->get_body();
+        $signature = (string) ( $request->get_header( 'x-helloasso-signature' ) ?: $request->get_header( 'helloasso-signature' ) );
+        $remote_ip = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ?? '' ) );
+
+        try {
+            $gateway = new HelloAssoGateway(
+                Settings::get_helloasso_client_id(),
+                Settings::get_helloasso_client_secret(),
+                Settings::get_helloasso_org_slug(),
+                Settings::is_helloasso_sandbox()
+            );
+            $event = $gateway->verify_webhook( $payload, $signature, Settings::get_helloasso_signature_key(), $remote_ip );
+        } catch ( \RuntimeException $e ) {
+            return new \WP_REST_Response( [ 'error' => 'Notification HelloAsso invalide.' ], 400 );
+        }
+
+        $event_type = strtolower( (string) ( $event['eventType'] ?? $event['type'] ?? '' ) );
+        $data       = $event['data'] ?? $event;
+
+        if ( str_contains( $event_type, 'refund' ) ) {
+            $this->handle_helloasso_refunded( sanitize_text_field( (string) ( $data['payment']['id'] ?? $data['id'] ?? '' ) ) );
+            return new \WP_REST_Response( [ 'received' => true ], 200 );
+        }
+
+        if ( ! str_contains( $event_type, 'payment' ) && ! str_contains( $event_type, 'order' ) ) {
+            return new \WP_REST_Response( [ 'received' => true ], 200 );
+        }
+
+        $metadata       = is_array( $data['metadata'] ?? null ) ? $data['metadata'] : [];
+        $payer          = is_array( $data['payer'] ?? null ) ? $data['payer'] : ( is_array( $data['user'] ?? null ) ? $data['user'] : [] );
+        $payment        = is_array( $data['payment'] ?? null ) ? $data['payment'] : $data;
+        $amount_cents   = (int) ( $payment['amount'] ?? $data['amount'] ?? $data['totalAmount'] ?? 0 );
+        $transaction_id = sanitize_text_field( (string) ( $payment['id'] ?? $data['id'] ?? $data['order']['id'] ?? '' ) );
+        $campaign       = sanitize_text_field( (string) ( $metadata['campaign'] ?? '' ) );
+        $currency       = strtoupper( sanitize_text_field( (string) ( $metadata['currency'] ?? 'EUR' ) ) );
+        $email          = sanitize_email( (string) ( $payer['email'] ?? $data['payerEmail'] ?? '' ) );
+        $first_name     = sanitize_text_field( (string) ( $payer['firstName'] ?? '' ) );
+        $last_name      = sanitize_text_field( (string) ( $payer['lastName'] ?? '' ) );
+
+        if ( $amount_cents > 0 && $transaction_id && $email ) {
+            $campaign_id = $campaign
+                ? ( ( new CampaignRepository() )->find_by_slug( $campaign )?->get_id() ?? 0 )
+                : 0;
+
+            ( new PaymentProcessor() )->process(
+                gateway:        'helloasso',
+                transaction_id: $transaction_id,
+                amount_cents:   $amount_cents,
+                currency:       $currency,
+                email:          $email,
+                first_name:     $first_name,
+                last_name:      $last_name,
+                campaign:       $campaign,
+                campaign_id:    $campaign_id
+            );
+        }
+
+        return new \WP_REST_Response( [ 'received' => true ], 200 );
     }
 
     private function parse_amount_to_cents( string $raw ): int {

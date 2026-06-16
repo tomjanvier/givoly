@@ -66,6 +66,25 @@ $render_extra_fields = static function ( string $form_id, array $extra_fields ):
         <?php endif; ?>
 
 
+        <!-- ── Fréquence du don ─────────────────────────────────────── -->
+        <fieldset class="givoly-form__fieldset givoly-frequency">
+            <legend class="givoly-form__legend">
+                <?php esc_html_e( 'Fréquence', 'givoly' ); ?>
+            </legend>
+            <div class="givoly-amount-grid" role="group">
+                <label class="givoly-amount-btn">
+                    <input type="radio" name="frequency" value="once" class="givoly-frequency__input" checked>
+                    <span class="givoly-amount-btn__label"><?php esc_html_e( 'Une fois', 'givoly' ); ?></span>
+                </label>
+                <?php if ( $config->gateway === 'stripe' ) : ?>
+                <label class="givoly-amount-btn">
+                    <input type="radio" name="frequency" value="monthly" class="givoly-frequency__input">
+                    <span class="givoly-amount-btn__label"><?php esc_html_e( 'Mensuel', 'givoly' ); ?></span>
+                </label>
+                <?php endif; ?>
+            </div>
+        </fieldset>
+
         <!-- ── Sélection du montant ───────────────────────────────────── -->
         <fieldset class="givoly-form__fieldset">
             <legend class="givoly-form__legend">
