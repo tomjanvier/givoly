@@ -135,7 +135,7 @@ JS;
         $currency    = sanitize_text_field( wp_unslash( $_POST['currency'] ?? 'EUR' ) );
         $start_raw   = sanitize_text_field( wp_unslash( $_POST['start_date'] ?? '' ) );
         $end_raw     = sanitize_text_field( wp_unslash( $_POST['end_date'] ?? '' ) );
-        $status      = sanitize_key( $_POST['status'] ?? Campaign::STATUS_DRAFT );
+        $status      = sanitize_key( wp_unslash( $_POST['status'] ?? Campaign::STATUS_DRAFT ) );
 
         if ( ! $title ) {
             $this->redirect_with_error( $id, 'title_required' );

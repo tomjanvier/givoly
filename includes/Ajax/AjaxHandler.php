@@ -77,9 +77,7 @@ final class AjaxHandler {
     // ── Checkout ───────────────────────────────────────────────────────────
 
     public function handle_checkout(): void {
-        $nonce = sanitize_text_field( wp_unslash( $_POST['givoly_nonce'] ?? '' ) );
-
-        if ( ! wp_verify_nonce( $nonce, 'givoly_submit_donation' ) ) {
+        if ( ! check_ajax_referer( 'givoly_submit_donation', 'givoly_nonce', false ) ) {
             wp_send_json_error( [ 'message' => __( 'Requête invalide.', 'givoly' ) ], 403 );
         }
 
@@ -129,8 +127,7 @@ final class AjaxHandler {
     public function handle_post_payment_details(): void {
         global $wpdb;
 
-        $nonce = sanitize_text_field( wp_unslash( $_POST['givoly_nonce'] ?? '' ) );
-        if ( ! wp_verify_nonce( $nonce, 'givoly_submit_donation' ) ) {
+        if ( ! check_ajax_referer( 'givoly_submit_donation', 'givoly_nonce', false ) ) {
             wp_send_json_error( [ 'message' => __( 'Requête invalide.', 'givoly' ) ], 403 );
         }
 

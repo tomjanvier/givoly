@@ -8,7 +8,7 @@ Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Donation forms for nonprofits with Stripe and HelloAsso payments, donor management, and campaign tracking.
+Donation forms for nonprofits with Stripe and HelloAsso payments, donor management, and campaign progress monitoring.
 
 == Description ==
 
@@ -75,6 +75,30 @@ To change the plugin/admin visual mark in code:
 = Privacy (GDPR) =
 
 Givoly collects donor personal data (name, email, and optional profile fields) solely for recording donations and managing donors. Data is stored locally in the association's WordPress database and is transmitted to the selected payment gateway only when needed for payment processing.
+
+Givoly does not add analytics scripts, advertising pixels, cookies for tracking, or cross-site tracking. No usage telemetry is sent by the plugin.
+
+= External services =
+
+Givoly contacts external services only when an administrator configures a payment gateway or when a donor starts a payment with that configured gateway.
+
+**Stripe**
+
+* Service endpoint: `https://api.stripe.com/v1`
+* When used: only when Stripe is configured and a donor starts a Stripe payment, or when an administrator triggers a Stripe refund.
+* Data sent: donation amount, currency, donor email, donor first name, donor last name, selected campaign metadata, success/cancel URLs, and the configured Stripe secret key for authentication.
+* Purpose: create Stripe Checkout sessions, process card payments, verify Stripe webhooks, and request refunds.
+* Terms: https://stripe.com/legal
+* Privacy policy: https://stripe.com/privacy
+
+**HelloAsso**
+
+* Service endpoints: `https://api.helloasso.com`, `https://api.helloasso-sandbox.com`, `https://www.helloasso.com`, and `https://www.helloasso-sandbox.com`
+* When used: only when HelloAsso is configured and a donor starts a HelloAsso payment, or when an administrator follows the HelloAsso refund/dashboard link.
+* Data sent: donation amount, donor email, donor first name, donor last name, campaign metadata, return/back/error URLs, organization slug, and configured HelloAsso API credentials for authentication.
+* Purpose: authenticate with HelloAsso, create checkout intents, redirect donors to HelloAsso payment pages, and verify HelloAsso webhooks.
+* Terms: https://www.helloasso.com/cgu-utilisateur
+* Privacy policy: https://www.helloasso.com/confidentialite
 
 == Installation ==
 

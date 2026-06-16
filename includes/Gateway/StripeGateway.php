@@ -107,34 +107,10 @@ final class StripeGateway {
 
     // ── HTTP helpers privés ────────────────────────────────────────────────
 
-    private function delete( string $endpoint ): array {
-        $response = wp_remote_request( self::API_BASE . $endpoint, [
-            'method'  => 'DELETE',
-            'headers' => [
-                'Authorization' => 'Basic ' . base64_encode( $this->secret_key . ':' ),
-            ],
-            'timeout' => 20,
-        ] );
-
-        if ( is_wp_error( $response ) ) {
-            throw new \RuntimeException( 'Erreur réseau Stripe : ' . $response->get_error_message() ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
-        }
-
-        $body = json_decode( wp_remote_retrieve_body( $response ), true );
-        $code = wp_remote_retrieve_response_code( $response );
-
-        if ( $code >= 400 ) {
-            $message = $body['error']['message'] ?? 'Erreur Stripe inconnue.';
-            throw new \RuntimeException( $message ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
-        }
-
-        return $body;
-    }
-
     private function post( string $endpoint, array $params ): array {
         $response = wp_remote_post( self::API_BASE . $endpoint, [
             'headers' => [
-                'Authorization' => 'Basic ' . base64_encode( $this->secret_key . ':' ),
+                'Authorization' => 'Bearer ' . $this->secret_key,
                 'Content-Type'  => 'application/x-www-form-urlencoded',
             ],
             'body'    => http_build_query( $params ),

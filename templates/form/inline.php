@@ -156,7 +156,7 @@ $render_extra_fields = static function ( string $form_id, array $extra_fields ):
         <button type="submit"
                 class="HaPayButton givoly-form__submit givoly-gateway-submit"
                 data-gateway="helloasso">
-            <img src="https://api.helloasso.com/v5/img/logo-ha.svg" alt="" class="HaPayButtonLogo" />
+            <span class="HaPayButtonLogo" aria-hidden="true">HA</span>
             <span class="HaPayButtonLabel"><?php esc_html_e( 'Payer avec HelloAsso*', 'givoly' ); ?></span>
         </button>
 
