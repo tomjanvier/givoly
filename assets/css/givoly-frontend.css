@@ -1001,3 +1001,42 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* ── Formulaire plus condensé ────────────────────────────────────────────── */
+.givoly-form {
+    gap: .85rem;
+}
+
+.givoly-layout-card .givoly-form,
+.givoly-campaign__form .givoly-form {
+    padding: clamp(1rem, 3vw, 1.35rem);
+}
+
+.givoly-layout-card .givoly-form__fieldset,
+.givoly-campaign__form .givoly-form__fieldset {
+    margin-bottom: .75rem;
+}
+
+.givoly-layout-card .givoly-amount-grid,
+.givoly-campaign__form .givoly-amount-grid {
+    gap: .5rem;
+    margin-bottom: .7rem;
+}
+
+.givoly-layout-card .givoly-amount-btn__label,
+.givoly-campaign__form .givoly-amount-btn__label,
+.givoly-frequency-option__label {
+    min-height: 42px;
+    padding: .5rem .65rem;
+}
+
+.givoly-layout-card .givoly-input,
+.givoly-campaign__form .givoly-input {
+    min-height: 42px;
+}
+
+.givoly-layout-card .givoly-btn--card,
+.givoly-campaign__form .givoly-btn--card,
+.givoly-campaign__form .HaPayButton {
+    min-height: 52px;
+}

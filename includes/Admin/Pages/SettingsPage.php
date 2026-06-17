@@ -167,8 +167,10 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
         picker.addEventListener( \'input\', function () {
             var preview = document.getElementById( picker.dataset.previewId );
             var hex     = document.getElementById( picker.dataset.hexId );
+            var enabled = picker.dataset.enabledId ? document.getElementById( picker.dataset.enabledId ) : null;
             if ( preview ) preview.style.background = picker.value;
             if ( hex )     hex.textContent           = picker.value;
+            if ( enabled ) enabled.value             = \'1\';
         } );
     } );
 
@@ -804,7 +806,7 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                             <?php esc_html_e( 'Couleurs', 'givoly' ); ?>
                         </h2>
                         <p class="givoly-card__desc">
-                            <?php esc_html_e( 'Ces couleurs s\'appliquent à tous vos formulaires de don, quel que soit le thème shortcode. Laissez vide pour utiliser les couleurs du thème.', 'givoly' ); ?>
+                            <?php esc_html_e( 'Cette couleur s\'applique à tous vos formulaires de don, quel que soit le thème shortcode. Laissez la valeur par défaut pour utiliser la couleur du thème.', 'givoly' ); ?>
                         </p>
                         <table class="form-table" role="presentation">
                             <tr>
@@ -820,7 +822,8 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                                                name="appearance_primary_color"
                                                value="<?php echo esc_attr( $ap_primary ?: '#2b1533' ); ?>"
                                                data-preview-id="givoly-ap-primary-preview"
-                                               data-hex-id="givoly-ap-primary-hex">
+                                               data-hex-id="givoly-ap-primary-hex"
+                                               data-enabled-id="givoly-ap-primary-enabled">
                                         <span id="givoly-ap-primary-preview"
                                               style="display:inline-block;width:72px;height:32px;border-radius:4px;
                                                      background:<?php echo esc_attr( $ap_primary ?: '#2b1533' ); ?>;
@@ -829,7 +832,7 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                                         <?php if ( $ap_primary !== '' ) : ?>
                                             <button type="button" class="button button-small givoly-ap-reset"
                                                     data-field="appearance_primary_color"
-                                                    data-enabled="appearance_primary_color_enabled"
+                                                    data-enabled="givoly-ap-primary-enabled"
                                                     data-preview-id="givoly-ap-primary-preview"
                                                     data-hex-id="givoly-ap-primary-hex"
                                                     data-default="#2b1533">
@@ -838,51 +841,14 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                                         <?php endif; ?>
                                     </div>
                                     <p class="description">
-                                        <?php esc_html_e( 'Boutons, bordures actives, checkboxes. Utilisé avec du texte blanc.', 'givoly' ); ?>
+                                        <?php esc_html_e( 'Boutons, bordures actives et accent du formulaire. Utilisé avec du texte blanc.', 'givoly' ); ?>
                                     </p>
                                     <input type="hidden"
                                            name="appearance_primary_color_enabled"
                                            id="givoly-ap-primary-enabled"
                                            value="<?php echo esc_attr( $ap_primary !== '' ? '1' : '0' ); ?>">
-                                </td>
-                            </tr>
-                            <tr>
-                                <th scope="row">
-                                    <label for="givoly-ap-accent">
-                                        <?php esc_html_e( 'Couleur d\'accent', 'givoly' ); ?>
-                                    </label>
-                                </th>
-                                <td>
-                                    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-                                        <input type="color"
-                                               id="givoly-ap-accent"
-                                               name="appearance_accent_color"
-                                               value="<?php echo esc_attr( $ap_accent ?: '#2ECC71' ); ?>"
-                                               data-preview-id="givoly-ap-accent-preview"
-                                               data-hex-id="givoly-ap-accent-hex">
-                                        <span id="givoly-ap-accent-preview"
-                                              style="display:inline-block;width:72px;height:32px;border-radius:4px;
-                                                     background:<?php echo esc_attr( $ap_accent ?: '#2ECC71' ); ?>;
-                                                     border:1px solid #ddd;vertical-align:middle;"></span>
-                                        <code id="givoly-ap-accent-hex"><?php echo esc_html( $ap_accent ?: '#2ECC71' ); ?></code>
-                                        <?php if ( $ap_accent !== '' ) : ?>
-                                            <button type="button" class="button button-small givoly-ap-reset"
-                                                    data-field="appearance_accent_color"
-                                                    data-enabled="appearance_accent_color_enabled"
-                                                    data-preview-id="givoly-ap-accent-preview"
-                                                    data-hex-id="givoly-ap-accent-hex"
-                                                    data-default="#2ECC71">
-                                                <?php esc_html_e( 'Réinitialiser', 'givoly' ); ?>
-                                            </button>
-                                        <?php endif; ?>
-                                    </div>
-                                    <p class="description" style="color:#d64545;">
-                                        <?php esc_html_e( 'Couleur d’accent. Attention : évitez le texte blanc sur cette couleur.', 'givoly' ); ?>
-                                    </p>
-                                    <input type="hidden"
-                                           name="appearance_accent_color_enabled"
-                                           id="givoly-ap-accent-enabled"
-                                           value="<?php echo esc_attr( $ap_accent !== '' ? '1' : '0' ); ?>">
+                                    <input type="hidden" name="appearance_accent_color_enabled" id="givoly-ap-accent-enabled" value="0">
+
                                 </td>
                             </tr>
                         </table>
