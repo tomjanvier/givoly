@@ -263,7 +263,26 @@
         if ( ! requiredMarkup ) return;
 
         document.querySelectorAll( '.givoly-form' ).forEach( ( form ) => {
+            let observer = null;
+
+            const setAttributeIfChanged = ( element, name, value ) => {
+                if ( element.getAttribute( name ) !== value ) {
+                    element.setAttribute( name, value );
+                }
+            };
+
+            const removeAttributeIfPresent = ( element, name ) => {
+                if ( element.hasAttribute( name ) ) {
+                    element.removeAttribute( name );
+                }
+            };
+
             const ensureBranding = () => {
+                // Les mutations faites ici ne doivent pas relancer l'observer.
+                // Sinon, une simple mise à jour du libellé du montant peut déclencher
+                // une boucle MutationObserver qui bloque toute la page.
+                observer?.disconnect();
+
                 let branding = form.querySelector( '[data-givoly-branding="required"]' );
                 const submitTrust = form.querySelector( '.givoly-form__trust' );
 
@@ -272,23 +291,34 @@
                     branding = form.querySelector( '[data-givoly-branding="required"]' );
                 }
 
-                branding.removeAttribute( 'style' );
-                branding.className = 'givoly-branding';
+                if ( ! branding ) {
+                    observer?.observe( form, { childList: true, subtree: true } );
+                    return;
+                }
 
-                const link = branding?.querySelector( 'a' );
-                const logo = branding?.querySelector( 'img' );
+                removeAttributeIfPresent( branding, 'style' );
+                if ( branding.className !== 'givoly-branding' ) {
+                    branding.className = 'givoly-branding';
+                }
+
+                const link = branding.querySelector( 'a' );
+                const logo = branding.querySelector( 'img' );
 
                 if ( link ) {
-                    link.className = 'givoly-branding__link';
-                    link.setAttribute( 'target', '_blank' );
-                    link.setAttribute( 'rel', 'noopener noreferrer' );
-                    link.removeAttribute( 'style' );
+                    if ( link.className !== 'givoly-branding__link' ) {
+                        link.className = 'givoly-branding__link';
+                    }
+                    setAttributeIfChanged( link, 'target', '_blank' );
+                    setAttributeIfChanged( link, 'rel', 'noopener noreferrer' );
+                    removeAttributeIfPresent( link, 'style' );
                 }
 
                 if ( logo ) {
-                    logo.className = 'givoly-branding__logo';
-                    logo.alt = 'Givoly';
-                    logo.removeAttribute( 'style' );
+                    if ( logo.className !== 'givoly-branding__logo' ) {
+                        logo.className = 'givoly-branding__logo';
+                    }
+                    setAttributeIfChanged( logo, 'alt', 'Givoly' );
+                    removeAttributeIfPresent( logo, 'style' );
                 }
 
                 if ( link && link.href !== 'https://givoly.org/' ) {
@@ -302,12 +332,12 @@
                 if ( submitTrust?.nextElementSibling !== branding ) {
                     submitTrust?.after( branding );
                 }
+
+                observer?.observe( form, { childList: true, subtree: true } );
             };
 
+            observer = new MutationObserver( ensureBranding );
             ensureBranding();
-
-            const observer = new MutationObserver( ensureBranding );
-            observer.observe( form, { childList: true, subtree: true, attributes: true, attributeFilter: [ 'href', 'src', 'style', 'class' ] } );
         } );
     }
 
