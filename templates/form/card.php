@@ -71,17 +71,17 @@ $render_extra_fields = static function ( string $form_id, array $extra_fields ):
             <legend class="givoly-form__legend">
                 <?php esc_html_e( 'Fréquence', 'givoly' ); ?>
             </legend>
-            <div class="givoly-amount-grid" role="group">
-                <label class="givoly-amount-btn">
-                    <input type="radio" name="frequency" value="once" class="givoly-frequency__input" checked>
-                    <span class="givoly-amount-btn__label"><?php esc_html_e( 'Une fois', 'givoly' ); ?></span>
-                </label>
+            <div class="givoly-frequency-toggle" role="group">
                 <?php if ( $config->gateway === 'stripe' ) : ?>
-                <label class="givoly-amount-btn">
-                    <input type="radio" name="frequency" value="monthly" class="givoly-frequency__input">
-                    <span class="givoly-amount-btn__label"><?php esc_html_e( 'Mensuel', 'givoly' ); ?></span>
+                <label class="givoly-frequency-option">
+                    <input type="radio" name="frequency" value="monthly" class="givoly-frequency__input" checked>
+                    <span class="givoly-frequency-option__label"><?php esc_html_e( 'Don récurrent', 'givoly' ); ?></span>
                 </label>
                 <?php endif; ?>
+                <label class="givoly-frequency-option">
+                    <input type="radio" name="frequency" value="once" class="givoly-frequency__input" <?php checked( $config->gateway !== 'stripe' ); ?>>
+                    <span class="givoly-frequency-option__label"><?php esc_html_e( 'Don unique', 'givoly' ); ?></span>
+                </label>
             </div>
         </fieldset>
 

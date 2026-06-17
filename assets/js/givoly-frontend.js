@@ -42,7 +42,9 @@
 
             // Montant libre saisi
             this.customInput?.addEventListener( 'input', () => {
-                this.amountField.value = this.customInput.value;
+                if ( this.amountField ) {
+                    this.amountField.value = this.customInput.value;
+                }
                 this.update_btn_label();
             } );
 
@@ -51,7 +53,7 @@
 
             // Pré-sélection du montant coché par défaut
             const checked = this.form.querySelector( '.givoly-amount-btn__input:checked' );
-            if ( checked && checked.value !== 'custom' ) {
+            if ( this.amountField && checked && checked.value !== 'custom' ) {
                 this.amountField.value = checked.value;
             }
 
@@ -62,12 +64,20 @@
 
         on_amount_change( radio ) {
             if ( radio.value === 'custom' ) {
-                this.customWrap.hidden = false;
+                if ( this.customWrap ) {
+                    this.customWrap.hidden = false;
+                }
                 this.customInput?.focus();
-                this.amountField.value = '';
+                if ( this.amountField ) {
+                    this.amountField.value = '';
+                }
             } else {
-                this.customWrap.hidden = true;
-                this.amountField.value = radio.value;
+                if ( this.customWrap ) {
+                    this.customWrap.hidden = true;
+                }
+                if ( this.amountField ) {
+                    this.amountField.value = radio.value;
+                }
             }
 
             this.update_btn_label();
@@ -108,7 +118,7 @@
         // ── Label CTA dynamique ──────────────────────────────────────────────
 
         update_btn_label() {
-            const amount     = parseFloat( this.amountField.value );
+            const amount     = this.parse_amount( this.amountField?.value || '' );
             const btn_text   = this.submitBtn?.querySelector( '.givoly-btn__text' );
             if ( ! btn_text ) return;
 
@@ -125,7 +135,7 @@
         // ── Validation ───────────────────────────────────────────────────────
 
         validate() {
-            const amount = parseFloat( this.amountField.value );
+            const amount = this.parse_amount( this.amountField?.value || '' );
 
             if ( ! amount || amount < 1 || amount > 100_000 ) {
                 this.show_message( 'error', givolyData.i18n.invalid_amount );
@@ -167,6 +177,8 @@
         }
 
         show_message( type, text ) {
+            if ( ! this.messages ) return;
+
             this.messages.hidden    = false;
             this.messages.className = `givoly-form__messages givoly-form__messages--${ type }`;
             this.messages.textContent = text;
@@ -174,10 +186,16 @@
         }
 
         hide_messages() {
-            this.messages.hidden = true;
+            if ( this.messages ) {
+                this.messages.hidden = true;
+            }
         }
 
         // ── Utilitaires ──────────────────────────────────────────────────────
+
+        parse_amount( value ) {
+            return parseFloat( String( value ).replace( ',', '.' ) );
+        }
 
         is_valid_email( email ) {
             return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test( email );
