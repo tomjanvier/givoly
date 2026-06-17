@@ -242,6 +242,8 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
 
         // Général
         $default_gateway = Settings::get_default_gateway();
+        $stripe_enabled = Settings::is_stripe_enabled();
+        $helloasso_enabled = Settings::is_helloasso_enabled();
         $success_url     = (string) get_option( Settings::OPT_SUCCESS_URL, '' );
         $cancel_url      = (string) get_option( Settings::OPT_CANCEL_URL, '' );
         $post_payment_show_phone = Settings::should_show_post_payment_phone();
@@ -326,6 +328,21 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                         </h2>
                         <p class="givoly-card__desc">
                             <?php esc_html_e( 'Passerelle utilisée par [givoly_form] sans attribut gateway=.', 'givoly' ); ?>
+                        </p>
+
+                        <p class="description">
+                            <?php esc_html_e( 'Activez Stripe, HelloAsso ou les deux. Quand les deux sont actifs, le formulaire affiche les deux boutons de paiement.', 'givoly' ); ?>
+                        </p>
+                        <p>
+                            <label>
+                                <input type="checkbox" name="stripe_enabled" value="1" <?php checked( $stripe_enabled ); ?>>
+                                <?php esc_html_e( 'Activer Stripe sur les formulaires', 'givoly' ); ?>
+                            </label>
+                            <br>
+                            <label>
+                                <input type="checkbox" name="helloasso_enabled" value="1" <?php checked( $helloasso_enabled ); ?>>
+                                <?php esc_html_e( 'Activer HelloAsso sur les formulaires', 'givoly' ); ?>
+                            </label>
                         </p>
 
                         <div class="givoly-gateway-choice">

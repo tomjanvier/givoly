@@ -40,6 +40,10 @@ final class Settings {
     const OPT_HA_OTHER_PAYMENTS_URL = 'givoly_ha_other_payments_url';
     const OPT_HA_ONCE_USE_OTHER_PAYMENTS_URL = 'givoly_ha_once_use_other_payments_url';
 
+    // Activation des passerelles sur le formulaire
+    const OPT_STRIPE_ENABLED   = 'givoly_stripe_enabled';
+    const OPT_HELLOASSO_ENABLED = 'givoly_helloasso_enabled';
+
     // Passerelle par défaut
     const OPT_DEFAULT_GATEWAY  = 'givoly_default_gateway';   // 'stripe' | 'helloasso'
 
@@ -106,6 +110,26 @@ final class Settings {
 
     public static function should_show_post_payment_address(): bool {
         return (string) get_option( self::OPT_POST_PAYMENT_SHOW_ADDRESS, '1' ) === '1';
+    }
+
+    public static function is_stripe_enabled(): bool {
+        return (string) get_option( self::OPT_STRIPE_ENABLED, '1' ) === '1';
+    }
+
+    public static function is_helloasso_enabled(): bool {
+        return (string) get_option( self::OPT_HELLOASSO_ENABLED, '1' ) === '1';
+    }
+
+    public static function get_enabled_gateways(): array {
+        $gateways = [];
+        if ( self::is_stripe_enabled() ) {
+            $gateways[] = 'stripe';
+        }
+        if ( self::is_helloasso_enabled() ) {
+            $gateways[] = 'helloasso';
+        }
+
+        return $gateways ?: [ 'stripe' ];
     }
 
     // ── Getters association ────────────────────────────────────────────────
@@ -253,7 +277,11 @@ final class Settings {
 
     public static function get_default_gateway(): string {
         $gw = (string) get_option( self::OPT_DEFAULT_GATEWAY, 'stripe' );
-        return in_array( $gw, [ 'stripe', 'helloasso' ], true ) ? $gw : 'stripe';
+        if ( ! in_array( $gw, [ 'stripe', 'helloasso' ], true ) ) {
+            $gw = 'stripe';
+        }
+
+        return in_array( $gw, self::get_enabled_gateways(), true ) ? $gw : self::get_enabled_gateways()[0];
     }
 
     // ── Écriture ───────────────────────────────────────────────────────────
@@ -277,6 +305,15 @@ final class Settings {
         self::update_secret( self::OPT_STRIPE_SK_TEST, $post['stripe_sk_test'] ?? '' );
         self::update_secret( self::OPT_STRIPE_SK_LIVE, $post['stripe_sk_live'] ?? '' );
         self::update_secret( self::OPT_WEBHOOK_SECRET, $post['stripe_webhook_secret'] ?? '' );
+
+        // Activation des passerelles — garder au moins une option active.
+        $stripe_enabled   = isset( $post['stripe_enabled'] );
+        $helloasso_enabled = isset( $post['helloasso_enabled'] );
+        if ( ! $stripe_enabled && ! $helloasso_enabled ) {
+            $stripe_enabled = true;
+        }
+        update_option( self::OPT_STRIPE_ENABLED, $stripe_enabled ? '1' : '0', false );
+        update_option( self::OPT_HELLOASSO_ENABLED, $helloasso_enabled ? '1' : '0', false );
 
         // URLs
         update_option( self::OPT_SUCCESS_URL, esc_url_raw( $post['success_url'] ?? '' ), false );

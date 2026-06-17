@@ -18,6 +18,9 @@ $show_post_payment_address = \Givoly\Admin\Settings::should_show_post_payment_ad
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- template file, variables are local-scope
 
 $form_id = 'givoly-form-' . wp_unique_id();
+$show_stripe_gateway = in_array( $config->gateway, [ 'stripe', 'both' ], true );
+$show_helloasso_gateway = in_array( $config->gateway, [ 'helloasso', 'both' ], true );
+$default_form_gateway = $show_stripe_gateway ? 'stripe' : 'helloasso';
 
 $symbol = $config->get_currency_symbol();
 
@@ -59,7 +62,7 @@ $render_extra_fields = static function ( string $form_id, array $extra_fields ):
         <?php wp_nonce_field( 'givoly_submit_donation', 'givoly_nonce' ); ?>
         <input type="hidden" name="action"   value="givoly_init_checkout">
         <input type="hidden" name="currency" value="<?php echo esc_attr( $config->currency ); ?>">
-        <input type="hidden" name="gateway"  value="<?php echo esc_attr( $config->gateway ); ?>">
+        <input type="hidden" name="gateway"  value="<?php echo esc_attr( $default_form_gateway ); ?>">
 
         <?php if ( $config->campaign ) : ?>
             <input type="hidden" name="campaign" value="<?php echo esc_attr( $config->campaign ); ?>">
@@ -72,14 +75,14 @@ $render_extra_fields = static function ( string $form_id, array $extra_fields ):
                 <?php esc_html_e( 'Fréquence', 'givoly' ); ?>
             </legend>
             <div class="givoly-frequency-toggle" role="group">
-                <?php if ( $config->gateway === 'stripe' ) : ?>
+                <?php if ( $show_stripe_gateway ) : ?>
                 <label class="givoly-frequency-option">
                     <input type="radio" name="frequency" value="monthly" class="givoly-frequency__input" checked>
                     <span class="givoly-frequency-option__label"><?php esc_html_e( 'Don récurrent', 'givoly' ); ?></span>
                 </label>
                 <?php endif; ?>
                 <label class="givoly-frequency-option">
-                    <input type="radio" name="frequency" value="once" class="givoly-frequency__input" <?php checked( $config->gateway !== 'stripe' ); ?>>
+                    <input type="radio" name="frequency" value="once" class="givoly-frequency__input" <?php checked( ! $show_stripe_gateway ); ?>>
                     <span class="givoly-frequency-option__label"><?php esc_html_e( 'Don unique', 'givoly' ); ?></span>
                 </label>
             </div>
@@ -207,7 +210,7 @@ $render_extra_fields = static function ( string $form_id, array $extra_fields ):
 
         <!-- ── Bouton de soumission ───────────────────────────────────── -->
         <div class="givoly-gateway-actions">
-        <?php if ( $config->gateway === 'stripe' ) : ?>
+        <?php if ( $show_stripe_gateway ) : ?>
         <button type="submit"
                 class="givoly-btn givoly-btn--primary givoly-form__submit givoly-gateway-submit is-active givoly-btn--card"
                 data-gateway="stripe"
@@ -228,7 +231,7 @@ $render_extra_fields = static function ( string $form_id, array $extra_fields ):
         </button>
         <?php endif; ?>
 
-        <?php if ( $config->gateway === 'helloasso' ) : ?>
+        <?php if ( $show_helloasso_gateway ) : ?>
         <button type="submit"
                 class="HaPayButton givoly-form__submit givoly-gateway-submit"
                 data-gateway="helloasso">
@@ -250,7 +253,7 @@ $render_extra_fields = static function ( string $form_id, array $extra_fields ):
 
 
         <?php
-        $gateway_label = $config->gateway === 'helloasso' ? 'HelloAsso' : 'Stripe';
+        $gateway_label = $show_stripe_gateway && $show_helloasso_gateway ? 'Stripe / HelloAsso' : ( $show_helloasso_gateway ? 'HelloAsso' : 'Stripe' );
         ?>
         <div class="givoly-form__trust">
             <svg class="givoly-form__trust-icon" width="13" height="13" viewBox="0 0 24 24" fill="none"

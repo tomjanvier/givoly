@@ -353,6 +353,14 @@
                 if ( gateway ) {
                     gateway.value = btn.dataset.gateway || 'stripe';
                 }
+
+                if ( ( btn.dataset.gateway || 'stripe' ) === 'helloasso' ) {
+                    const once = form.querySelector( '[name="frequency"][value="once"]' );
+                    if ( once ) {
+                        once.checked = true;
+                        once.dispatchEvent( new Event( 'change', { bubbles: true } ) );
+                    }
+                }
             } );
         } );
         show_success_on_return();

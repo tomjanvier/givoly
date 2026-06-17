@@ -125,7 +125,7 @@ final class FormConfig {
         $this->layout      = $this->parse_enum( $raw_atts['layout'] ?? '', self::LAYOUTS,              self::DEFAULT_LAYOUT );
         $this->title       = sanitize_text_field( ! empty( $raw_atts['title'] )       ? $raw_atts['title']       : __( 'Faire un don', 'givoly' ) );
         $this->button_text = sanitize_text_field( ! empty( $raw_atts['button_text'] ) ? $raw_atts['button_text'] : __( 'Donner maintenant', 'givoly' ) );
-        $this->gateway     = $this->parse_enum( $raw_atts['gateway'] ?? '', [ 'stripe', 'helloasso' ], Settings::get_default_gateway() );
+        $this->gateway     = $this->parse_gateway( $raw_atts['gateway'] ?? '' );
         $this->extra_fields = $this->parse_extra_fields( $raw_atts['extra_fields'] ?? '' );
     }
 
@@ -266,6 +266,21 @@ final class FormConfig {
         $value = sanitize_text_field( $raw );
 
         return in_array( $value, $allowed, true ) ? $value : $default;
+    }
+
+    private function parse_gateway( string $raw ): string {
+        $enabled = Settings::get_enabled_gateways();
+        $value   = sanitize_text_field( $raw );
+
+        if ( $value === 'both' && count( $enabled ) > 1 ) {
+            return 'both';
+        }
+
+        if ( in_array( $value, $enabled, true ) ) {
+            return $value;
+        }
+
+        return count( $enabled ) > 1 ? 'both' : $enabled[0];
     }
 
 

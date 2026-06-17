@@ -94,7 +94,8 @@ final class AjaxHandler {
         $first_name  = sanitize_text_field( wp_unslash( $_POST['first_name'] ?? '' ) );
         $last_name   = sanitize_text_field( wp_unslash( $_POST['last_name'] ?? '' ) );
         $campaign    = sanitize_text_field( wp_unslash( $_POST['campaign'] ?? '' ) );
-        $gateway_key = sanitize_text_field( wp_unslash( $_POST['gateway'] ?? 'stripe' ) );
+        $gateway_key = sanitize_text_field( wp_unslash( $_POST['gateway'] ?? Settings::get_default_gateway() ) );
+        $gateway_key = in_array( $gateway_key, [ 'stripe', 'helloasso' ], true ) ? $gateway_key : Settings::get_default_gateway();
         $frequency   = sanitize_text_field( wp_unslash( $_POST['frequency'] ?? 'once' ) );
         $frequency   = in_array( $frequency, [ 'once', 'monthly' ], true ) ? $frequency : 'once';
 
@@ -109,6 +110,10 @@ final class AjaxHandler {
         }
 
         try {
+            if ( ! in_array( $gateway_key, Settings::get_enabled_gateways(), true ) ) {
+                throw new \RuntimeException( 'Passerelle désactivée.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+            }
+
             if ( $gateway_key === 'helloasso' ) {
                 $checkout_url = $this->checkout_helloasso(
                     $amount_cents, $currency, $email, $first_name, $last_name, $campaign, $frequency

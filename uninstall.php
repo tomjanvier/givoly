@@ -48,6 +48,8 @@ foreach ( [
     'givoly_ha_button_notice',
     'givoly_ha_other_payments_url',
     'givoly_ha_once_use_other_payments_url',
+    'givoly_stripe_enabled',
+    'givoly_helloasso_enabled',
     'givoly_default_gateway',
     'givoly_email_logo_url',
     'givoly_email_primary_color',

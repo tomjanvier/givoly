@@ -18,6 +18,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- template file, variables are local-scope
 
 $form_id = 'givoly-form-' . wp_unique_id();
+$show_stripe_gateway = in_array( $config->gateway, [ 'stripe', 'both' ], true );
+$show_helloasso_gateway = in_array( $config->gateway, [ 'helloasso', 'both' ], true );
+$default_form_gateway = $show_stripe_gateway ? 'stripe' : 'helloasso';
 
 $symbol = $config->get_currency_symbol();
 
@@ -59,7 +62,7 @@ $render_extra_fields = static function ( string $form_id, array $extra_fields ):
         <?php wp_nonce_field( 'givoly_submit_donation', 'givoly_nonce' ); ?>
         <input type="hidden" name="action"   value="givoly_init_checkout">
         <input type="hidden" name="currency" value="<?php echo esc_attr( $config->currency ); ?>">
-        <input type="hidden" name="gateway"  value="<?php echo esc_attr( $config->gateway ); ?>">
+        <input type="hidden" name="gateway"  value="<?php echo esc_attr( $default_form_gateway ); ?>">
 
         <?php if ( $config->campaign ) : ?>
             <input type="hidden" name="campaign" value="<?php echo esc_attr( $config->campaign ); ?>">
@@ -76,7 +79,7 @@ $render_extra_fields = static function ( string $form_id, array $extra_fields ):
                 <input type="radio" name="frequency" value="once" class="givoly-frequency__input" checked>
                 <span class="givoly-amount-btn__label"><?php esc_html_e( 'Une fois', 'givoly' ); ?></span>
             </label>
-            <?php if ( $config->gateway === 'stripe' ) : ?>
+            <?php if ( $show_stripe_gateway ) : ?>
             <label class="givoly-amount-btn">
                 <input type="radio" name="frequency" value="monthly" class="givoly-frequency__input">
                 <span class="givoly-amount-btn__label"><?php esc_html_e( 'Mensuel', 'givoly' ); ?></span>
@@ -152,7 +155,7 @@ $render_extra_fields = static function ( string $form_id, array $extra_fields ):
 
         <!-- ── Bouton ─────────────────────────────────────────────────── -->
         <div class="givoly-gateway-actions">
-        <?php if ( $config->gateway === 'stripe' ) : ?>
+        <?php if ( $show_stripe_gateway ) : ?>
         <button type="submit"
                 class="givoly-btn givoly-btn--primary givoly-form__submit givoly-gateway-submit is-active"
                 data-gateway="stripe"
@@ -165,13 +168,18 @@ $render_extra_fields = static function ( string $form_id, array $extra_fields ):
         </button>
         <?php endif; ?>
 
-        <?php if ( $config->gateway === 'helloasso' ) : ?>
+        <?php if ( $show_helloasso_gateway ) : ?>
         <button type="submit"
                 class="HaPayButton givoly-form__submit givoly-gateway-submit"
                 data-gateway="helloasso">
             <span class="HaPayButtonLogo" aria-hidden="true">HA</span>
             <span class="HaPayButtonLabel"><?php esc_html_e( 'Payer avec HelloAsso*', 'givoly' ); ?></span>
         </button>
+
+        <?php $ha_other_payments_url = \Givoly\Admin\Settings::get_helloasso_other_payments_url(); ?>
+        <?php if ( $ha_other_payments_url ) : ?>
+            <a href="<?php echo esc_url( $ha_other_payments_url ); ?>" class="givoly-ha-other-payments" target="_blank" rel="noopener"><?php esc_html_e( 'Autres modes de paiements', 'givoly' ); ?></a>
+        <?php endif; ?>
 
         <?php $ha_notice = \Givoly\Admin\Settings::get_helloasso_button_notice(); ?>
         <?php if ( $ha_notice ) : ?>
@@ -181,7 +189,7 @@ $render_extra_fields = static function ( string $form_id, array $extra_fields ):
         </div>
 
 
-        <?php $gateway_label = $config->gateway === 'helloasso' ? 'HelloAsso' : 'Stripe'; ?>
+        <?php $gateway_label = $show_stripe_gateway && $show_helloasso_gateway ? 'Stripe / HelloAsso' : ( $show_helloasso_gateway ? 'HelloAsso' : 'Stripe' ); ?>
         <p class="givoly-form__trust">
             <svg class="givoly-form__trust-icon" width="12" height="12" viewBox="0 0 24 24" fill="none"
                  stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
