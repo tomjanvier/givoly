@@ -702,7 +702,7 @@
     border-color:#d1d5db;
 }
 .HaPayButtonLogoWrap { width:56px; min-width:56px; display:flex; align-items:center; justify-content:center; background:#fff; border-right:1px solid #e5e7eb; }
-.HaPayButtonLogo { width:32px; height:32px; display:inline-flex; align-items:center; justify-content:center; border-radius:999px; background:#ff6b35; color:#fff; font-size:11px; font-weight:800; letter-spacing:-.02em; }
+.HaPayButtonLogo { width:34px; height:auto; display:block; }
 .HaPayButtonLabel { color:#111827; padding:0 16px; font-weight:700; flex:1; text-align:center; justify-content:center; display:flex; align-items:center; background:transparent; }
 .givoly-ha-other-payments { font-size:14px; color:#374151; text-decoration:underline; text-align:center; display:block; margin-top:2px; }
 
