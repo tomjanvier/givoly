@@ -25,6 +25,7 @@ final class CampaignWidget {
     private bool    $show_description;
     private bool    $show_form;
     private bool    $show_title;
+    private bool    $show_form_title;
     private string  $layout;
     private string  $theme;
 
@@ -33,6 +34,7 @@ final class CampaignWidget {
         $this->show_description = ( $atts['show_description'] ?? 'yes' ) !== 'no';
         $this->show_form        = ( $atts['show_form'] ?? 'yes' ) !== 'no';
         $this->show_title       = ( $atts['show_title'] ?? 'yes' ) !== 'no';
+        $this->show_form_title  = ( $atts['show_form_title'] ?? 'no' ) !== 'no';
         $this->layout           = in_array( $atts['layout'] ?? 'card', FormConfig::LAYOUTS, true )
             ? $atts['layout']
             : 'card';
@@ -73,7 +75,7 @@ final class CampaignWidget {
                 'campaign'   => $this->campaign_slug,
                 'layout'     => 'flat',
                 'theme'      => $this->theme,
-                'show_title' => $this->show_title ? 'yes' : 'no',
+                'show_title' => $this->show_form_title ? 'yes' : 'no',
                 'title'      => $campaign->get_title(),
             ] );
             $donation_form = new DonationForm( $form_config );

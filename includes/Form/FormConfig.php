@@ -147,9 +147,8 @@ final class FormConfig {
             $vars['--givoly-color-primary-light'] = $this->lighten_hex( $custom_primary );
         }
 
-        // 3. Accentuation alignée sur la couleur principale (source unique)
-        //    On garde la variable CSS pour éviter de casser le CSS existant,
-        //    mais sa valeur suit systématiquement la couleur principale.
+        // 3. Source unique de couleur : l'accent suit toujours la couleur principale.
+        //    Cela conserve la compatibilité CSS tout en évitant deux réglages couleur.
         $vars['--givoly-color-accent'] = $vars['--givoly-color-primary'];
 
         // 4. Rayon des coins depuis les réglages admin
