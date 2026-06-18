@@ -15,14 +15,13 @@
     <img src="logo.png" alt="Logo Givoly" width="96" height="96">
   </a>
 
-  <h3 align="center">Givoly</h3>
-
   <p align="center">
-    L'extension WordPress de dons pour associations : Stripe + HelloAsso, zéro abonnement, zéro commission Givoly, zéro frais caché.
+    L'extension WordPress de dons pour associations : Stripe + HelloAsso, zéro abonnement, zéro commission, zéro frais caché.
     <br />
     <a href="https://givoly.org/"><strong>Voir le site de l'extension »</strong></a>
     <br />
     <br />
+    Une extension développée gratuitement par l'association PLAID·ACT
     <a href="https://plaidact.org">
       <img src="https://plaidact.org/wp-content/uploads/2026/04/plaidact_noir_transparent-c2ae9e.svg" alt="PLAID·ACT" width="170">
     </a>
