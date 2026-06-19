@@ -57,12 +57,23 @@ final class HelloAssoGateway {
         string $return_url,
         string $back_url,
         string $error_url,
-        string $campaign = ''
+        string $campaign = '',
+        string $frequency = 'once'
     ): string {
         $token = $this->get_valid_token();
 
+        $terms = [];
+        if ( $frequency === 'monthly' ) {
+            for ( $i = 1; $i <= 11; $i++ ) {
+                $terms[] = [
+                    'amount' => $amount_cents,
+                    'date'   => gmdate( 'Y-m-d', strtotime( '+' . $i . ' month' ) ),
+                ];
+            }
+        }
+
         $body = [
-            'totalAmount'      => $amount_cents,
+            'totalAmount'      => $frequency === 'monthly' ? $amount_cents * 12 : $amount_cents,
             'initialAmount'    => $amount_cents,
             'itemName'         => $item_name,
             'backUrl'          => $back_url,
@@ -76,9 +87,15 @@ final class HelloAssoGateway {
             ],
             'metadata'         => array_filter( [
                 'campaign' => $campaign,
-                'currency' => 'EUR',
+                'currency'  => 'EUR',
+                'frequency' => $frequency,
             ] ),
         ];
+
+        if ( $terms ) {
+            $body['terms'] = $terms;
+            $body['paymentOptions'] = [ 'enableSepa' => true ];
+        }
 
         $base = $this->sandbox ? self::API_SANDBOX : self::API_LIVE;
         $url  = $base . '/v5/organizations/' . rawurlencode( $this->org_slug ) . '/checkout-intents';

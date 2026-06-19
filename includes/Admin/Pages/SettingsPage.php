@@ -257,6 +257,8 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
         $email_sender_name   = (string) get_option( Settings::OPT_EMAIL_SENDER_NAME, '' );
         $email_thank_subject = (string) get_option( Settings::OPT_EMAIL_THANK_SUBJECT, '' );
         $email_thank_body    = (string) get_option( Settings::OPT_EMAIL_THANK_BODY, '' );
+        $email_tax_receipt_subject = (string) get_option( Settings::OPT_EMAIL_TAX_RECEIPT_SUBJECT, '' );
+        $email_tax_receipt_body    = (string) get_option( Settings::OPT_EMAIL_TAX_RECEIPT_BODY, '' );
 
         // Association
         $assoc = [
@@ -786,6 +788,33 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                                                   class="large-text"
                                                   placeholder="<?php esc_attr_e( 'Bonjour {first_name},', 'givoly' ); ?>"><?php echo esc_textarea( $email_thank_body ); ?></textarea>
                                         <p class="description"><?php esc_html_e( 'Vous pouvez personnaliser le message librement. Les variables seront remplacées automatiquement.', 'givoly' ); ?></p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">
+                                        <label for="givoly-email-tax-receipt-subject"><?php esc_html_e( 'Sujet reçu fiscal annuel', 'givoly' ); ?></label>
+                                    </th>
+                                    <td>
+                                        <input type="text"
+                                               class="regular-text"
+                                               id="givoly-email-tax-receipt-subject"
+                                               name="email_tax_receipt_subject"
+                                               value="<?php echo esc_attr( $email_tax_receipt_subject ); ?>"
+                                               placeholder="<?php esc_attr_e( 'Votre reçu fiscal {year} — {association}', 'givoly' ); ?>">
+                                        <p class="description"><?php esc_html_e( 'Variables disponibles : {donor_name}, {first_name}, {last_name}, {year}, {amount}, {donation_count}, {association}.', 'givoly' ); ?></p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">
+                                        <label for="givoly-email-tax-receipt-body"><?php esc_html_e( 'Document / texte du reçu fiscal', 'givoly' ); ?></label>
+                                    </th>
+                                    <td>
+                                        <textarea id="givoly-email-tax-receipt-body"
+                                                  name="email_tax_receipt_body"
+                                                  rows="10"
+                                                  class="large-text"
+                                                  placeholder="<?php echo esc_attr( Settings::get_email_tax_receipt_body() ); ?>"><?php echo esc_textarea( $email_tax_receipt_body ); ?></textarea>
+                                        <p class="description"><?php esc_html_e( 'Modèle utilisé pour le document fiscal envoyé depuis Donateurs. Variables : {donor_name}, {first_name}, {last_name}, {year}, {amount}, {donation_count}, {association}, {association_address}, {siret}, {rna}, {fiscal_id}.', 'givoly' ); ?></p>
                                     </td>
                                 </tr>
                             </table>

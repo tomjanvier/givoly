@@ -143,17 +143,22 @@ final class AdminActions {
         $from_email  = Settings::get_assoc_email();
         $name        = trim( (string) $donor->first_name . ' ' . (string) $donor->last_name );
         $amount      = number_format_i18n( (float) $donor->total_amount, 2 ) . ' ' . ( $donor->currency ?: 'EUR' );
-        $subject     = sprintf( __( 'Votre reçu fiscal %1$s — %2$s', 'givoly' ), $year, $association );
-        $body        = sprintf(
-            /* translators: 1: donor name, 2: year, 3: amount, 4: donation count, 5: association name, 6: fiscal id. */
-            __( "Bonjour %1$s,\n\nVous trouverez ci-dessous le récapitulatif de vos dons réalisés en %2$d :\n\nMontant total : %3$s\nNombre de dons : %4$d\nAssociation : %5$s\nAgrément / rescrit fiscal : %6$s\n\nCe message facilite l'envoi de fin d'année. Vérifiez les informations de l'association et joignez votre reçu fiscal officiel si nécessaire avant utilisation comme justificatif.\n\nMerci pour votre soutien.", 'givoly' ),
-            $name ?: __( 'cher donateur', 'givoly' ),
-            $year,
-            $amount,
-            (int) $donor->donation_count,
-            $association,
-            Settings::get_assoc_fiscal_id() ?: __( 'non renseigné', 'givoly' )
-        );
+        $assoc_address = trim( implode( ' ', array_filter( [ Settings::get_assoc_address(), Settings::get_assoc_postal_code(), Settings::get_assoc_city() ] ) ) );
+        $variables   = [
+            '{donor_name}'          => $name ?: __( 'cher donateur', 'givoly' ),
+            '{first_name}'          => (string) $donor->first_name,
+            '{last_name}'           => (string) $donor->last_name,
+            '{year}'                => (string) $year,
+            '{amount}'              => $amount,
+            '{donation_count}'      => (string) (int) $donor->donation_count,
+            '{association}'         => $association,
+            '{association_address}' => $assoc_address ?: __( 'non renseignée', 'givoly' ),
+            '{siret}'               => Settings::get_assoc_siret() ?: __( 'non renseigné', 'givoly' ),
+            '{rna}'                 => Settings::get_assoc_rna() ?: __( 'non renseigné', 'givoly' ),
+            '{fiscal_id}'           => Settings::get_assoc_fiscal_id() ?: __( 'non renseigné', 'givoly' ),
+        ];
+        $subject     = strtr( Settings::get_email_tax_receipt_subject(), $variables );
+        $body        = strtr( Settings::get_email_tax_receipt_body(), $variables );
 
         $headers = [];
         if ( is_email( $from_email ) ) {

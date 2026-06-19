@@ -53,6 +53,8 @@ final class Settings {
     const OPT_EMAIL_SENDER_NAME   = 'givoly_email_sender_name';    // défaut : nom association
     const OPT_EMAIL_THANK_SUBJECT = 'givoly_email_thank_subject';
     const OPT_EMAIL_THANK_BODY    = 'givoly_email_thank_body';
+    const OPT_EMAIL_TAX_RECEIPT_SUBJECT = 'givoly_email_tax_receipt_subject';
+    const OPT_EMAIL_TAX_RECEIPT_BODY    = 'givoly_email_tax_receipt_body';
 
     // Apparence — personnalisation visuelle du formulaire frontend
     const OPT_APPEARANCE_PRIMARY_COLOR = 'givoly_appearance_primary_color'; // hex, ex: #1B6B4A
@@ -180,6 +182,16 @@ final class Settings {
     public static function get_email_thank_body(): string {
         $body = (string) get_option( self::OPT_EMAIL_THANK_BODY, '' );
         return $body !== '' ? $body : __( "Bonjour {first_name},\n\nMerci pour votre don de {amount}. Votre soutien est précieux.", 'givoly' );
+    }
+
+    public static function get_email_tax_receipt_subject(): string {
+        $subject = (string) get_option( self::OPT_EMAIL_TAX_RECEIPT_SUBJECT, '' );
+        return $subject !== '' ? $subject : __( 'Votre reçu fiscal {year} — {association}', 'givoly' );
+    }
+
+    public static function get_email_tax_receipt_body(): string {
+        $body = (string) get_option( self::OPT_EMAIL_TAX_RECEIPT_BODY, '' );
+        return $body !== '' ? $body : __( "Bonjour {donor_name},\n\nVous trouverez ci-dessous le récapitulatif de vos dons réalisés en {year}.\n\nMontant total : {amount}\nNombre de dons : {donation_count}\nAssociation : {association}\nAdresse : {association_address}\nSIRET : {siret}\nRNA : {rna}\nAgrément / rescrit fiscal : {fiscal_id}\n\nCe message facilite l'envoi de fin d'année. Vérifiez les informations de l'association et joignez votre reçu fiscal officiel si nécessaire avant utilisation comme justificatif.\n\nMerci pour votre soutien.", 'givoly' );
     }
 
     // ── Getters apparence ──────────────────────────────────────────────────
@@ -345,6 +357,8 @@ final class Settings {
         update_option( self::OPT_EMAIL_SENDER_NAME,   sanitize_text_field( $post['email_sender_name'] ?? '' ), false );
         update_option( self::OPT_EMAIL_THANK_SUBJECT, sanitize_text_field( $post['email_thank_subject'] ?? '' ), false );
         update_option( self::OPT_EMAIL_THANK_BODY,    sanitize_textarea_field( $post['email_thank_body'] ?? '' ), false );
+        update_option( self::OPT_EMAIL_TAX_RECEIPT_SUBJECT, sanitize_text_field( $post['email_tax_receipt_subject'] ?? '' ), false );
+        update_option( self::OPT_EMAIL_TAX_RECEIPT_BODY,    sanitize_textarea_field( $post['email_tax_receipt_body'] ?? '' ), false );
         // Couleur : valider le format hex avant de sauvegarder
         $color = sanitize_text_field( $post['email_primary_color'] ?? '' );
         if ( preg_match( '/^#[0-9a-fA-F]{3,6}$/', $color ) ) {
