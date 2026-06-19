@@ -110,6 +110,8 @@ final class AjaxHandler {
         }
 
         try {
+            $this->upsert_donor_from_checkout( $email, $first_name, $last_name );
+
             if ( ! in_array( $gateway_key, Settings::get_enabled_gateways(), true ) ) {
                 throw new \RuntimeException( 'Passerelle désactivée.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
             }
@@ -165,6 +167,34 @@ final class AjaxHandler {
         wp_send_json_success( [ 'message' => __( 'Merci, vos informations ont bien été enregistrées.', 'givoly' ) ] );
     }
 
+
+    private function upsert_donor_from_checkout( string $email, string $first_name, string $last_name ): void {
+        global $wpdb;
+
+        $table = $wpdb->prefix . 'givoly_donors';
+        $data  = [
+            'email'         => $email,
+            'first_name'    => $first_name,
+            'last_name'     => $last_name,
+            'phone'         => sanitize_text_field( wp_unslash( $_POST['phone'] ?? '' ) ) ?: null,
+            'company'       => sanitize_text_field( wp_unslash( $_POST['company'] ?? '' ) ) ?: null,
+            'address_line1' => sanitize_text_field( wp_unslash( $_POST['address_line1'] ?? '' ) ) ?: null,
+            'postal_code'   => sanitize_text_field( wp_unslash( $_POST['postal_code'] ?? '' ) ) ?: null,
+            'city'          => sanitize_text_field( wp_unslash( $_POST['city'] ?? '' ) ) ?: null,
+        ];
+
+        $existing = (int) $wpdb->get_var(
+            $wpdb->prepare( "SELECT id FROM {$table} WHERE email = %s", $email )
+        );
+
+        if ( $existing ) {
+            $wpdb->update( $table, array_filter( $data, static fn( $value ) => $value !== null && $value !== '' ), [ 'id' => $existing ] );
+            return;
+        }
+
+        $wpdb->insert( $table, $data );
+    }
+
     private function checkout_stripe(
         int    $amount_cents,
         string $currency,
@@ -206,10 +236,6 @@ final class AjaxHandler {
         string $campaign,
         string $frequency = 'once'
     ): string {
-        if ( $frequency === 'monthly' ) {
-            throw new \RuntimeException( 'Le don mensuel est disponible avec Stripe.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
-        }
-
         if ( ! Settings::is_helloasso_configured() ) {
             throw new \RuntimeException( 'HelloAsso non configuré.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
@@ -240,7 +266,8 @@ final class AjaxHandler {
             return_url:       add_query_arg( 'givoly_success', '1', Settings::get_success_url() ),
             back_url:         Settings::get_cancel_url(),
             error_url:        Settings::get_cancel_url(),
-            campaign:         $campaign
+            campaign:         $campaign,
+            frequency:        $frequency
         );
     }
 
@@ -382,16 +409,19 @@ final class AjaxHandler {
             return new \WP_REST_Response( [ 'received' => true ], 200 );
         }
 
-        $metadata       = is_array( $data['metadata'] ?? null ) ? $data['metadata'] : [];
-        $payer          = is_array( $data['payer'] ?? null ) ? $data['payer'] : ( is_array( $data['user'] ?? null ) ? $data['user'] : [] );
-        $payment        = is_array( $data['payment'] ?? null ) ? $data['payment'] : $data;
-        $amount_cents   = (int) ( $payment['amount'] ?? $data['amount'] ?? $data['totalAmount'] ?? 0 );
-        $transaction_id = sanitize_text_field( (string) ( $payment['id'] ?? $data['id'] ?? $data['order']['id'] ?? '' ) );
+        $order          = is_array( $data['order'] ?? null ) ? $data['order'] : [];
+        $payments       = is_array( $data['payments'] ?? null ) ? $data['payments'] : ( is_array( $order['payments'] ?? null ) ? $order['payments'] : [] );
+        $first_payment  = is_array( $payments[0] ?? null ) ? $payments[0] : [];
+        $metadata       = is_array( $data['metadata'] ?? null ) ? $data['metadata'] : ( is_array( $order['metadata'] ?? null ) ? $order['metadata'] : [] );
+        $payer          = is_array( $data['payer'] ?? null ) ? $data['payer'] : ( is_array( $order['payer'] ?? null ) ? $order['payer'] : ( is_array( $data['user'] ?? null ) ? $data['user'] : [] ) );
+        $payment        = is_array( $data['payment'] ?? null ) ? $data['payment'] : ( $first_payment ?: $data );
+        $amount_cents   = (int) ( $payment['amount'] ?? $payment['initialAmount'] ?? $data['amount'] ?? $data['totalAmount'] ?? $order['amount']['total'] ?? 0 );
+        $transaction_id = sanitize_text_field( (string) ( $payment['id'] ?? $data['id'] ?? $order['id'] ?? '' ) );
         $campaign       = sanitize_text_field( (string) ( $metadata['campaign'] ?? '' ) );
         $currency       = strtoupper( sanitize_text_field( (string) ( $metadata['currency'] ?? 'EUR' ) ) );
-        $email          = sanitize_email( (string) ( $payer['email'] ?? $data['payerEmail'] ?? '' ) );
-        $first_name     = sanitize_text_field( (string) ( $payer['firstName'] ?? '' ) );
-        $last_name      = sanitize_text_field( (string) ( $payer['lastName'] ?? '' ) );
+        $email          = sanitize_email( (string) ( $payer['email'] ?? $data['payerEmail'] ?? $order['payerEmail'] ?? '' ) );
+        $first_name     = sanitize_text_field( (string) ( $payer['firstName'] ?? $payer['firstname'] ?? '' ) );
+        $last_name      = sanitize_text_field( (string) ( $payer['lastName'] ?? $payer['lastname'] ?? '' ) );
 
         if ( $amount_cents > 0 && $transaction_id && $email ) {
             $campaign_id = $campaign
