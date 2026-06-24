@@ -124,6 +124,12 @@ Exemple avec campagne, thème et passerelle :
 [givoly_form campaign="urgence" theme="givoly" layout="card" gateway="helloasso"]
 ```
 
+Exemple pour modifier rapidement le bloc du formulaire avec des variables CSS :
+
+```text
+[givoly_form class="don-accueil" css="--givoly-form-max-width:640px;--givoly-form-padding:2.5rem;--givoly-form-shadow:none"]
+```
+
 **Jauge de campagne**
 
 ```text

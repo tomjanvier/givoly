@@ -48,6 +48,12 @@ Attributs disponibles :
 | `button_text` | `Donner maintenant` | texte libre |
 | `show_title` | `yes` | `yes`, `no` |
 | `gateway` | réglage admin | `stripe`, `helloasso` |
+| `class` | vide | classe CSS personnalisée à ajouter au bloc du formulaire |
+| `css` | vide | variables CSS `--givoly-*` séparées par des points-virgules |
+
+Exemple de personnalisation rapide du bloc :
+
+`[givoly_form class="don-accueil" css="--givoly-form-max-width:640px;--givoly-form-padding:2.5rem;--givoly-form-shadow:none"]`
 
 **Jauge de campagne**
 
