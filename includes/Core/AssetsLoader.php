@@ -9,6 +9,8 @@
 
 namespace Givoly\Core;
 
+use Givoly\Admin\Settings;
+
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
@@ -27,6 +29,11 @@ final class AssetsLoader {
             [],
             GIVOLY_VERSION
         );
+
+        $custom_css = Settings::get_appearance_custom_css();
+        if ( $custom_css !== '' ) {
+            wp_add_inline_style( 'givoly-frontend', $custom_css );
+        }
 
         wp_register_script(
             'givoly-frontend',

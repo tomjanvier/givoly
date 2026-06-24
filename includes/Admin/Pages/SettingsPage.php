@@ -273,10 +273,11 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
         ];
 
         // Apparence
-        $ap_primary   = Settings::get_appearance_primary_color();
-        $ap_accent    = Settings::get_appearance_accent_color();
-        $ap_radius    = Settings::get_appearance_radius();
-        $ap_btn_style = Settings::get_appearance_btn_style();
+        $ap_primary    = Settings::get_appearance_primary_color();
+        $ap_accent     = Settings::get_appearance_accent_color();
+        $ap_radius     = Settings::get_appearance_radius();
+        $ap_btn_style  = Settings::get_appearance_btn_style();
+        $ap_custom_css = Settings::get_appearance_custom_css();
 
         $base_url = admin_url( 'admin.php?page=givoly-settings' );
 
@@ -935,6 +936,37 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                                             <span class="givoly-shape-card__label"><?php esc_html_e( 'Contour', 'givoly' ); ?></span>
                                         </label>
                                     </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+
+                    <!-- Card CSS personnalisé -->
+                    <div class="givoly-card givoly-card--appearance">
+                        <h2 class="givoly-card__title">
+                            <span class="dashicons dashicons-editor-code"></span>
+                            <?php esc_html_e( 'CSS personnalisé', 'givoly' ); ?>
+                        </h2>
+                        <p class="givoly-card__desc">
+                            <?php esc_html_e( 'Ajoutez ici du CSS pour modifier le bloc du formulaire sans toucher aux fichiers du thème. Ce code est chargé après le CSS Givoly.', 'givoly' ); ?>
+                        </p>
+                        <table class="form-table" role="presentation">
+                            <tr>
+                                <th scope="row">
+                                    <label for="givoly-ap-custom-css"><?php esc_html_e( 'Code CSS', 'givoly' ); ?></label>
+                                </th>
+                                <td>
+                                    <textarea id="givoly-ap-custom-css"
+                                              name="appearance_custom_css"
+                                              rows="12"
+                                              class="large-text code"
+                                              spellcheck="false"
+                                              placeholder=".givoly-wrap { max-width: 720px; }
+.givoly-form__submit { text-transform: uppercase; }"><?php echo esc_textarea( $ap_custom_css ); ?></textarea>
+                                    <p class="description">
+                                        <?php esc_html_e( 'Astuce : ciblez .givoly-wrap, .givoly-form, .givoly-amount-btn ou .givoly-form__submit pour personnaliser uniquement le formulaire.', 'givoly' ); ?>
+                                    </p>
                                 </td>
                             </tr>
                         </table>
