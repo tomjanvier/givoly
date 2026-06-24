@@ -50,6 +50,12 @@
     --givoly-shadow:              0 4px 24px rgba(0, 0, 0, .06);
     --givoly-transition:          .18s ease;
     --givoly-btn-style:           filled;
+    --givoly-form-max-width:      520px;
+    --givoly-form-padding:        2rem;
+    --givoly-form-inline-padding: 1.25rem;
+    --givoly-form-bg:             var(--givoly-color-bg);
+    --givoly-form-border:         1px solid var(--givoly-color-border);
+    --givoly-form-shadow:         var(--givoly-shadow);
 
     box-sizing: border-box;
     font-family: inherit;
@@ -66,12 +72,12 @@
 /* ── 2. Conteneur ─────────────────────────────────────────────────────────── */
 
 .givoly-layout-card .givoly-form {
-    background:    var(--givoly-color-bg);
-    border:        1px solid var(--givoly-color-border);
+    background:    var(--givoly-form-bg);
+    border:        var(--givoly-form-border);
     border-radius: var(--givoly-radius);
-    box-shadow:    var(--givoly-shadow);
-    padding:       2rem;
-    max-width:     520px;
+    box-shadow:    var(--givoly-form-shadow);
+    padding:       var(--givoly-form-padding);
+    max-width:     var(--givoly-form-max-width);
     margin:        0 auto;
 }
 
@@ -544,7 +550,7 @@
     background:    var(--givoly-color-bg);
     border:        1px solid var(--givoly-color-border);
     border-radius: var(--givoly-radius);
-    padding:       1.25rem;
+    padding:       var(--givoly-form-inline-padding);
 }
 
 .givoly-layout-inline .givoly-form__title {
