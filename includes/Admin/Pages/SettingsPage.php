@@ -447,10 +447,12 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                         </h2>
                         <p class="description">
                             <?php
-                            printf(
-                                /* translators: %s is the Stripe API documentation URL. */
-                                wp_kses_post( __( 'Documentation API Stripe : <a href="%s" target="_blank" rel="noopener noreferrer">docs.stripe.com/api</a>.', 'givoly' ) ),
-                                esc_url( 'https://docs.stripe.com/api' )
+                            echo wp_kses_post(
+                                sprintf(
+                                    /* translators: %s is the Stripe API documentation URL. */
+                                    __( 'Documentation API Stripe : <a href="%s" target="_blank" rel="noopener noreferrer">docs.stripe.com/api</a>.', 'givoly' ),
+                                    esc_url( 'https://docs.stripe.com/api' )
+                                )
                             );
                             ?>
                         </p>
@@ -545,10 +547,12 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                         </h2>
                         <p class="description">
                             <?php
-                            printf(
-                                /* translators: %s is the HelloAsso API documentation URL. */
-                                wp_kses_post( __( 'Documentation API HelloAsso : <a href="%s" target="_blank" rel="noopener noreferrer">dev.helloasso.com/docs</a>.', 'givoly' ) ),
-                                esc_url( 'https://dev.helloasso.com/docs' )
+                            echo wp_kses_post(
+                                sprintf(
+                                    /* translators: %s is the HelloAsso API documentation URL. */
+                                    __( 'Documentation API HelloAsso : <a href="%s" target="_blank" rel="noopener noreferrer">dev.helloasso.com/docs</a>.', 'givoly' ),
+                                    esc_url( 'https://dev.helloasso.com/docs' )
+                                )
                             );
                             ?>
                         </p>
