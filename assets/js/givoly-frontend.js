@@ -258,89 +258,6 @@
     }
 
 
-    function protect_branding() {
-        const requiredMarkup = givolyData?.branding || '';
-        if ( ! requiredMarkup ) return;
-
-        document.querySelectorAll( '.givoly-form' ).forEach( ( form ) => {
-            let observer = null;
-
-            const setAttributeIfChanged = ( element, name, value ) => {
-                if ( element.getAttribute( name ) !== value ) {
-                    element.setAttribute( name, value );
-                }
-            };
-
-            const removeAttributeIfPresent = ( element, name ) => {
-                if ( element.hasAttribute( name ) ) {
-                    element.removeAttribute( name );
-                }
-            };
-
-            const ensureBranding = () => {
-                // Les mutations faites ici ne doivent pas relancer l'observer.
-                // Sinon, une simple mise à jour du libellé du montant peut déclencher
-                // une boucle MutationObserver qui bloque toute la page.
-                observer?.disconnect();
-
-                let branding = form.querySelector( '[data-givoly-branding="required"]' );
-                const submitTrust = form.querySelector( '.givoly-form__trust' );
-
-                if ( ! branding ) {
-                    form.insertAdjacentHTML( 'beforeend', requiredMarkup );
-                    branding = form.querySelector( '[data-givoly-branding="required"]' );
-                }
-
-                if ( ! branding ) {
-                    observer?.observe( form, { childList: true, subtree: true } );
-                    return;
-                }
-
-                removeAttributeIfPresent( branding, 'style' );
-                if ( branding.className !== 'givoly-branding' ) {
-                    branding.className = 'givoly-branding';
-                }
-
-                const link = branding.querySelector( 'a' );
-                const logo = branding.querySelector( 'img' );
-
-                if ( link ) {
-                    if ( link.className !== 'givoly-branding__link' ) {
-                        link.className = 'givoly-branding__link';
-                    }
-                    setAttributeIfChanged( link, 'target', '_blank' );
-                    setAttributeIfChanged( link, 'rel', 'noopener noreferrer' );
-                    removeAttributeIfPresent( link, 'style' );
-                }
-
-                if ( logo ) {
-                    if ( logo.className !== 'givoly-branding__logo' ) {
-                        logo.className = 'givoly-branding__logo';
-                    }
-                    setAttributeIfChanged( logo, 'alt', 'Givoly' );
-                    removeAttributeIfPresent( logo, 'style' );
-                }
-
-                if ( link && link.href !== 'https://givoly.org/' ) {
-                    link.href = 'https://givoly.org';
-                }
-
-                if ( logo && ! logo.src.includes( 'Black-and-Red-Foundation-Community-Non-Profit-Logo.png' ) ) {
-                    logo.src = 'https://givoly.org/wp-content/uploads/2026/06/Black-and-Red-Foundation-Community-Non-Profit-Logo.png';
-                }
-
-                if ( submitTrust?.nextElementSibling !== branding ) {
-                    submitTrust?.after( branding );
-                }
-
-                observer?.observe( form, { childList: true, subtree: true } );
-            };
-
-            observer = new MutationObserver( ensureBranding );
-            ensureBranding();
-        } );
-    }
-
     // ── Initialisation ───────────────────────────────────────────────────────
 
     document.addEventListener( 'DOMContentLoaded', () => {
@@ -358,7 +275,6 @@
         } );
         show_success_on_return();
         init_post_payment_form();
-        protect_branding();
     } );
 
 } )();

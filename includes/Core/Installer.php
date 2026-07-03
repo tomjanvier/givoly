@@ -23,6 +23,7 @@ final class Installer {
     public static function activate(): void {
         self::create_tables();
         update_option( self::DB_VERSION_OPTION, self::DB_VERSION, false );
+        add_option( \Givoly\Admin\Settings::OPT_PUBLIC_BRANDING_ENABLED, '0', '', false );
         flush_rewrite_rules();
     }
 

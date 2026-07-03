@@ -15,6 +15,7 @@ final class AdminMenu {
 
     public function register(): void {
         add_action( 'admin_menu', [ $this, 'add_menus' ] );
+        add_action( 'admin_notices', [ $this, 'render_support_header' ] );
     }
 
     public function add_menus(): void {
@@ -55,6 +56,25 @@ final class AdminMenu {
             __( 'Réglages', 'givoly' ), __( 'Réglages', 'givoly' ),
             'manage_options', 'givoly-settings', [ $this, 'render_settings' ]
         );
+    }
+
+    public function render_support_header(): void {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            return;
+        }
+
+        $page = sanitize_key( $_GET['page'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        if ( ! str_starts_with( $page, 'givoly-' ) ) {
+            return;
+        }
+        ?>
+        <div class="givoly-admin-support">
+            <img class="givoly-admin-support__logo" src="<?php echo esc_url( GIVOLY_PLUGIN_URL . 'logo.png' ); ?>" alt="Givoly">
+            <a class="button button-primary givoly-admin-support__button" href="<?php echo esc_url( 'https://givoly.org/don' ); ?>" target="_blank" rel="noopener noreferrer">
+                <?php esc_html_e( 'Donner pour soutenir le plugin', 'givoly' ); ?>
+            </a>
+        </div>
+        <?php
     }
 
     public function handle_campaigns_early(): void {

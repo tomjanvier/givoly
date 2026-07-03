@@ -250,6 +250,7 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
         $cancel_url      = (string) get_option( Settings::OPT_CANCEL_URL, '' );
         $post_payment_show_phone = Settings::should_show_post_payment_phone();
         $post_payment_show_address = Settings::should_show_post_payment_address();
+        $public_branding_enabled = Settings::should_show_public_branding();
 
         // Email
         $email_logo_url      = Settings::get_email_logo_url();
@@ -325,6 +326,17 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                      Onglet : GÉNÉRAL
                 ════════════════════════════════════════════════════════ -->
                 <div class="givoly-tab-panel <?php echo esc_attr( $active === 'general' ? 'is-active' : '' ); ?>">
+
+
+                    <div class="givoly-card givoly-card--mission">
+                        <h2 class="givoly-card__title">
+                            <span class="dashicons dashicons-heart"></span>
+                            <?php esc_html_e( 'Gratuit, associatif, sans mauvaise surprise.', 'givoly' ); ?>
+                        </h2>
+                        <p class="givoly-card__desc">
+                            <?php esc_html_e( 'Givoly est maintenu par PLAID·ACT, une association à but non lucratif de défense des Droits humains. L’objectif est simple : proposer aux associations un outil clair pour recevoir des dons en ligne depuis WordPress, sans abonnement imposé et sans commission ajoutée par le plugin.', 'givoly' ); ?>
+                        </p>
+                    </div>
 
                     <div class="givoly-card">
                         <h2 class="givoly-card__title">
@@ -404,6 +416,19 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                                            placeholder="<?php echo esc_attr( home_url( '/don/' ) ); ?>">
                                     <p class="description">
                                         <?php esc_html_e( 'Affichée si le donateur annule le paiement.', 'givoly' ); ?>
+                                    </p>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th scope="row"><?php esc_html_e( 'Logo Givoly public', 'givoly' ); ?></th>
+                                <td>
+                                    <label>
+                                        <input type="checkbox" name="public_branding_enabled" value="1" <?php checked( $public_branding_enabled ); ?>>
+                                        <?php esc_html_e( 'Afficher volontairement le logo Givoly et un lien vers givoly.org sous les formulaires de don.', 'givoly' ); ?>
+                                    </label>
+                                    <p class="description">
+                                        <?php esc_html_e( 'Ce crédit est entièrement optionnel et désactivé par défaut. L’activer aide les associations à découvrir Givoly : un plugin gratuit, associatif, sans abonnement imposé et sans commission ajoutée par le plugin.', 'givoly' ); ?>
                                     </p>
                                 </td>
                             </tr>

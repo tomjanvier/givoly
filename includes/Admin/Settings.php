@@ -73,6 +73,9 @@ final class Settings {
     const OPT_ASSOC_FISCAL_ID   = 'givoly_assoc_fiscal_id';
     const OPT_ASSOC_EMAIL       = 'givoly_assoc_email';
 
+    // Crédits publics — optionnels, désactivés par défaut pour respecter les règles WordPress.org.
+    const OPT_PUBLIC_BRANDING_ENABLED = 'givoly_public_branding_enabled';
+
     // ── Lecture ────────────────────────────────────────────────────────────
 
     public static function get_stripe_mode(): string {
@@ -243,6 +246,10 @@ final class Settings {
         return self::get_assoc_name() !== '' && self::get_assoc_address() !== '';
     }
 
+    public static function should_show_public_branding(): bool {
+        return (string) get_option( self::OPT_PUBLIC_BRANDING_ENABLED, '0' ) === '1';
+    }
+
     // ── Stripe ─────────────────────────────────────────────────────────────
 
     public static function is_configured(): bool {
@@ -341,6 +348,7 @@ final class Settings {
         update_option( self::OPT_CANCEL_URL,  esc_url_raw( $post['cancel_url']  ?? '' ), false );
         update_option( self::OPT_POST_PAYMENT_SHOW_PHONE, isset( $post['post_payment_show_phone'] ) ? '1' : '0', false );
         update_option( self::OPT_POST_PAYMENT_SHOW_ADDRESS, isset( $post['post_payment_show_address'] ) ? '1' : '0', false );
+        update_option( self::OPT_PUBLIC_BRANDING_ENABLED, isset( $post['public_branding_enabled'] ) ? '1' : '0', false );
 
         // HelloAsso
         $ha_mode = in_array( $post['ha_mode'] ?? '', [ 'sandbox', 'live' ], true )
