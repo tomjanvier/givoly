@@ -58,7 +58,8 @@ final class HelloAssoGateway {
         string $back_url,
         string $error_url,
         string $campaign = '',
-        string $frequency = 'once'
+        string $frequency = 'once',
+        string $post_payment_token = ''
     ): string {
         $token = $this->get_valid_token();
 
@@ -86,9 +87,10 @@ final class HelloAssoGateway {
                 'lastName'  => $donor_last_name,
             ],
             'metadata'         => array_filter( [
-                'campaign' => $campaign,
-                'currency'  => 'EUR',
-                'frequency' => $frequency,
+                'campaign'           => $campaign,
+                'currency'           => 'EUR',
+                'frequency'          => $frequency,
+                'post_payment_token' => $post_payment_token,
             ] ),
         ];
 
