@@ -8,11 +8,13 @@ Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Créez des formulaires de dons modernes pour associations, avec paiements Stripe et HelloAsso, gestion des donateurs, campagnes, exports et emails de reçus fiscaux annuels.
+Givoly is a completely free donation form extension designed by and for nonprofit organizations, featuring payments via Stripe and HelloAsso, donor management, and campaign progress tracking.
 
 == Description ==
 
-**Givoly** est un plugin WordPress pensé pour les associations qui souhaitent collecter des dons en ligne simplement, suivre leurs campagnes et garder une base donateurs propre.
+**Givoly** est une extension de formulaire de dons entièrement gratuite, conçue pour et par les associations à but non lucratif. Elle permet d’effectuer des paiements via Stripe et HelloAsso, de gérer les donateurs et de suivre l’évolution des campagnes.
+
+**Givoly** is a completely free donation form extension designed by and for nonprofit organizations, featuring payments via Stripe and HelloAsso, donor management, and campaign progress tracking.
 
 Le plugin est maintenu par **PLAID·ACT**, association à but non lucratif : https://plaidact.org
 

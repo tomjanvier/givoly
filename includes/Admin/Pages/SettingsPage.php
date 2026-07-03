@@ -445,6 +445,15 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                                 <span class="givoly-badge givoly-badge--warn givoly-badge--title">Non configuré</span>
                             <?php endif; ?>
                         </h2>
+                        <p class="description">
+                            <?php
+                            printf(
+                                /* translators: %s is the Stripe API documentation URL. */
+                                wp_kses_post( __( 'Documentation API Stripe : <a href="%s" target="_blank" rel="noopener noreferrer">docs.stripe.com/api</a>.', 'givoly' ) ),
+                                esc_url( 'https://docs.stripe.com/api' )
+                            );
+                            ?>
+                        </p>
 
                         <table class="form-table" role="presentation">
 
@@ -534,6 +543,15 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                                 <span class="givoly-badge givoly-badge--warn givoly-badge--title">Non configuré</span>
                             <?php endif; ?>
                         </h2>
+                        <p class="description">
+                            <?php
+                            printf(
+                                /* translators: %s is the HelloAsso API documentation URL. */
+                                wp_kses_post( __( 'Documentation API HelloAsso : <a href="%s" target="_blank" rel="noopener noreferrer">dev.helloasso.com/docs</a>.', 'givoly' ) ),
+                                esc_url( 'https://dev.helloasso.com/docs' )
+                            );
+                            ?>
+                        </p>
 
                         <table class="form-table" role="presentation">
 
