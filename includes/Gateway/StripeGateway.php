@@ -39,7 +39,8 @@ final class StripeGateway {
         string $success_url,
         string $cancel_url,
         string $campaign = '',
-        string $frequency = 'once'
+        string $frequency = 'once',
+        string $post_payment_token = ''
     ): string {
         if ( $campaign ) {
             // translators: %s is the campaign name.
@@ -64,6 +65,7 @@ final class StripeGateway {
             'metadata[campaign]'                              => $campaign,
             'metadata[currency]'                              => $currency,
             'metadata[frequency]'                             => $frequency,
+            'metadata[post_payment_token]'                    => $post_payment_token,
         ];
 
         if ( $frequency === 'monthly' ) {

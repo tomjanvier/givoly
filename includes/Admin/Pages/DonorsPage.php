@@ -15,12 +15,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class DonorsPage {
 
+    private const PER_PAGE = 50;
+
     public function render(): void {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( esc_html__( 'Accès refusé.', 'givoly' ) );
         }
 
-        $donors       = $this->get_donors();
+        $paged        = max( 1, absint( wp_unslash( $_GET['paged'] ?? 1 ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+        $total        = $this->count_donors();
+        $donors       = $this->get_donors( $paged );
+        $total_pages  = (int) ceil( $total / self::PER_PAGE );
         $default_year = (int) gmdate( 'Y' ) - 1;
         ?>
         <div class="wrap">
@@ -103,6 +108,7 @@ final class DonorsPage {
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+                <?php $this->render_pagination( $total_pages, $paged ); ?>
             <?php endif; ?>
         </div>
         <?php
@@ -110,16 +116,46 @@ final class DonorsPage {
 
     // ── Requêtes DB ────────────────────────────────────────────────────────
 
-    private function get_donors(): array {
+    private function get_donors( int $page ): array {
         global $wpdb;
 
         $table_dn = $wpdb->prefix . 'givoly_donors';
         $table_d  = $wpdb->prefix . 'givoly_donations';
+        $offset   = ( $page - 1 ) * self::PER_PAGE;
 
         // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table names from $wpdb->prefix (trusted)
         return $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-            "SELECT dn.id, dn.first_name, dn.last_name, dn.email, dn.company, COALESCE( SUM( CASE WHEN d.status = 'completed' THEN d.amount ELSE 0 END ), 0 ) AS total_donated, COUNT( CASE WHEN d.status = 'completed' THEN 1 END ) AS donation_count, MAX( CASE WHEN d.status = 'completed' THEN d.created_at END ) AS last_donation FROM {$table_dn} dn LEFT JOIN {$table_d} d ON d.donor_id = dn.id GROUP BY dn.id ORDER BY total_donated DESC" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
+            $wpdb->prepare(
+                "SELECT dn.id, dn.first_name, dn.last_name, dn.email, dn.company, COALESCE( SUM( CASE WHEN d.status = 'completed' THEN d.amount ELSE 0 END ), 0 ) AS total_donated, COUNT( CASE WHEN d.status = 'completed' THEN 1 END ) AS donation_count, MAX( CASE WHEN d.status = 'completed' THEN d.created_at END ) AS last_donation FROM {$table_dn} dn LEFT JOIN {$table_d} d ON d.donor_id = dn.id GROUP BY dn.id ORDER BY total_donated DESC, dn.id DESC LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
+                self::PER_PAGE,
+                $offset
+            )
         );
         // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
+    }
+
+    private function count_donors(): int {
+        global $wpdb;
+
+        return (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+            "SELECT COUNT(*) FROM {$wpdb->prefix}givoly_donors" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
+        );
+    }
+
+    private function render_pagination( int $total_pages, int $current_page ): void {
+        if ( $total_pages <= 1 ) {
+            return;
+        }
+
+        echo '<div class="tablenav"><div class="tablenav-pages">';
+        echo paginate_links( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            'base'      => admin_url( 'admin.php?page=givoly-donors&paged=%#%' ),
+            'format'    => '',
+            'current'   => $current_page,
+            'total'     => $total_pages,
+            'prev_text' => '&laquo;',
+            'next_text' => '&raquo;',
+        ] );
+        echo '</div></div>';
     }
 }

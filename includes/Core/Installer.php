@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Installer {
 
     const DB_VERSION_OPTION = 'givoly_db_version';
-    const DB_VERSION        = '1.4';
+    const DB_VERSION        = '1.5';
 
     public static function activate(): void {
         self::create_tables();
@@ -112,6 +112,70 @@ final class Installer {
                 $wpdb->query( "ALTER TABLE `{$table}` ADD INDEX `idx_refund_ref` (`gateway_refund_ref`)" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange,PluginCheck.Security.DirectDB.UnescapedDBParameter
             }
         }
+
+        self::deduplicate_gateway_transactions( $table );
+    }
+
+    /**
+     * Supprime les doublons de transactions avant l'ajout d'une contrainte UNIQUE.
+     *
+     * Les doublons sont anormaux : une même paire (gateway, gateway_transaction_id)
+     * représente le même paiement. On garde la ligne la plus ancienne, on lui
+     * remonte le statut remboursé / la référence de remboursement si nécessaire,
+     * puis on supprime les doublons restants.
+     */
+    private static function deduplicate_gateway_transactions( string $table ): void {
+        global $wpdb;
+
+        $duplicates = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+            "SELECT gateway, gateway_transaction_id, GROUP_CONCAT(id ORDER BY id ASC) AS ids,
+                    MAX(CASE WHEN status = 'refunded' THEN 1 ELSE 0 END) AS has_refunded,
+                    MAX(NULLIF(gateway_refund_ref, '')) AS refund_ref
+             FROM {$table}
+             WHERE gateway_transaction_id IS NOT NULL AND gateway_transaction_id <> ''
+             GROUP BY gateway, gateway_transaction_id
+             HAVING COUNT(*) > 1",
+            ARRAY_A
+        );
+
+        foreach ( $duplicates as $duplicate ) {
+            $ids = array_values( array_filter( array_map( 'intval', explode( ',', (string) $duplicate['ids'] ) ) ) );
+            if ( count( $ids ) < 2 ) {
+                continue;
+            }
+
+            $keep_id     = array_shift( $ids );
+            $update_data = [];
+            $formats     = [];
+
+            if ( ! empty( $duplicate['refund_ref'] ) ) {
+                $update_data['gateway_refund_ref'] = (string) $duplicate['refund_ref'];
+                $formats[]                         = '%s';
+            }
+
+            if ( ! empty( $duplicate['has_refunded'] ) ) {
+                $update_data['status'] = 'refunded';
+                $formats[]             = '%s';
+            }
+
+            if ( $update_data ) {
+                $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+                    $table,
+                    $update_data,
+                    [ 'id' => $keep_id ],
+                    $formats,
+                    [ '%d' ]
+                );
+            }
+
+            $delete_placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+            $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+                $wpdb->prepare(
+                    "DELETE FROM {$table} WHERE id IN ({$delete_placeholders})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                    ...$ids
+                )
+            );
+        }
     }
 
     private static function create_tables(): void {
@@ -153,6 +217,7 @@ final class Installer {
             gateway                 VARCHAR(50)     NOT NULL DEFAULT 'stripe',
             gateway_transaction_id  VARCHAR(255)             DEFAULT NULL,
             gateway_refund_ref      VARCHAR(255)             DEFAULT NULL,
+            post_payment_token      VARCHAR(64)              DEFAULT NULL,
             donor_message           TEXT                     DEFAULT NULL,
             created_at              DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at              DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -160,7 +225,10 @@ final class Installer {
             KEY                     idx_donor          (donor_id),
             KEY                     idx_status         (status),
             KEY                     idx_created        (created_at),
-            KEY                     idx_refund_ref     (gateway_refund_ref)
+            KEY                     idx_refund_ref     (gateway_refund_ref),
+            KEY                     idx_status_created (status, created_at),
+            UNIQUE KEY              uq_gateway_transaction (gateway, gateway_transaction_id),
+            UNIQUE KEY              uq_post_payment_token (post_payment_token)
         ) $charset;" );
 
         // ── Campagnes ─────────────────────────────────────────────────────────

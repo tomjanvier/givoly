@@ -33,18 +33,20 @@ final class PaymentProcessor {
         string $first_name,
         string $last_name,
         string $campaign    = '',
-        int    $campaign_id = 0
+        int    $campaign_id = 0,
+        string $post_payment_token = ''
     ): void {
         global $wpdb;
 
-        if ( ! $email || $amount_cents <= 0 ) {
+        if ( ! $email || $amount_cents <= 0 || $transaction_id === '' ) {
             return;
         }
 
         // Idempotence : ignorer si ce paiement est déjà enregistré
         $exists = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prepare(
-                "SELECT id FROM {$wpdb->prefix}givoly_donations WHERE gateway_transaction_id = %s",
+                "SELECT id FROM {$wpdb->prefix}givoly_donations WHERE gateway = %s AND gateway_transaction_id = %s",
+                $gateway,
                 $transaction_id
             )
         );
@@ -57,20 +59,22 @@ final class PaymentProcessor {
         $donor_id = $this->get_or_create_donor( $email, $first_name, $last_name );
 
         if ( ! $donor_id ) {
-            error_log( sprintf( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-                '[Givoly] WEBHOOK ERREUR — Impossible de créer/retrouver le donateur. '
-                . 'Gateway : %s | Transaction : %s | Email : %s',
-                $gateway,
-                $transaction_id,
-                $email
-            ) );
-            return;
+            throw new \RuntimeException(
+                sprintf(
+                    'Impossible de créer ou retrouver le donateur. Gateway : %s | Transaction : %s | Email : %s',
+                    $gateway,
+                    $transaction_id,
+                    $email
+                )
+            ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
+
+        $this->apply_pending_donor_profile( $donor_id, $post_payment_token );
 
         // Enregistrer le don
         $amount = $amount_cents / 100;
 
-        $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+        $inserted = $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
             $wpdb->prefix . 'givoly_donations',
             [
                 'donor_id'               => $donor_id,
@@ -80,10 +84,19 @@ final class PaymentProcessor {
                 'status'                 => 'completed',
                 'gateway'                => $gateway,
                 'gateway_transaction_id' => $transaction_id,
+                'post_payment_token'     => $post_payment_token !== '' ? $post_payment_token : null,
                 'donor_message'          => $campaign ?: null,
             ],
-            [ '%d', '%d', '%f', '%s', '%s', '%s', '%s', '%s' ]
+            [ '%d', '%d', '%f', '%s', '%s', '%s', '%s', '%s', '%s' ]
         );
+
+        if ( false === $inserted && $this->is_duplicate_entry_error( $wpdb->last_error ) ) {
+            return;
+        }
+
+        if ( false === $inserted ) {
+            throw new \RuntimeException( 'Impossible d’enregistrer le don en base de données : ' . $wpdb->last_error ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+        }
 
         $donation_id = (int) $wpdb->insert_id;
 
@@ -140,7 +153,7 @@ final class PaymentProcessor {
             return (int) $existing;
         }
 
-        $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+        $inserted = $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
             $table,
             [
                 'email'      => $email,
@@ -150,7 +163,68 @@ final class PaymentProcessor {
             [ '%s', '%s', '%s' ]
         );
 
+        if ( false === $inserted && $this->is_duplicate_entry_error( $wpdb->last_error ) ) {
+            $existing = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name from $wpdb->prefix
+                $wpdb->prepare( "SELECT id FROM {$table} WHERE email = %s", $email ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            );
+
+            if ( $existing ) {
+                return (int) $existing;
+            }
+
+            throw new \RuntimeException( 'Entrée donateur dupliquée détectée, mais impossible de retrouver le donateur existant.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+        }
+
+        if ( false === $inserted ) {
+            throw new \RuntimeException( 'Impossible d’enregistrer le donateur en base de données : ' . $wpdb->last_error ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+        }
+
         return $wpdb->insert_id ?: false;
+    }
+
+    private function is_duplicate_entry_error( string $error ): bool {
+        return str_contains( strtolower( $error ), 'duplicate entry' );
+    }
+
+    private function apply_pending_donor_profile( int $donor_id, string $post_payment_token ): void {
+        global $wpdb;
+
+        if ( $post_payment_token === '' ) {
+            return;
+        }
+
+        $profile = get_transient( 'givoly_checkout_profile_' . $post_payment_token );
+        if ( ! is_array( $profile ) || ! $profile ) {
+            return;
+        }
+
+        $allowed = array_filter(
+            [
+                'phone'         => isset( $profile['phone'] ) ? sanitize_text_field( (string) $profile['phone'] ) : '',
+                'company'       => isset( $profile['company'] ) ? sanitize_text_field( (string) $profile['company'] ) : '',
+                'address_line1' => isset( $profile['address_line1'] ) ? sanitize_text_field( (string) $profile['address_line1'] ) : '',
+                'postal_code'   => isset( $profile['postal_code'] ) ? sanitize_text_field( (string) $profile['postal_code'] ) : '',
+                'city'          => isset( $profile['city'] ) ? sanitize_text_field( (string) $profile['city'] ) : '',
+            ],
+            static fn( string $value ): bool => $value !== ''
+        );
+
+        if ( ! $allowed ) {
+            delete_transient( 'givoly_checkout_profile_' . $post_payment_token );
+            return;
+        }
+
+        $updated = $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->prefix . 'givoly_donors',
+            $allowed,
+            [ 'id' => $donor_id ]
+        );
+
+        if ( false === $updated ) {
+            throw new \RuntimeException( 'Impossible de mettre à jour le profil donateur : ' . $wpdb->last_error ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+        }
+
+        delete_transient( 'givoly_checkout_profile_' . $post_payment_token );
     }
 
 }

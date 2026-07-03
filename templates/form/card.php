@@ -272,11 +272,15 @@ $render_extra_fields = static function ( string $form_id, array $extra_fields ):
 
     </form>
 
-    <?php if ( isset( $_GET['givoly_success'] ) && '1' === wp_unslash( $_GET['givoly_success'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
+<?php
+$post_payment_token = isset( $_GET['givoly_token'] ) ? sanitize_text_field( wp_unslash( $_GET['givoly_token'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+?>
+<?php if ( isset( $_GET['givoly_success'] ) && '1' === wp_unslash( $_GET['givoly_success'] ) && $post_payment_token !== '' ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
         <section class="givoly-post-payment" aria-live="polite">
             <h3 class="givoly-post-payment__title"><?php esc_html_e( 'Complétez votre profil donateur', 'givoly' ); ?></h3>
             <p class="givoly-hint"><?php esc_html_e( 'Merci ! Pour mieux vous accompagner, merci de compléter ces informations.', 'givoly' ); ?></p>
             <form class="givoly-post-payment-form" novalidate>
+                <input type="hidden" name="post_payment_token" value="<?php echo esc_attr( $post_payment_token ); ?>">
                 <div class="givoly-row">
                     <div class="givoly-field">
                         <label class="givoly-label" for="<?php echo esc_attr( $form_id ); ?>-pp-email"><?php esc_html_e( 'Email utilisé pour le paiement', 'givoly' ); ?> *</label>

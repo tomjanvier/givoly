@@ -109,20 +109,22 @@ final class AjaxHandler {
             wp_send_json_error( [ 'message' => __( 'Email invalide.', 'givoly' ) ], 422 );
         }
 
-        try {
-            $this->upsert_donor_from_checkout( $email, $first_name, $last_name );
+        $post_payment_token = $this->generate_post_payment_token();
 
+        try {
             if ( ! in_array( $gateway_key, Settings::get_enabled_gateways(), true ) ) {
                 throw new \RuntimeException( 'Passerelle désactivée.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
             }
 
+            $this->store_pending_donor_profile( $post_payment_token, $email );
+
             if ( $gateway_key === 'helloasso' ) {
                 $checkout_url = $this->checkout_helloasso(
-                    $amount_cents, $currency, $email, $first_name, $last_name, $campaign, $frequency
+                    $amount_cents, $currency, $email, $first_name, $last_name, $campaign, $frequency, $post_payment_token
                 );
             } else {
                 $checkout_url = $this->checkout_stripe(
-                    $amount_cents, $currency, $email, $first_name, $last_name, $campaign, $frequency
+                    $amount_cents, $currency, $email, $first_name, $last_name, $campaign, $frequency, $post_payment_token
                 );
             }
 
@@ -142,8 +144,52 @@ final class AjaxHandler {
         }
 
         $email = sanitize_email( wp_unslash( $_POST['email'] ?? '' ) );
-        if ( ! is_email( $email ) ) {
+        $token = $this->sanitize_post_payment_token( wp_unslash( $_POST['post_payment_token'] ?? '' ) );
+
+        if ( ! is_email( $email ) || $token === '' ) {
             wp_send_json_error( [ 'message' => __( 'Email invalide.', 'givoly' ) ], 422 );
+        }
+
+        $record = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->prepare(
+                "SELECT d.id AS donation_id, d.donor_id, dn.email
+                 FROM {$wpdb->prefix}givoly_donations d
+                 INNER JOIN {$wpdb->prefix}givoly_donors dn ON dn.id = d.donor_id
+                 WHERE d.post_payment_token = %s AND d.status = 'completed'
+                 LIMIT 1",
+                $token
+            ),
+            ARRAY_A
+        );
+
+        if ( ! $record ) {
+            $transient_key = 'givoly_checkout_profile_' . $token;
+            $profile       = get_transient( $transient_key );
+
+            if ( is_array( $profile ) && isset( $profile['email'] ) && strtolower( $email ) === strtolower( (string) $profile['email'] ) ) {
+                $updated_profile = array_merge(
+                    $profile,
+                    array_filter(
+                        [
+                            'phone'         => sanitize_text_field( wp_unslash( $_POST['phone'] ?? '' ) ),
+                            'company'       => sanitize_text_field( wp_unslash( $_POST['company'] ?? '' ) ),
+                            'address_line1' => sanitize_text_field( wp_unslash( $_POST['address_line1'] ?? '' ) ),
+                            'postal_code'   => sanitize_text_field( wp_unslash( $_POST['postal_code'] ?? '' ) ),
+                            'city'          => sanitize_text_field( wp_unslash( $_POST['city'] ?? '' ) ),
+                        ],
+                        static fn( string $value ): bool => $value !== ''
+                    )
+                );
+
+                set_transient( $transient_key, $updated_profile, DAY_IN_SECONDS );
+                wp_send_json_success( [ 'message' => __( 'Merci, vos informations ont bien été enregistrées.', 'givoly' ) ] );
+            }
+
+            wp_send_json_error( [ 'message' => __( 'Session post-paiement invalide ou expirée.', 'givoly' ) ], 403 );
+        }
+
+        if ( strtolower( $email ) !== strtolower( (string) $record['email'] ) ) {
+            wp_send_json_error( [ 'message' => __( 'L’email saisi ne correspond pas au paiement.', 'givoly' ) ], 422 );
         }
 
         $updated = $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
@@ -155,44 +201,41 @@ final class AjaxHandler {
                 'postal_code'   => sanitize_text_field( wp_unslash( $_POST['postal_code'] ?? '' ) ) ?: null,
                 'city'          => sanitize_text_field( wp_unslash( $_POST['city'] ?? '' ) ) ?: null,
             ],
-            [ 'email' => $email ],
+            [ 'id' => (int) $record['donor_id'] ],
             [ '%s', '%s', '%s', '%s', '%s' ],
-            [ '%s' ]
+            [ '%d' ]
         );
 
         if ( $updated === false ) {
             wp_send_json_error( [ 'message' => __( 'Impossible d’enregistrer les informations.', 'givoly' ) ], 500 );
         }
 
+        $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->prefix . 'givoly_donations',
+            [ 'post_payment_token' => null ],
+            [ 'id' => (int) $record['donation_id'] ],
+            [ '%s' ],
+            [ '%d' ]
+        );
+
         wp_send_json_success( [ 'message' => __( 'Merci, vos informations ont bien été enregistrées.', 'givoly' ) ] );
     }
 
 
-    private function upsert_donor_from_checkout( string $email, string $first_name, string $last_name ): void {
-        global $wpdb;
-
-        $table = $wpdb->prefix . 'givoly_donors';
-        $data  = [
-            'email'         => $email,
-            'first_name'    => $first_name,
-            'last_name'     => $last_name,
-            'phone'         => sanitize_text_field( wp_unslash( $_POST['phone'] ?? '' ) ) ?: null,
-            'company'       => sanitize_text_field( wp_unslash( $_POST['company'] ?? '' ) ) ?: null,
-            'address_line1' => sanitize_text_field( wp_unslash( $_POST['address_line1'] ?? '' ) ) ?: null,
-            'postal_code'   => sanitize_text_field( wp_unslash( $_POST['postal_code'] ?? '' ) ) ?: null,
-            'city'          => sanitize_text_field( wp_unslash( $_POST['city'] ?? '' ) ) ?: null,
-        ];
-
-        $existing = (int) $wpdb->get_var(
-            $wpdb->prepare( "SELECT id FROM {$table} WHERE email = %s", $email )
+    private function store_pending_donor_profile( string $post_payment_token, string $email ): void {
+        $profile = array_filter(
+            [
+                'email'         => $email,
+                'phone'         => sanitize_text_field( wp_unslash( $_POST['phone'] ?? '' ) ),
+                'company'       => sanitize_text_field( wp_unslash( $_POST['company'] ?? '' ) ),
+                'address_line1' => sanitize_text_field( wp_unslash( $_POST['address_line1'] ?? '' ) ),
+                'postal_code'   => sanitize_text_field( wp_unslash( $_POST['postal_code'] ?? '' ) ),
+                'city'          => sanitize_text_field( wp_unslash( $_POST['city'] ?? '' ) ),
+            ],
+            static fn( string $value ): bool => $value !== ''
         );
 
-        if ( $existing ) {
-            $wpdb->update( $table, array_filter( $data, static fn( $value ) => $value !== null && $value !== '' ), [ 'id' => $existing ] );
-            return;
-        }
-
-        $wpdb->insert( $table, $data );
+        set_transient( 'givoly_checkout_profile_' . $post_payment_token, $profile, DAY_IN_SECONDS );
     }
 
     private function checkout_stripe(
@@ -202,16 +245,23 @@ final class AjaxHandler {
         string $first_name,
         string $last_name,
         string $campaign,
-        string $frequency = 'once'
+        string $frequency = 'once',
+        string $post_payment_token = ''
     ): string {
         if ( ! Settings::is_configured() ) {
             throw new \RuntimeException( 'Stripe non configuré.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
 
         $gateway     = new StripeGateway( Settings::get_stripe_secret_key() );
-        $success_url = add_query_arg( 'session_id', 'CHECKOUT_SESSION_ID', Settings::get_success_url() );
+        $success_url = add_query_arg(
+            [
+                'session_id'      => 'CHECKOUT_SESSION_ID',
+                'givoly_success'  => '1',
+                'givoly_token'    => $post_payment_token,
+            ],
+            Settings::get_success_url()
+        );
         $success_url = str_replace( 'CHECKOUT_SESSION_ID', '{CHECKOUT_SESSION_ID}', $success_url );
-        $success_url = add_query_arg( 'givoly_success', '1', $success_url );
         $cancel_url  = Settings::get_cancel_url();
 
         return $gateway->create_checkout_session(
@@ -223,7 +273,8 @@ final class AjaxHandler {
             success_url:      $success_url,
             cancel_url:       $cancel_url,
             campaign:         $campaign,
-            frequency:        $frequency
+            frequency:        $frequency,
+            post_payment_token: $post_payment_token
         );
     }
 
@@ -234,7 +285,8 @@ final class AjaxHandler {
         string $first_name,
         string $last_name,
         string $campaign,
-        string $frequency = 'once'
+        string $frequency = 'once',
+        string $post_payment_token = ''
     ): string {
         if ( ! Settings::is_helloasso_configured() ) {
             throw new \RuntimeException( 'HelloAsso non configuré.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
@@ -263,11 +315,18 @@ final class AjaxHandler {
             donor_email:      $email,
             donor_first_name: $first_name,
             donor_last_name:  $last_name,
-            return_url:       add_query_arg( 'givoly_success', '1', Settings::get_success_url() ),
+            return_url:       add_query_arg(
+                [
+                    'givoly_success' => '1',
+                    'givoly_token'   => $post_payment_token,
+                ],
+                Settings::get_success_url()
+            ),
             back_url:         Settings::get_cancel_url(),
             error_url:        Settings::get_cancel_url(),
             campaign:         $campaign,
-            frequency:        $frequency
+            frequency:        $frequency,
+            post_payment_token: $post_payment_token
         );
     }
 
@@ -291,12 +350,17 @@ final class AjaxHandler {
 
         $event_type = $event['type'] ?? '';
 
-        if ( $event_type === 'checkout.session.completed' ) {
-            $this->handle_checkout_session_completed( $event['data']['object'] ?? [] );
-        } elseif ( $event_type === 'invoice.payment_succeeded' ) {
-            $this->handle_invoice_payment_succeeded( $event['data']['object'] ?? [] );
-        } elseif ( $event_type === 'charge.refunded' ) {
-            $this->handle_charge_refunded( $event['data']['object'] ?? [] );
+        try {
+            if ( $event_type === 'checkout.session.completed' ) {
+                $this->handle_checkout_session_completed( $event['data']['object'] ?? [] );
+            } elseif ( $event_type === 'invoice.payment_succeeded' ) {
+                $this->handle_invoice_payment_succeeded( $event['data']['object'] ?? [] );
+            } elseif ( $event_type === 'charge.refunded' ) {
+                $this->handle_charge_refunded( $event['data']['object'] ?? [] );
+            }
+        } catch ( \RuntimeException $e ) {
+            error_log( '[Givoly] Stripe webhook processing error: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            return new \WP_REST_Response( [ 'error' => 'Traitement webhook temporairement indisponible.' ], 500 );
         }
 
         return new \WP_REST_Response( [ 'received' => true ], 200 );
@@ -313,6 +377,7 @@ final class AjaxHandler {
         $currency       = strtoupper( sanitize_text_field( $meta['currency'] ?? 'EUR' ) );
         $amount_cents   = (int) ( $session['amount_total'] ?? 0 );
         $transaction_id = sanitize_text_field( $session['id'] ?? '' );
+        $post_payment_token = $this->sanitize_post_payment_token( $meta['post_payment_token'] ?? '' );
 
         $campaign_id = $campaign
             ? ( ( new CampaignRepository() )->find_by_slug( $campaign )?->get_id() ?? 0 )
@@ -327,7 +392,8 @@ final class AjaxHandler {
             first_name:     $first_name,
             last_name:      $last_name,
             campaign:       $campaign,
-            campaign_id:    $campaign_id
+            campaign_id:    $campaign_id,
+            post_payment_token: $post_payment_token
         );
 
         // Stocker la référence de remboursement gateway (Stripe: payment_intent_id)
@@ -474,10 +540,15 @@ final class AjaxHandler {
         $payer    = is_array( $data['payer'] ?? null ) ? $data['payer'] : ( is_array( $order['payer'] ?? null ) ? $order['payer'] : ( is_array( $data['user'] ?? null ) ? $data['user'] : [] ) );
         $payments = $payments ?: [ is_array( $data['payment'] ?? null ) ? $data['payment'] : $data ];
 
-        foreach ( $payments as $payment ) {
-            if ( is_array( $payment ) ) {
-                $this->process_helloasso_payment( $payment, $data, $order, $metadata, $payer );
+        try {
+            foreach ( $payments as $payment ) {
+                if ( is_array( $payment ) ) {
+                    $this->process_helloasso_payment( $payment, $data, $order, $metadata, $payer );
+                }
             }
+        } catch ( \RuntimeException $e ) {
+            error_log( '[Givoly] HelloAsso webhook processing error: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            return new \WP_REST_Response( [ 'error' => 'Traitement webhook temporairement indisponible.' ], 500 );
         }
 
         return new \WP_REST_Response( [ 'received' => true ], 200 );
@@ -492,6 +563,7 @@ final class AjaxHandler {
         $email          = sanitize_email( (string) ( $payment_payer['email'] ?? $data['payerEmail'] ?? $order['payerEmail'] ?? '' ) );
         $first_name     = sanitize_text_field( (string) ( $payment_payer['firstName'] ?? $payment_payer['firstname'] ?? '' ) );
         $last_name      = sanitize_text_field( (string) ( $payment_payer['lastName'] ?? $payment_payer['lastname'] ?? '' ) );
+        $post_payment_token = $this->sanitize_post_payment_token( (string) ( $metadata['post_payment_token'] ?? '' ) );
 
         if ( $amount_cents <= 0 || ! $transaction_id || ! $email ) {
             return;
@@ -510,7 +582,8 @@ final class AjaxHandler {
             first_name:     $first_name,
             last_name:      $last_name,
             campaign:       $campaign,
-            campaign_id:    $campaign_id
+            campaign_id:    $campaign_id,
+            post_payment_token: $post_payment_token
         );
     }
 
@@ -526,6 +599,16 @@ final class AjaxHandler {
         $cents = isset( $parts[1] ) ? (int) str_pad( $parts[1], 2, '0' ) : 0;
 
         return ( $euros * 100 ) + $cents;
+    }
+
+    private function generate_post_payment_token(): string {
+        return bin2hex( random_bytes( 16 ) );
+    }
+
+    private function sanitize_post_payment_token( string $token ): string {
+        $token = trim( sanitize_text_field( $token ) );
+
+        return preg_match( '/^[a-f0-9]{32}$/', $token ) ? $token : '';
     }
 
     private function handle_helloasso_refunded( string $transaction_id ): void {
