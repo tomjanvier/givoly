@@ -1,0 +1,12 @@
+# Copyright (C) 2026 PLAID·ACT
+# This file is distributed under the GPL v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Givoly 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/givoly\n"
+"POT-Creation-Date: 2026-07-03 00:00+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Givoly\n"
+"X-Domain: givoly\n"
