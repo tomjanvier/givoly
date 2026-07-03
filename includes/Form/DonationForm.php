@@ -15,6 +15,8 @@
 
 namespace Givoly\Form;
 
+use Givoly\Admin\Settings;
+
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
@@ -41,8 +43,11 @@ final class DonationForm {
     }
 
     public static function output_branding(): void {
+        if ( ! Settings::should_show_public_branding() ) {
+            return;
+        }
         ?>
-        <div class="givoly-branding" data-givoly-branding="required" aria-label="<?php esc_attr_e( 'Propulsé par Givoly', 'givoly' ); ?>">
+        <div class="givoly-branding" data-givoly-branding="optional" aria-label="<?php esc_attr_e( 'Propulsé par Givoly', 'givoly' ); ?>">
             <a class="givoly-branding__link" href="<?php echo esc_url( self::BRANDING_URL ); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e( 'Découvrir Givoly', 'givoly' ); ?>">
                 <img class="givoly-branding__logo" src="<?php echo esc_url( self::BRANDING_LOGO_URL ); ?>" alt="Givoly" loading="lazy" decoding="async">
             </a>

@@ -768,7 +768,7 @@
     }
 }
 
-/* ── Branding Givoly obligatoire ─────────────────────────────────────────── */
+/* ── Branding Givoly optionnel ───────────────────────────────────────────── */
 .givoly-branding {
     display: flex !important;
     justify-content: center;

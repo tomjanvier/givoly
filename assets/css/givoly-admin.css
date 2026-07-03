@@ -352,3 +352,43 @@
     height:      16px !important;
     line-height: 1 !important;
 }
+
+
+/* ── Support Givoly dans le back-office ─────────────────────────────────── */
+.givoly-admin-support {
+    position: absolute;
+    top: 14px;
+    right: 20px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.givoly-admin-support__logo {
+    display: block;
+    width: auto;
+    max-width: 120px;
+    max-height: 42px;
+    object-fit: contain;
+}
+
+.givoly-admin-support__button.button-primary {
+    background: #1B6B4A;
+    border-color: #1B6B4A;
+    font-weight: 600;
+}
+
+.givoly-admin-support__button.button-primary:hover,
+.givoly-admin-support__button.button-primary:focus {
+    background: #155438;
+    border-color: #155438;
+}
+
+@media (max-width: 960px) {
+    .givoly-admin-support {
+        position: static;
+        justify-content: flex-end;
+        margin: 10px 20px 0 0;
+    }
+}
