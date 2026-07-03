@@ -116,7 +116,7 @@ final class AjaxHandler {
                 throw new \RuntimeException( 'Passerelle désactivée.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
             }
 
-            $this->store_pending_donor_profile( $post_payment_token );
+            $this->store_pending_donor_profile( $post_payment_token, $email );
 
             if ( $gateway_key === 'helloasso' ) {
                 $checkout_url = $this->checkout_helloasso(
@@ -163,6 +163,28 @@ final class AjaxHandler {
         );
 
         if ( ! $record ) {
+            $transient_key = 'givoly_checkout_profile_' . $token;
+            $profile       = get_transient( $transient_key );
+
+            if ( is_array( $profile ) && isset( $profile['email'] ) && strtolower( $email ) === strtolower( (string) $profile['email'] ) ) {
+                $updated_profile = array_merge(
+                    $profile,
+                    array_filter(
+                        [
+                            'phone'         => sanitize_text_field( wp_unslash( $_POST['phone'] ?? '' ) ),
+                            'company'       => sanitize_text_field( wp_unslash( $_POST['company'] ?? '' ) ),
+                            'address_line1' => sanitize_text_field( wp_unslash( $_POST['address_line1'] ?? '' ) ),
+                            'postal_code'   => sanitize_text_field( wp_unslash( $_POST['postal_code'] ?? '' ) ),
+                            'city'          => sanitize_text_field( wp_unslash( $_POST['city'] ?? '' ) ),
+                        ],
+                        static fn( string $value ): bool => $value !== ''
+                    )
+                );
+
+                set_transient( $transient_key, $updated_profile, DAY_IN_SECONDS );
+                wp_send_json_success( [ 'message' => __( 'Merci, vos informations ont bien été enregistrées.', 'givoly' ) ] );
+            }
+
             wp_send_json_error( [ 'message' => __( 'Session post-paiement invalide ou expirée.', 'givoly' ) ], 403 );
         }
 
@@ -200,9 +222,10 @@ final class AjaxHandler {
     }
 
 
-    private function store_pending_donor_profile( string $post_payment_token ): void {
+    private function store_pending_donor_profile( string $post_payment_token, string $email ): void {
         $profile = array_filter(
             [
+                'email'         => $email,
                 'phone'         => sanitize_text_field( wp_unslash( $_POST['phone'] ?? '' ) ),
                 'company'       => sanitize_text_field( wp_unslash( $_POST['company'] ?? '' ) ),
                 'address_line1' => sanitize_text_field( wp_unslash( $_POST['address_line1'] ?? '' ) ),
@@ -212,9 +235,7 @@ final class AjaxHandler {
             static fn( string $value ): bool => $value !== ''
         );
 
-        if ( $profile ) {
-            set_transient( 'givoly_checkout_profile_' . $post_payment_token, $profile, DAY_IN_SECONDS );
-        }
+        set_transient( 'givoly_checkout_profile_' . $post_payment_token, $profile, DAY_IN_SECONDS );
     }
 
     private function checkout_stripe(
@@ -329,12 +350,17 @@ final class AjaxHandler {
 
         $event_type = $event['type'] ?? '';
 
-        if ( $event_type === 'checkout.session.completed' ) {
-            $this->handle_checkout_session_completed( $event['data']['object'] ?? [] );
-        } elseif ( $event_type === 'invoice.payment_succeeded' ) {
-            $this->handle_invoice_payment_succeeded( $event['data']['object'] ?? [] );
-        } elseif ( $event_type === 'charge.refunded' ) {
-            $this->handle_charge_refunded( $event['data']['object'] ?? [] );
+        try {
+            if ( $event_type === 'checkout.session.completed' ) {
+                $this->handle_checkout_session_completed( $event['data']['object'] ?? [] );
+            } elseif ( $event_type === 'invoice.payment_succeeded' ) {
+                $this->handle_invoice_payment_succeeded( $event['data']['object'] ?? [] );
+            } elseif ( $event_type === 'charge.refunded' ) {
+                $this->handle_charge_refunded( $event['data']['object'] ?? [] );
+            }
+        } catch ( \RuntimeException $e ) {
+            error_log( '[Givoly] Stripe webhook processing error: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            return new \WP_REST_Response( [ 'error' => 'Traitement webhook temporairement indisponible.' ], 500 );
         }
 
         return new \WP_REST_Response( [ 'received' => true ], 200 );
@@ -514,10 +540,15 @@ final class AjaxHandler {
         $payer    = is_array( $data['payer'] ?? null ) ? $data['payer'] : ( is_array( $order['payer'] ?? null ) ? $order['payer'] : ( is_array( $data['user'] ?? null ) ? $data['user'] : [] ) );
         $payments = $payments ?: [ is_array( $data['payment'] ?? null ) ? $data['payment'] : $data ];
 
-        foreach ( $payments as $payment ) {
-            if ( is_array( $payment ) ) {
-                $this->process_helloasso_payment( $payment, $data, $order, $metadata, $payer );
+        try {
+            foreach ( $payments as $payment ) {
+                if ( is_array( $payment ) ) {
+                    $this->process_helloasso_payment( $payment, $data, $order, $metadata, $payer );
+                }
             }
+        } catch ( \RuntimeException $e ) {
+            error_log( '[Givoly] HelloAsso webhook processing error: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            return new \WP_REST_Response( [ 'error' => 'Traitement webhook temporairement indisponible.' ], 500 );
         }
 
         return new \WP_REST_Response( [ 'received' => true ], 200 );
