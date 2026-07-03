@@ -36,6 +36,8 @@ final class Plugin {
      * Ajouter un nouveau module = ajouter une ligne ici.
      */
     public function boot(): void {
+        load_plugin_textdomain( 'givoly', false, dirname( GIVOLY_PLUGIN_BASENAME ) . '/languages' );
+
         Installer::maybe_upgrade();
         ( new \Givoly\Core\AssetsLoader() )->register();
         ( new \Givoly\Admin\AdminMenu() )->register();
