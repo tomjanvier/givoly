@@ -172,7 +172,7 @@ $render_extra_fields = static function ( string $form_id, array $extra_fields ):
         <button type="submit"
                 class="HaPayButton givoly-form__submit givoly-gateway-submit"
                 data-gateway="helloasso">
-            <span class="HaPayButtonLogoWrap"><img class="HaPayButtonLogo" src="https://api.helloasso.com/v5/img/logo-ha.svg" alt="" loading="lazy" decoding="async"></span>
+            <span class="HaPayButtonLogoWrap"><img class="HaPayButtonLogo" src="<?php echo esc_url( GIVOLY_PLUGIN_URL . 'assets/logo-ha.svg' ); ?>" alt="" loading="lazy" decoding="async"></span>
             <span class="HaPayButtonLabel"><?php esc_html_e( 'Payer avec HelloAsso*', 'givoly' ); ?></span>
         </button>
 

@@ -1,160 +1,48 @@
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
 <a id="readme-top"></a>
 
-<!-- PROJECT SHIELDS -->
 [![WordPress][wordpress-shield]][wordpress-url]
 [![PHP][php-shield]][php-url]
 [![Stripe][stripe-shield]][stripe-url]
 [![HelloAsso][helloasso-shield]][helloasso-url]
 [![License: GPL v2+][license-shield]][license-url]
 
-<!-- PROJECT LOGO -->
 <br />
 <div align="center">
   <a href="https://givoly.org/">
-    <img src="logo.png" alt="Logo Givoly" width="96" height="96">
+    <img src="logo.png" alt="Givoly logo" width="96" height="96">
   </a>
 
   <p align="center">
-    Givoly est une extension de formulaire de dons entièrement gratuite, conçue pour et par les associations à but non lucratif.
+    Givoly is a completely free donation form extension designed by and for nonprofit organizations.
     <br />
-    <a href="https://givoly.org/"><strong>Voir le site de l'extension »</strong></a>
+    <a href="https://givoly.org/"><strong>Visit the plugin website »</strong></a>
     <br />
     <br />
-    <p align="center">
-    Une extension développée gratuitement par l'association PLAID·ACT
-    <a href="https://plaidact.org">
-      <img src="https://plaidact.org/wp-content/uploads/2026/04/plaidact_noir_transparent-c2ae9e.svg" alt="PLAID·ACT" width="170">
-    </a>
+    A free plugin developed by PLAID·ACT and its members, with contributions from Tom JANVIER.
   </p>
 </div>
 
-<!-- TABLE OF CONTENTS -->
 <details>
-  <summary>Table des matières / Table of Contents</summary>
+  <summary>Table of Contents</summary>
   <ol>
-    <li><a href="#français">Français</a></li>
-    <li><a href="#à-propos-du-projet">À propos du projet</a></li>
-    <li><a href="#comment-ça-marche">Comment ça marche</a></li>
-    <li><a href="#fonctionnalités">Fonctionnalités</a></li>
-    <li><a href="#installation">Installation</a></li>
-    <li><a href="#shortcodes">Shortcodes</a></li>
-    <li><a href="#english">English</a></li>
     <li><a href="#about-the-project">About the Project</a></li>
     <li><a href="#how-it-works">How It Works</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#installation">Installation</a></li>
+    <li><a href="#shortcodes">Shortcodes</a></li>
+    <li><a href="#external-services">External Services</a></li>
     <li><a href="#license">License</a></li>
   </ol>
 </details>
 
-## Français
+## About the Project
 
-### À propos du projet
+**Givoly** is a completely free donation form extension designed by and for nonprofit organizations. It supports payments through Stripe and HelloAsso, donor management, fundraising campaign tracking, and customizable donor emails.
 
-**Givoly** est une extension de formulaire de dons entièrement gratuite, conçue pour et par les associations à but non lucratif. Elle permet d’effectuer des paiements via Stripe et HelloAsso, de gérer les donateurs et de suivre l’évolution des campagnes.
+Givoly is maintained by [PLAID·ACT](https://plaidact.org), a nonprofit organization, with contributions from Tom JANVIER. The goal is to provide a modern, transparent fundraising tool that nonprofits can use without being locked into a paid platform.
 
-Le projet est maintenu par [PLAID·ACT](https://plaidact.org), association à but non lucratif. L'objectif est simple : proposer un outil de collecte moderne, accessible et transparent, sans enfermer les associations dans une solution payante.
-
-**Zéro, zéro frais côté Givoly :**
-
-* **0 € d'abonnement** pour utiliser l'extension.
-* **0 % de commission Givoly** sur les dons collectés.
-* **0 frais caché** et aucun upsell volontairement bloquant.
-
-Les seuls frais éventuels sont ceux des prestataires de paiement que vous choisissez d'activer, par exemple Stripe, ou les contributions/frais gérés selon le modèle HelloAsso.
-
-<p align="right">(<a href="#readme-top">retour en haut</a>)</p>
-
-### Comment ça marche
-
-1. Installez et activez Givoly dans WordPress.
-2. Configurez **Stripe**, **HelloAsso**, ou les deux depuis **Givoly > Réglages**.
-3. Créez une campagne de collecte si vous souhaitez suivre un objectif, une description et une jauge de progression.
-4. Ajoutez un formulaire de don sur une page avec un shortcode comme `[givoly_form]`.
-5. Les donateurs choisissent un montant, renseignent leurs informations, puis paient via Stripe Checkout ou HelloAsso.
-6. Les dons, donateurs, campagnes, exports CSV et emails de remerciement se pilotent depuis l'administration WordPress.
-
-Givoly ne rajoute pas de tracking publicitaire, de pixel analytics ou de télémétrie. Les données restent dans le WordPress de l'association et ne sont transmises aux passerelles de paiement que lorsque c'est nécessaire au paiement.
-
-<p align="right">(<a href="#readme-top">retour en haut</a>)</p>
-
-### Fonctionnalités
-
-* Formulaires de dons par shortcode.
-* Paiements **Stripe** via Checkout Session.
-* Paiements **HelloAsso** avec bouton dédié.
-* Gestion des donateurs, historique et total donné.
-* Campagnes avec objectifs, dates, descriptions et jauges de progression.
-* Tableau de bord administrateur avec statistiques et derniers dons.
-* Emails personnalisables : expéditeur, logo, couleur, sujet et message de remerciement.
-* Envoi annuel d'emails récapitulatifs pour les reçus fiscaux.
-* Export CSV des dons.
-* Aucun tracking ajouté par l'extension.
-
-### Built With
-
-* [![WordPress][WordPress]][wordpress-url]
-* [![PHP][PHP]][php-url]
-* [![Stripe][Stripe]][stripe-url]
-* [![HelloAsso][HelloAsso]][helloasso-url]
-
-<p align="right">(<a href="#readme-top">retour en haut</a>)</p>
-
-### Installation
-
-1. Téléchargez l'archive ZIP de Givoly ou copiez ce dépôt dans le dossier `wp-content/plugins/givoly` de votre site WordPress.
-2. Activez **Givoly** depuis l'écran **Extensions** de WordPress.
-3. Allez dans **Givoly > Réglages**.
-4. Configurez Stripe, HelloAsso, ou les deux passerelles.
-5. Ajoutez un formulaire sur une page ou un article :
-   ```text
-   [givoly_form]
-   ```
-
-### Shortcodes
-
-**Formulaire de don**
-
-```text
-[givoly_form]
-```
-
-Exemple avec campagne, thème et passerelle :
-
-```text
-[givoly_form campaign="urgence" theme="givoly" layout="card" gateway="helloasso"]
-```
-
-Exemple pour modifier rapidement le bloc du formulaire avec des variables CSS :
-
-```text
-[givoly_form class="don-accueil" css="--givoly-form-max-width:640px;--givoly-form-padding:2.5rem;--givoly-form-shadow:none"]
-```
-
-**Jauge de campagne**
-
-```text
-[givoly_total campaign="urgence" display="bar"]
-```
-
-**Campagne complète**
-
-```text
-[givoly_campaign campaign="urgence"]
-```
-
-<p align="right">(<a href="#readme-top">retour en haut</a>)</p>
-
----
-
-## English
-
-### About the Project
-
-**Givoly** is a completely free donation form extension designed by and for nonprofit organizations, featuring payments via Stripe and HelloAsso, donor management, and campaign progress tracking.
-
-Givoly is maintained by [PLAID·ACT](https://plaidact.org), a nonprofit organization. The goal is to provide a modern, transparent fundraising tool that nonprofits can use without being locked into a paid platform.
-
-**Zero, zero fees from Givoly:**
+**Zero fees from Givoly:**
 
 * **€0 subscription** to use the plugin.
 * **0% Givoly commission** on collected donations.
@@ -164,7 +52,7 @@ The only possible costs are the fees or contribution models of the payment provi
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-### How It Works
+## How It Works
 
 1. Install and activate Givoly in WordPress.
 2. Configure **Stripe**, **HelloAsso**, or both under **Givoly > Settings**.
@@ -175,28 +63,82 @@ The only possible costs are the fees or contribution models of the payment provi
 
 Givoly does not add advertising tracking, analytics pixels, or telemetry. Data stays in the nonprofit's WordPress database and is only sent to the selected payment gateway when needed for payment processing.
 
-### Features
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-* Shortcode-based donation forms.
-* **Stripe** payments through Checkout Session.
-* **HelloAsso** payments with a dedicated button.
-* Donor management with history and total donated.
+## Features
+
+* Shortcode-based donation forms with multiple themes and layouts.
+* **Stripe** payments through Checkout Sessions.
+* **HelloAsso** payments with a dedicated button and a bundled logo asset.
+* Donor management with donation history and total donated.
 * Fundraising campaigns with goals, dates, descriptions, and progress bars.
 * Admin dashboard with statistics and recent donations.
 * Customizable emails: sender, logo, color, subject, and thank-you message.
-* Annual tax-summary email workflow.
+* Annual fiscal receipt summary email workflow.
 * CSV donation exports.
 * No tracking added by the plugin.
 
-### Usage
+### Built With
+
+* [![WordPress][WordPress]][wordpress-url]
+* [![PHP][PHP]][php-url]
+* [![Stripe][Stripe]][stripe-url]
+* [![HelloAsso][HelloAsso]][helloasso-url]
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Installation
+
+1. Download the Givoly ZIP archive or copy this repository to your WordPress site's `wp-content/plugins/givoly` directory.
+2. Activate **Givoly** from the WordPress **Plugins** screen.
+3. Go to **Givoly > Settings**.
+4. Configure Stripe, HelloAsso, or both gateways.
+5. Add a form to a page or post:
+   ```text
+   [givoly_form]
+   ```
+
+## Shortcodes
+
+**Donation form**
 
 ```text
 [givoly_form]
+```
+
+Example with a campaign, theme, and gateway:
+
+```text
+[givoly_form campaign="emergency" theme="givoly" layout="card" gateway="helloasso"]
+```
+
+Example for quickly customizing the form wrapper with CSS variables:
+
+```text
+[givoly_form class="homepage-donation" css="--givoly-form-max-width:640px;--givoly-form-padding:2.5rem;--givoly-form-shadow:none"]
+```
+
+**Campaign total widget**
+
+```text
 [givoly_total campaign="emergency" display="bar"]
+```
+
+**Full campaign block**
+
+```text
 [givoly_campaign campaign="emergency"]
 ```
 
-For more information, visit [givoly.org](https://givoly.org/).
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## External Services
+
+Givoly relies on third-party payment services only when a site administrator configures and enables the corresponding gateway, and when a donor uses that gateway or a webhook/refund action is processed.
+
+**Stripe** is used to create Checkout Sessions, receive Stripe webhook events, and process Stripe refunds. Donation amount, currency, donor email, donor first name, donor last name, campaign metadata, return URLs, and configured Stripe credentials are sent when needed for payment processing. Stripe terms: https://stripe.com/legal. Stripe privacy policy: https://stripe.com/privacy.
+
+**HelloAsso** is used to authenticate with the HelloAsso API, create checkout intents, redirect donors to HelloAsso payment pages, and verify HelloAsso webhook events. Donation amount, donor email, donor first name, donor last name, campaign metadata, return URLs, organization slug, and configured HelloAsso API credentials are sent when needed for payment processing. The frontend HelloAsso button uses the bundled `assets/logo-ha.svg` file instead of loading a remote logo. HelloAsso terms: https://www.helloasso.com/cgu-utilisateur. HelloAsso privacy policy: https://www.helloasso.com/confidentialite.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -206,7 +148,6 @@ Distributed under the GPL v2 or later license. See [`LICENSE`](LICENSE) for more
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- MARKDOWN LINKS & IMAGES -->
 [wordpress-shield]: https://img.shields.io/badge/WordPress-6.0%2B-21759B?style=for-the-badge&logo=wordpress&logoColor=white
 [php-shield]: https://img.shields.io/badge/PHP-8.1%2B-777BB4?style=for-the-badge&logo=php&logoColor=white
 [stripe-shield]: https://img.shields.io/badge/Stripe-ready-635BFF?style=for-the-badge&logo=stripe&logoColor=white
