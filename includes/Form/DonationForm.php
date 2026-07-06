@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class DonationForm {
 
     private const BRANDING_URL = 'https://givoly.org';
-    private const BRANDING_LOGO_URL = 'https://givoly.org/wp-content/uploads/2026/06/Black-and-Red-Foundation-Community-Non-Profit-Logo.png';
+    private const BRANDING_LOGO_PATH = 'logo.png';
 
     public function __construct( private readonly FormConfig $config ) {}
 
@@ -49,7 +49,7 @@ final class DonationForm {
         ?>
         <div class="givoly-branding" data-givoly-branding="optional" aria-label="<?php esc_attr_e( 'Propulsé par Givoly', 'givoly' ); ?>">
             <a class="givoly-branding__link" href="<?php echo esc_url( self::BRANDING_URL ); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e( 'Découvrir Givoly', 'givoly' ); ?>">
-                <img class="givoly-branding__logo" src="<?php echo esc_url( self::BRANDING_LOGO_URL ); ?>" alt="Givoly" loading="lazy" decoding="async">
+                <img class="givoly-branding__logo" src="<?php echo esc_url( GIVOLY_PLUGIN_URL . self::BRANDING_LOGO_PATH ); ?>" alt="Givoly" loading="lazy" decoding="async">
             </a>
         </div>
         <?php
