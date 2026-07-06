@@ -1,5 +1,5 @@
 === Givoly ===
-Contributors: plaidact
+Contributors: plaidact, tomjanvier
 Tags: donation, nonprofit, stripe, helloasso, fundraising
 Requires at least: 6.0
 Tested up to: 7.0
@@ -12,138 +12,136 @@ Givoly is a completely free donation form extension designed by and for nonprofi
 
 == Description ==
 
-**Givoly** est une extension de formulaire de dons entièrement gratuite, conçue pour et par les associations à but non lucratif. Elle permet d’effectuer des paiements via Stripe et HelloAsso, de gérer les donateurs et de suivre l’évolution des campagnes.
+**Givoly** is a completely free donation form extension designed by and for nonprofit organizations. It lets nonprofits collect donations through Stripe and/or HelloAsso, manage donors, track fundraising campaigns, and send customizable donor emails.
 
-**Givoly** is a completely free donation form extension designed by and for nonprofit organizations, featuring payments via Stripe and HelloAsso, donor management, and campaign progress tracking.
+The plugin is maintained by **PLAID·ACT and its members**, with contributions from **Tom JANVIER**. PLAID·ACT is a nonprofit organization: https://plaidact.org
 
-Le plugin est maintenu par **PLAID·ACT**, association à but non lucratif : https://plaidact.org
+= Main features =
 
-= Fonctionnalités principales =
-
-* **Formulaires de dons par shortcode** avec 5 thèmes (Givoly, Classic, Ocean, Sunset, Minimal) et 3 mises en page (Card, Inline, Flat).
-* **Paiements Stripe** via Checkout Session.
-* **Paiements HelloAsso** avec bouton dédié et logo officiel HelloAsso.
-* **Gestion des donateurs** avec historique, total donné et dernier don.
-* **Campagnes de collecte** avec objectifs, dates, descriptions et jauges de progression.
-* **Tableau de bord administrateur** avec statistiques et derniers dons.
-* **Emails personnalisables** : expéditeur, logo, couleur, sujet et message de remerciement.
-* **Envoi annuel des reçus fiscaux** depuis la page Donateurs, par année fiscale.
-* **Export CSV des dons** avec protection contre l'injection de formules.
-* **Aucun tracking** : pas de pixel publicitaire, pas d'analytics ajouté par le plugin, pas de télémétrie.
+* **Donation forms with shortcodes**, including 5 visual themes (Givoly, Classic, Ocean, Sunset, Minimal) and 3 layouts (Card, Inline, Flat).
+* **Stripe payments** through Checkout Sessions.
+* **HelloAsso payments** with a dedicated payment button using the plugin's bundled HelloAsso logo asset.
+* **Donor management** with donation history, total donated, and latest donation details.
+* **Fundraising campaigns** with goals, dates, descriptions, and progress bars.
+* **Admin dashboard** with statistics and latest donations.
+* **Customizable emails**: sender, logo, color, subject, and thank-you message.
+* **Annual fiscal receipt summary emails** from the Donors page, grouped by fiscal year.
+* **CSV donation exports** with protection against formula injection.
+* **No tracking added by the plugin**: no advertising pixels, analytics scripts, or telemetry.
 
 = Shortcodes =
 
-**Formulaire de don**
+**Donation form**
 
 `[givoly_form]`
 
-Attributs disponibles :
+Available attributes:
 
-| Attribut | Valeur par défaut | Valeurs possibles |
+| Attribute | Default value | Possible values |
 |---|---|---|
 | `theme` | `givoly` | `givoly`, `classic`, `ocean`, `sunset`, `minimal` |
 | `layout` | `card` | `card`, `inline`, `flat` |
-| `amounts` | `10,25,50,100` | montants entiers séparés par des virgules |
+| `amounts` | `10,25,50,100` | whole-number amounts separated by commas |
 | `currency` | `EUR` | `EUR`, `USD`, `GBP`, `MAD`, `CHF` |
-| `campaign` | vide | slug d'une campagne |
-| `title` | `Faire un don` | texte libre |
-| `button_text` | `Donner maintenant` | texte libre |
+| `campaign` | empty | campaign slug |
+| `title` | `Make a donation` | custom text |
+| `button_text` | `Donate now` | custom text |
 | `show_title` | `yes` | `yes`, `no` |
-| `gateway` | réglage admin | `stripe`, `helloasso` |
-| `class` | vide | classe CSS personnalisée à ajouter au bloc du formulaire |
-| `css` | vide | variables CSS `--givoly-*` séparées par des points-virgules |
+| `gateway` | admin setting | `stripe`, `helloasso` |
+| `class` | empty | custom CSS class added to the form wrapper |
+| `css` | empty | `--givoly-*` CSS variables separated with semicolons |
 
-Exemple de personnalisation rapide du bloc :
+Quick customization example:
 
-`[givoly_form class="don-accueil" css="--givoly-form-max-width:640px;--givoly-form-padding:2.5rem;--givoly-form-shadow:none"]`
+`[givoly_form class="homepage-donation" css="--givoly-form-max-width:640px;--givoly-form-padding:2.5rem;--givoly-form-shadow:none"]`
 
-**Jauge de campagne**
+**Campaign total widget**
 
-`[givoly_total campaign="ma-campagne" display="bar"]`
+`[givoly_total campaign="my-campaign" display="bar"]`
 
-**Campagne complète (jauge + formulaire)**
+**Full campaign block (progress bar + form)**
 
-`[givoly_campaign campaign="ma-campagne"]`
+`[givoly_campaign campaign="my-campaign"]`
 
-Le shortcode de campagne accepte notamment `show_title="no"`, `show_form`, `show_description`, `layout` et `theme`.
+The campaign shortcode also accepts `show_title="no"`, `show_form`, `show_description`, `layout`, and `theme`.
 
-= Reçus fiscaux annuels =
+= Annual fiscal receipt summaries =
 
-Depuis **Givoly > Donateurs**, un encart permet de choisir une année fiscale et d'envoyer un email récapitulatif à chaque donateur ayant au moins un don complété sur cette période.
+From **Givoly > Donors**, an admin panel lets you select a fiscal year and send a summary email to each donor who has at least one completed donation during that period.
 
-Avant l'envoi, renseignez les informations de l'association dans **Givoly > Réglages > Association** : nom, adresse, email, SIRET/RNA et agrément ou rescrit fiscal. Le message envoyé rappelle le montant total donné, le nombre de dons et les informations fiscales configurées.
+Before sending, complete the nonprofit details in **Givoly > Settings > Organization**: name, address, email, SIRET/RNA, and tax approval or ruling information. The email reminds donors of the total amount given, the number of donations, and the fiscal information configured by the organization.
 
-= Configuration rapide =
+= Quick setup =
 
-1. Activez le plugin.
-2. Allez dans **Givoly > Réglages**.
-3. Configurez au moins une passerelle : Stripe, HelloAsso, ou les deux.
-4. Complétez les informations de l'association.
-5. Personnalisez les emails si besoin.
-6. Ajoutez `[givoly_form]` dans une page ou un article.
+1. Activate the plugin.
+2. Go to **Givoly > Settings**.
+3. Configure at least one payment gateway: Stripe, HelloAsso, or both.
+4. Complete your organization information.
+5. Customize emails if needed.
+6. Add `[givoly_form]` to a page or post.
 
 == Installation ==
 
-1. Envoyez le dossier `givoly` dans `/wp-content/plugins/` ou installez l'archive ZIP depuis l'administration WordPress.
-2. Activez **Givoly** depuis l'écran Extensions.
-3. Configurez vos passerelles dans **Givoly > Réglages**.
-4. Publiez un formulaire avec `[givoly_form]`.
+1. Upload the `givoly` folder to `/wp-content/plugins/` or install the ZIP archive from the WordPress admin area.
+2. Activate **Givoly** from the Plugins screen.
+3. Configure your payment gateways in **Givoly > Settings**.
+4. Publish a donation form with `[givoly_form]`.
 
 == Frequently Asked Questions ==
 
-= Qui développe Givoly ? =
+= Who develops Givoly? =
 
-Givoly est développé et maintenu par **PLAID·ACT**, association à but non lucratif : https://plaidact.org
+Givoly is developed and maintained by **PLAID·ACT and its members**, with contributions from **Tom JANVIER**. PLAID·ACT is a nonprofit organization: https://plaidact.org
 
-= Peut-on utiliser uniquement HelloAsso ou uniquement Stripe ? =
+= Can I use only HelloAsso or only Stripe? =
 
-Oui. Activez la passerelle souhaitée dans **Givoly > Réglages > Général**. Si Stripe et HelloAsso sont actifs, le formulaire affiche les deux options de paiement.
+Yes. Enable the gateway you want in **Givoly > Settings > General**. If both Stripe and HelloAsso are enabled, the form displays both payment options.
 
-= Où modifier le logo des emails ? =
+= Where can I change the email logo? =
 
-Dans **Givoly > Réglages > Email > URL du logo**. Si aucune URL n'est renseignée, le nom de l'association est affiché.
+Go to **Givoly > Settings > Email > Logo URL**. If no URL is provided, the organization name is displayed instead.
 
-= Le plugin génère-t-il un PDF de reçu fiscal ? =
+= Does the plugin generate fiscal receipt PDFs? =
 
-Non. L'outil d'envoi annuel envoie un email récapitulatif fiscal aux donateurs. Vous pouvez l'utiliser pour préparer votre campagne de reçus fiscaux et joindre un reçu officiel si votre procédure l'exige.
+No. The annual sending tool sends fiscal summary emails to donors. You can use these emails to prepare your fiscal receipt campaign and attach an official receipt if your process requires one.
 
-= Y a-t-il des fonctionnalités payantes ou des upsells ? =
+= Are there paid features or upsells? =
 
-Non. Ce paquet est fourni comme plugin gratuit, sans écran d'upsell ni fonctionnalité volontairement verrouillée.
+No. This package is provided as a free plugin, with no upsell screens and no intentionally locked premium features.
 
 == Privacy (GDPR) ==
 
-Givoly collecte les données personnelles nécessaires au traitement et au suivi des dons : nom, email et champs de profil optionnels. Ces données sont stockées dans la base WordPress de l'association et transmises à la passerelle de paiement sélectionnée uniquement lorsque cela est nécessaire au paiement.
+Givoly collects the personal data required to process and follow donations: name, email address, and optional donor profile fields. This data is stored in the nonprofit's WordPress database and is sent to the selected payment gateway only when required to process a payment, redirect a donor to checkout, handle a webhook, or process a refund.
 
-Givoly n'ajoute pas de scripts d'analytics, pixels publicitaires, cookies de suivi ou télémétrie.
+Givoly does not add analytics scripts, advertising pixels, tracking cookies, or telemetry.
 
 == External services ==
 
-Givoly contacte des services externes uniquement lorsqu'une passerelle est configurée et utilisée.
+Givoly relies on third-party payment services only when a site administrator configures and enables the corresponding gateway, and when a donor uses that gateway or a webhook/refund action is processed. Site owners should review the terms and privacy policies of the services they enable.
 
 **Stripe**
 
-* Endpoint : `https://api.stripe.com/v1`
-* Utilisation : création de sessions Checkout, webhooks Stripe et remboursements Stripe.
-* Données envoyées : montant, devise, email, prénom, nom, métadonnées de campagne, URLs de retour et clé secrète Stripe configurée.
-* Conditions : https://stripe.com/legal
-* Confidentialité : https://stripe.com/privacy
+* Service: Stripe is a third-party payment processor used to create Checkout Sessions, receive Stripe webhook events, and process Stripe refunds from the plugin admin screens.
+* Endpoints: `https://api.stripe.com/v1` and Stripe-hosted Checkout pages.
+* Data sent and when: donation amount, currency, donor email, donor first name, donor last name, campaign metadata, return URLs, and the configured Stripe secret key are sent when a donor starts a Stripe payment. Webhook event data is received from Stripe after payment events. Refund requests send the related Stripe payment identifier when an administrator starts a refund.
+* Terms of service: https://stripe.com/legal
+* Privacy policy: https://stripe.com/privacy
 
 **HelloAsso**
 
-* Endpoints : `https://api.helloasso.com`, `https://api.helloasso-sandbox.com`, `https://www.helloasso.com`, `https://www.helloasso-sandbox.com`
-* Logo affiché dans le bouton : `https://api.helloasso.com/v5/img/logo-ha.svg`
-* Utilisation : authentification HelloAsso, création d'intentions de paiement, redirection vers les pages HelloAsso et vérification des webhooks.
-* Données envoyées : montant, email, prénom, nom, métadonnées de campagne, URLs de retour, slug d'organisation et identifiants API HelloAsso configurés.
-* Conditions : https://www.helloasso.com/cgu-utilisateur
-* Confidentialité : https://www.helloasso.com/confidentialite
+* Service: HelloAsso is a third-party payment and fundraising platform used to authenticate with the HelloAsso API, create checkout intents, redirect donors to HelloAsso payment pages, and verify HelloAsso webhook events. If the fallback custom HelloAsso URL option is configured, donors can also be redirected to that configured HelloAsso URL instead of using the API checkout intent.
+* Endpoints: `https://api.helloasso.com`, `https://api.helloasso-sandbox.com`, `https://www.helloasso.com`, and `https://www.helloasso-sandbox.com`.
+* Data sent and when: donation amount, donor email, donor first name, donor last name, campaign metadata, return URLs, organization slug, and the configured HelloAsso API credentials are sent when a donor starts a HelloAsso API payment. HelloAsso webhook event data is received after payment events. If the custom HelloAsso URL option is used, the donor is redirected to the URL configured by the site administrator.
+* Logo loading: the frontend HelloAsso payment button uses the bundled file `assets/logo-ha.svg`; it does not load the HelloAsso logo from a remote URL.
+* Terms of service: https://www.helloasso.com/cgu-utilisateur
+* Privacy policy: https://www.helloasso.com/confidentialite
 
 == Changelog ==
 
 = 1.0.0 =
-* Renommage et rebranding du plugin en Givoly.
-* Mise à jour des informations auteur pour PLAID·ACT.
-* Ajout du logo officiel HelloAsso dans le bouton de paiement HelloAsso.
-* Ajout de l'envoi annuel des reçus fiscaux par email depuis la page Donateurs.
-* Nettoyage de la documentation et des éléments résiduels non utilisés.
-* Conservation des formulaires de dons, Stripe, HelloAsso, donateurs, campagnes, réglages, emails et exports CSV.
+* Renamed and rebranded the plugin as Givoly.
+* Updated author and contributor information for PLAID·ACT and Tom JANVIER.
+* Replaced the remote HelloAsso button logo with the bundled `assets/logo-ha.svg` file.
+* Added annual fiscal receipt summary emails from the Donors page.
+* Cleaned up documentation and unused residual elements.
+* Kept donation forms, Stripe, HelloAsso, donors, campaigns, settings, emails, and CSV exports.
