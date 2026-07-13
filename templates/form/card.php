@@ -75,14 +75,14 @@ $render_extra_fields = static function ( string $form_id, array $extra_fields ):
                 <?php esc_html_e( 'Fréquence', 'givoly' ); ?>
             </legend>
             <div class="givoly-frequency-toggle" role="group">
-                <?php if ( $show_stripe_gateway ) : ?>
+                <?php if ( $show_stripe_gateway || $show_helloasso_gateway ) : ?>
                 <label class="givoly-frequency-option">
                     <input type="radio" name="frequency" value="monthly" class="givoly-frequency__input" checked>
                     <span class="givoly-frequency-option__label"><?php esc_html_e( 'Don récurrent', 'givoly' ); ?></span>
                 </label>
                 <?php endif; ?>
                 <label class="givoly-frequency-option">
-                    <input type="radio" name="frequency" value="once" class="givoly-frequency__input" <?php checked( ! $show_stripe_gateway ); ?>>
+                    <input type="radio" name="frequency" value="once" class="givoly-frequency__input">
                     <span class="givoly-frequency-option__label"><?php esc_html_e( 'Don unique', 'givoly' ); ?></span>
                 </label>
             </div>

@@ -61,7 +61,6 @@ final class Settings {
     const OPT_APPEARANCE_ACCENT_COLOR  = 'givoly_appearance_accent_color';  // hex, ex: #2ECC71
     const OPT_APPEARANCE_RADIUS        = 'givoly_appearance_radius';        // 'square'|'rounded'|'pill'
     const OPT_APPEARANCE_BTN_STYLE     = 'givoly_appearance_btn_style';     // 'filled'|'outline'
-    const OPT_APPEARANCE_CUSTOM_CSS    = 'givoly_appearance_custom_css';    // CSS libre appliqué au frontend
 
     // Association
     const OPT_ASSOC_NAME        = 'givoly_assoc_name';
@@ -234,13 +233,6 @@ final class Settings {
         return in_array( $val, [ 'filled', 'outline' ], true ) ? $val : 'filled';
     }
 
-    /**
-     * CSS personnalisé ajouté après les styles frontend Givoly.
-     * Réservé aux administrateurs capables de gérer les options du plugin.
-     */
-    public static function get_appearance_custom_css(): string {
-        return (string) get_option( self::OPT_APPEARANCE_CUSTOM_CSS, '' );
-    }
 
     public static function is_assoc_configured(): bool {
         return self::get_assoc_name() !== '' && self::get_assoc_address() !== '';
@@ -409,9 +401,6 @@ final class Settings {
         if ( in_array( $ap_btn, [ 'filled', 'outline' ], true ) ) {
             update_option( self::OPT_APPEARANCE_BTN_STYLE, $ap_btn, false );
         }
-        $custom_css = wp_strip_all_tags( (string) ( $post['appearance_custom_css'] ?? '' ) );
-        update_option( self::OPT_APPEARANCE_CUSTOM_CSS, trim( $custom_css ), false );
-
         // Association
         update_option( self::OPT_ASSOC_NAME,        sanitize_text_field( $post['assoc_name']        ?? '' ), false );
         update_option( self::OPT_ASSOC_ADDRESS,     sanitize_text_field( $post['assoc_address']     ?? '' ), false );

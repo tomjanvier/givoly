@@ -1,5 +1,5 @@
 === Givoly ===
-Contributors: plaidact, tomjanvier
+Contributors: plaidact, tomjanvier, tomjvr
 Tags: donation, nonprofit, stripe, helloasso, fundraising
 Requires at least: 6.0
 Tested up to: 7.0
@@ -20,7 +20,7 @@ The plugin is maintained by **PLAID·ACT and its members**, with contributions f
 
 * **Donation forms with shortcodes**, including 5 visual themes (Givoly, Classic, Ocean, Sunset, Minimal) and 3 layouts (Card, Inline, Flat).
 * **Stripe payments** through Checkout Sessions.
-* **HelloAsso payments** with a dedicated payment button using the plugin's bundled HelloAsso logo asset.
+* **HelloAsso payments** with a dedicated payment button using the plugin's bundled HelloAsso logo asset, including one-time and recurring donation flows through the HelloAsso API.
 * **Donor management** with donation history, total donated, and latest donation details.
 * **Fundraising campaigns** with goals, dates, descriptions, and progress bars.
 * **Admin dashboard** with statistics and latest donations.
@@ -49,11 +49,6 @@ Available attributes:
 | `show_title` | `yes` | `yes`, `no` |
 | `gateway` | admin setting | `stripe`, `helloasso` |
 | `class` | empty | custom CSS class added to the form wrapper |
-| `css` | empty | `--givoly-*` CSS variables separated with semicolons |
-
-Quick customization example:
-
-`[givoly_form class="homepage-donation" css="--givoly-form-max-width:640px;--givoly-form-padding:2.5rem;--givoly-form-shadow:none"]`
 
 **Campaign total widget**
 
@@ -107,7 +102,7 @@ No. The annual sending tool sends fiscal summary emails to donors. You can use t
 
 = Are there paid features or upsells? =
 
-No. This package is provided as a free plugin, with no upsell screens and no intentionally locked premium features.
+No. This package is provided as a free plugin, with no upsell screens and no paid feature restrictions.
 
 == Privacy (GDPR) ==
 
@@ -123,7 +118,7 @@ Givoly relies on third-party payment services only when a site administrator con
 
 * Service: Stripe is a third-party payment processor used to create Checkout Sessions, receive Stripe webhook events, and process Stripe refunds from the plugin admin screens.
 * Endpoints: `https://api.stripe.com/v1` and Stripe-hosted Checkout pages.
-* Data sent and when: donation amount, currency, donor email, donor first name, donor last name, campaign metadata, return URLs, and the configured Stripe secret key are sent when a donor starts a Stripe payment. Webhook event data is received from Stripe after payment events. Refund requests send the related Stripe payment identifier when an administrator starts a refund.
+* Data sent and when: donation amount, currency, selected frequency (one-time or recurring), donor email, donor first name, donor last name, campaign metadata, return URLs, and the configured Stripe secret key are sent when a donor starts a Stripe payment. Webhook event data is received from Stripe after payment events. Refund requests send the related Stripe payment identifier when an administrator starts a refund.
 * Terms of service: https://stripe.com/legal
 * Privacy policy: https://stripe.com/privacy
 
@@ -131,7 +126,7 @@ Givoly relies on third-party payment services only when a site administrator con
 
 * Service: HelloAsso is a third-party payment and fundraising platform used to authenticate with the HelloAsso API, create checkout intents, redirect donors to HelloAsso payment pages, and verify HelloAsso webhook events. If the fallback custom HelloAsso URL option is configured, donors can also be redirected to that configured HelloAsso URL instead of using the API checkout intent.
 * Endpoints: `https://api.helloasso.com`, `https://api.helloasso-sandbox.com`, `https://www.helloasso.com`, and `https://www.helloasso-sandbox.com`.
-* Data sent and when: donation amount, donor email, donor first name, donor last name, campaign metadata, return URLs, organization slug, and the configured HelloAsso API credentials are sent when a donor starts a HelloAsso API payment. HelloAsso webhook event data is received after payment events. If the custom HelloAsso URL option is used, the donor is redirected to the URL configured by the site administrator.
+* Data sent and when: donation amount, selected frequency (one-time or recurring), donor email, donor first name, donor last name, campaign metadata, return URLs, organization slug, and the configured HelloAsso API credentials are sent when a donor starts a HelloAsso API payment. HelloAsso webhook event data is received after payment events. If the custom HelloAsso URL option is enabled for one-time donations, the donor is redirected to the URL configured by the site administrator instead of creating an API checkout intent for that one-time donation.
 * Logo loading: the frontend HelloAsso payment button uses the bundled file `assets/logo-ha.svg`; it does not load the HelloAsso logo from a remote URL.
 * Terms of service: https://www.helloasso.com/cgu-utilisateur
 * Privacy policy: https://www.helloasso.com/confidentialite

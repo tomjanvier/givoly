@@ -299,7 +299,7 @@ final class AjaxHandler {
             Settings::is_helloasso_sandbox()
         );
 
-        if ( Settings::should_use_helloasso_other_payments_for_once() ) {
+        if ( $frequency === 'once' && Settings::should_use_helloasso_other_payments_for_once() ) {
             $other_payments_url = Settings::get_helloasso_other_payments_url();
             if ( $other_payments_url ) {
                 return $other_payments_url;

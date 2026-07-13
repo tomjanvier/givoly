@@ -79,7 +79,7 @@ $render_extra_fields = static function ( string $form_id, array $extra_fields ):
                 <input type="radio" name="frequency" value="once" class="givoly-frequency__input" checked>
                 <span class="givoly-amount-btn__label"><?php esc_html_e( 'Une fois', 'givoly' ); ?></span>
             </label>
-            <?php if ( $show_stripe_gateway ) : ?>
+            <?php if ( $show_stripe_gateway || $show_helloasso_gateway ) : ?>
             <label class="givoly-amount-btn">
                 <input type="radio" name="frequency" value="monthly" class="givoly-frequency__input">
                 <span class="givoly-amount-btn__label"><?php esc_html_e( 'Mensuel', 'givoly' ); ?></span>

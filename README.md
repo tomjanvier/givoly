@@ -40,13 +40,13 @@
 
 **Givoly** is a completely free donation form extension designed by and for nonprofit organizations. It supports payments through Stripe and HelloAsso, donor management, fundraising campaign tracking, and customizable donor emails.
 
-Givoly is maintained by [PLAID·ACT](https://plaidact.org), a nonprofit organization, with contributions from Tom JANVIER. The goal is to provide a modern, transparent fundraising tool that nonprofits can use without being locked into a paid platform.
+Givoly is maintained by [PLAID·ACT](https://plaidact.org), a nonprofit organization, with contributions from Tom JANVIER. The goal is to provide a modern, transparent fundraising tool that nonprofits can use without being forced into a paid platform.
 
 **Zero fees from Givoly:**
 
 * **€0 subscription** to use the plugin.
 * **0% Givoly commission** on collected donations.
-* **No hidden fees** and no intentionally locked upsell features.
+* **No hidden fees** and no paid feature restrictions.
 
 The only possible costs are the fees or contribution models of the payment providers you choose to enable, such as Stripe or HelloAsso.
 
@@ -112,11 +112,6 @@ Example with a campaign, theme, and gateway:
 [givoly_form campaign="emergency" theme="givoly" layout="card" gateway="helloasso"]
 ```
 
-Example for quickly customizing the form wrapper with CSS variables:
-
-```text
-[givoly_form class="homepage-donation" css="--givoly-form-max-width:640px;--givoly-form-padding:2.5rem;--givoly-form-shadow:none"]
-```
 
 **Campaign total widget**
 
@@ -136,9 +131,9 @@ Example for quickly customizing the form wrapper with CSS variables:
 
 Givoly relies on third-party payment services only when a site administrator configures and enables the corresponding gateway, and when a donor uses that gateway or a webhook/refund action is processed.
 
-**Stripe** is used to create Checkout Sessions, receive Stripe webhook events, and process Stripe refunds. Donation amount, currency, donor email, donor first name, donor last name, campaign metadata, return URLs, and configured Stripe credentials are sent when needed for payment processing. Stripe terms: https://stripe.com/legal. Stripe privacy policy: https://stripe.com/privacy.
+**Stripe** is used to create Checkout Sessions, receive Stripe webhook events, and process Stripe refunds. Donation amount, currency, selected frequency (one-time or recurring), donor email, donor first name, donor last name, campaign metadata, return URLs, and configured Stripe credentials are sent when needed for payment processing. Stripe terms: https://stripe.com/legal. Stripe privacy policy: https://stripe.com/privacy.
 
-**HelloAsso** is used to authenticate with the HelloAsso API, create checkout intents, redirect donors to HelloAsso payment pages, and verify HelloAsso webhook events. Donation amount, donor email, donor first name, donor last name, campaign metadata, return URLs, organization slug, and configured HelloAsso API credentials are sent when needed for payment processing. The frontend HelloAsso button uses the bundled `assets/logo-ha.svg` file instead of loading a remote logo. HelloAsso terms: https://www.helloasso.com/cgu-utilisateur. HelloAsso privacy policy: https://www.helloasso.com/confidentialite.
+**HelloAsso** is used to authenticate with the HelloAsso API, create checkout intents, redirect donors to HelloAsso payment pages, and verify HelloAsso webhook events. Donation amount, selected frequency (one-time or recurring), donor email, donor first name, donor last name, campaign metadata, return URLs, organization slug, and configured HelloAsso API credentials are sent when needed for payment processing. If enabled, the custom HelloAsso URL option redirects one-time donations to the configured URL instead of creating an API checkout intent. The frontend HelloAsso button uses the bundled `assets/logo-ha.svg` file instead of loading a remote logo. HelloAsso terms: https://www.helloasso.com/cgu-utilisateur. HelloAsso privacy policy: https://www.helloasso.com/confidentialite.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
