@@ -40,13 +40,13 @@
 
 **Givoly** is a completely free donation form extension designed by and for nonprofit organizations. It supports payments through Stripe and HelloAsso, donor management, fundraising campaign tracking, and customizable donor emails.
 
-Givoly is maintained by [PLAID·ACT](https://plaidact.org), a nonprofit organization, with contributions from Tom JANVIER. The goal is to provide a modern, transparent fundraising tool that nonprofits can use without being locked into a paid platform.
+Givoly is maintained by [PLAID·ACT](https://plaidact.org), a nonprofit organization, with contributions from Tom JANVIER. The goal is to provide a modern, transparent fundraising tool that nonprofits can use directly from WordPress.
 
 **Zero fees from Givoly:**
 
 * **€0 subscription** to use the plugin.
 * **0% Givoly commission** on collected donations.
-* **No hidden fees** and no intentionally locked upsell features.
+* **Clear setup** with Stripe and HelloAsso as supported payment providers.
 
 The only possible costs are the fees or contribution models of the payment providers you choose to enable, such as Stripe or HelloAsso.
 
