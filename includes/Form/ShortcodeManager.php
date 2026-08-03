@@ -43,6 +43,7 @@ final class ShortcodeManager {
         // Charger les assets uniquement quand le shortcode est présent
         wp_enqueue_style( 'givoly-frontend' );
         wp_enqueue_script( 'givoly-frontend' );
+        \Givoly\Core\AssetsLoader::localize_frontend();
 
         $config = new FormConfig( $atts );
 

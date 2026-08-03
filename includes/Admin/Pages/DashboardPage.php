@@ -90,6 +90,7 @@ final class DashboardPage {
                             <th><?php esc_html_e( 'Email', 'givoly' ); ?></th>
                             <th><?php esc_html_e( 'Montant', 'givoly' ); ?></th>
                             <th><?php esc_html_e( 'Campagne', 'givoly' ); ?></th>
+                            <th><?php esc_html_e( 'Message', 'givoly' ); ?></th>
                             <th><?php esc_html_e( 'Statut', 'givoly' ); ?></th>
                             <th><?php esc_html_e( 'Date', 'givoly' ); ?></th>
                         </tr>
@@ -108,6 +109,9 @@ final class DashboardPage {
                                 </td>
                                 <td>
                                     <?php echo $donation->donor_message ? esc_html( $donation->donor_message ) : '—'; ?>
+                                </td>
+                                <td>
+                                    <?php echo ! empty( $donation->donor_notes ) ? esc_html( $donation->donor_notes ) : '—'; ?>
                                 </td>
                                 <td>
                                     <span class="givoly-badge givoly-badge--<?php echo esc_attr( $donation->status ); ?>">
@@ -157,7 +161,7 @@ final class DashboardPage {
 
         return $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prepare(
-                "SELECT d.amount, d.currency, d.status, d.donor_message, d.created_at,
+                "SELECT d.amount, d.currency, d.status, d.donor_message, d.donor_notes, d.created_at,
                         dn.first_name, dn.last_name, dn.email
                  FROM {$wpdb->prefix}givoly_donations d
                  JOIN {$wpdb->prefix}givoly_donors dn ON d.donor_id = dn.id

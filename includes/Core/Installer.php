@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Installer {
 
     const DB_VERSION_OPTION = 'givoly_db_version';
-    const DB_VERSION        = '1.7';
+    const DB_VERSION        = '1.8';
 
     public static function activate(): void {
         self::create_tables();
@@ -120,6 +120,24 @@ final class Installer {
         }
 
         self::deduplicate_gateway_transactions( $table );
+
+        // v1.7 → v1.8 : persister le message saisi par le donateur.
+        // donor_message est historiquement réservé au slug de campagne (rétrocompat) :
+        // le message réel doit donc vivre dans une colonne dédiée.
+        $notes_col = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+                 WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s AND COLUMN_NAME = 'donor_notes'",
+                DB_NAME,
+                $table
+            )
+        );
+
+        if ( ! $notes_col ) {
+            // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange,PluginCheck.Security.DirectDB.UnescapedDBParameter -- DDL migration, table name from $wpdb->prefix (trusted)
+            $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `donor_notes` TEXT DEFAULT NULL AFTER `donor_message`" );
+            // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange,PluginCheck.Security.DirectDB.UnescapedDBParameter
+        }
     }
 
     /**
@@ -225,6 +243,7 @@ final class Installer {
             gateway_refund_ref      VARCHAR(255)             DEFAULT NULL,
             post_payment_token      VARCHAR(64)              DEFAULT NULL,
             donor_message           TEXT                     DEFAULT NULL,
+            donor_notes             TEXT                     DEFAULT NULL,
             created_at              DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at              DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY             (id),
