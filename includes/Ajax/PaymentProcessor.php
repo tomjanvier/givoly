@@ -25,6 +25,8 @@ final class PaymentProcessor {
      *
      * @param int $campaign_id  ID de la campagne en DB (0 si aucune / ancienne campagne sans table).
      * @param string $campaign  Slug de campagne — conservé dans donor_message pour rétrocompat.
+     *                          Le message réellement saisi par le donateur est lu depuis la
+     *                          transient de profil (post_payment_token) et stocké dans donor_notes.
      */
     public function process(
         string $gateway,
@@ -71,6 +73,10 @@ final class PaymentProcessor {
             ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
 
+        // Le message du donateur est transporté dans la transient de profil
+        // (liée au post_payment_token) : on le lit avant que le profil ne soit consommé.
+        $donor_notes = $this->get_pending_donor_message( $post_payment_token );
+
         $this->apply_pending_donor_profile( $donor_id, $post_payment_token );
 
         // Enregistrer le don
@@ -88,8 +94,11 @@ final class PaymentProcessor {
                 'gateway_transaction_id' => $transaction_id,
                 'post_payment_token'     => $post_payment_token !== '' ? $post_payment_token : null,
                 'donor_message'          => $campaign ?: null,
+                'donor_notes'            => $donor_notes !== '' ? $donor_notes : null,
+                'created_at'             => current_time( 'mysql', true ),
+                'updated_at'             => current_time( 'mysql', true ),
             ],
-            [ '%d', '%d', '%f', '%s', '%s', '%s', '%s', '%s', '%s' ]
+            [ '%d', '%d', '%f', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ]
         );
 
         if ( false === $inserted && $this->is_duplicate_entry_error( $wpdb->last_error ) ) {
@@ -140,8 +149,10 @@ final class PaymentProcessor {
                 'email'      => $email,
                 'first_name' => $first_name,
                 'last_name'  => $last_name,
+                'created_at' => current_time( 'mysql', true ),
+                'updated_at' => current_time( 'mysql', true ),
             ],
-            [ '%s', '%s', '%s' ]
+            [ '%s', '%s', '%s', '%s', '%s' ]
         );
 
         if ( false === $inserted && $this->is_duplicate_entry_error( $wpdb->last_error ) ) {
@@ -165,6 +176,23 @@ final class PaymentProcessor {
 
     private function is_duplicate_entry_error( string $error ): bool {
         return str_contains( strtolower( $error ), 'duplicate entry' );
+    }
+
+    /**
+     * Lit le message saisi par le donateur depuis le profil en attente.
+     * Ne supprime pas la transient (elle est consommée par apply_pending_donor_profile()).
+     */
+    private function get_pending_donor_message( string $post_payment_token ): string {
+        if ( $post_payment_token === '' ) {
+            return '';
+        }
+
+        $profile = get_transient( 'givoly_checkout_profile_' . $post_payment_token );
+        if ( ! is_array( $profile ) ) {
+            return '';
+        }
+
+        return sanitize_textarea_field( (string) ( $profile['message'] ?? '' ) );
     }
 
     private function apply_pending_donor_profile( int $donor_id, string $post_payment_token ): void {
@@ -194,6 +222,8 @@ final class PaymentProcessor {
             delete_transient( 'givoly_checkout_profile_' . $post_payment_token );
             return;
         }
+
+        $allowed['updated_at'] = current_time( 'mysql', true );
 
         $updated = $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prefix . 'givoly_donors',
