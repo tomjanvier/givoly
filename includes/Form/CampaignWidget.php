@@ -70,6 +70,7 @@ final class CampaignWidget {
         if ( $this->show_form && ! $is_ended ) {
             wp_enqueue_style( 'givoly-frontend' );
             wp_enqueue_script( 'givoly-frontend' );
+            \Givoly\Core\AssetsLoader::localize_frontend();
 
             $form_config   = new FormConfig( [
                 'campaign'   => $this->campaign_slug,

@@ -35,6 +35,20 @@ final class AssetsLoader {
             GIVOLY_VERSION,
             true
         );
+    }
+
+    /**
+     * Localizes the frontend script with the data a rendered form needs.
+     *
+     * Must be called only when a form is actually rendered (shortcode or
+     * campaign widget), not on every frontend page.
+     */
+    public static function localize_frontend(): void {
+        static $localized = false;
+        if ( $localized ) {
+            return;
+        }
+        $localized = true;
 
         $is_success_return = filter_input( INPUT_GET, 'givoly_success', FILTER_VALIDATE_BOOLEAN );
 
@@ -43,7 +57,6 @@ final class AssetsLoader {
             'givolyData',
             [
                 'ajax_url' => admin_url( 'admin-ajax.php' ),
-                'nonce'    => wp_create_nonce( 'givoly_frontend_nonce' ),
                 'success'  => (bool) $is_success_return,
                 'branding' => \Givoly\Form\DonationForm::get_branding_html(),
                 'i18n'     => [
@@ -67,14 +80,6 @@ final class AssetsLoader {
             GIVOLY_PLUGIN_URL . 'assets/css/givoly-admin.css',
             [],
             GIVOLY_VERSION
-        );
-
-        wp_enqueue_script(
-            'givoly-admin',
-            GIVOLY_PLUGIN_URL . 'assets/js/givoly-admin.js',
-            [ 'jquery' ],
-            GIVOLY_VERSION,
-            true
         );
     }
 }
