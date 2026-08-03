@@ -70,13 +70,13 @@ final class DonorsPage {
                 <?php if ( empty( $receipt_donors ) ) : ?>
                     <p><?php esc_html_e( 'Aucun donateur avec un don complété pour cette année.', 'givoly' ); ?></p>
                 <?php else : ?>
-                    <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" onsubmit="return confirm('<?php esc_attr_e( 'Mettre les reçus sélectionnés en file d’envoi ?', 'givoly' ); ?>')">
+                    <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" onsubmit='return confirm(<?php echo wp_json_encode( __( 'Mettre les reçus sélectionnés en file d’envoi ?', 'givoly' ) ); ?>)'>
                         <?php wp_nonce_field( 'givoly_queue_tax_receipts' ); ?>
                         <input type="hidden" name="action" value="givoly_queue_tax_receipts">
                         <input type="hidden" name="receipt_year" value="<?php echo esc_attr( (string) $receipt_year ); ?>">
                         <p>
                             <button type="submit" name="mode" value="selected" class="button button-primary"><?php esc_html_e( 'Mettre les sélectionnés en file', 'givoly' ); ?></button>
-                            <button type="submit" name="mode" value="all" class="button" onclick="return confirm('<?php esc_attr_e( 'Mettre tous les bénéficiaires de cette année en file ?', 'givoly' ); ?>')"><?php esc_html_e( 'Mettre tout en file', 'givoly' ); ?></button>
+                            <button type="submit" name="mode" value="all" class="button" onclick='return confirm(<?php echo wp_json_encode( __( 'Mettre tous les bénéficiaires de cette année en file ?', 'givoly' ) ); ?>)'><?php esc_html_e( 'Mettre tout en file', 'givoly' ); ?></button>
                         </p>
                         <table class="wp-list-table widefat striped">
                             <thead><tr>
