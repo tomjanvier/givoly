@@ -73,6 +73,30 @@ foreach ( [
     'givoly_appearance_custom_css',
     'givoly_post_payment_show_phone',
     'givoly_post_payment_show_address',
+    'givoly_public_branding_enabled',
+    // HelloAsso OAuth — laisser des tokens actifs après "suppression propre"
+    // laisserait une session API vivante ~30 jours.
+    'givoly_ha_access_token',
+    'givoly_ha_refresh_token',
+    'givoly_ha_expires_at',
 ] as $givoly_option ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
     delete_option( $givoly_option );
 }
+
+// Supprimer les transients liés au checkout (profils donateur en attente) et
+// au rate limiter (givoly_rl_*), ainsi que leurs lignes de timeout.
+foreach ( [ 'givoly_checkout_profile_%', 'givoly_rl_%' ] as $givoly_prefix ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+    $transient_names = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+        $wpdb->prepare(
+            "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s",
+            $wpdb->esc_like( '_transient_' ) . $givoly_prefix
+        )
+    );
+    foreach ( $transient_names as $transient_name ) {
+        $key = substr( $transient_name, strlen( '_transient_' ) );
+        delete_transient( $key );
+    }
+}
+
+// Retirer tout WP-Cron planifié pour la file d'emails Givoly.
+wp_clear_scheduled_hook( 'givoly_process_mail_queue' );

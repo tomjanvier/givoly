@@ -233,7 +233,7 @@
                 const messages = form.querySelector( '.givoly-form__messages' );
                 const data = new FormData( form );
                 data.append( 'action', 'givoly_save_post_payment_details' );
-                data.append( 'givoly_nonce', form.closest( '.givoly-form' )?.querySelector( '[name="givoly_nonce"]' )?.value || '' );
+                data.append( 'givoly_nonce', form.querySelector( '[name="givoly_nonce"]' )?.value || '' );
 
                 fetch( givolyData.ajax_url, { method: 'POST', body: data } )
                     .then( ( r ) => r.json() )

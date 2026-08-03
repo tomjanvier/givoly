@@ -132,7 +132,7 @@ final class AjaxHandler {
             wp_send_json_success( [ 'checkout_url' => $checkout_url ] );
 
         } catch ( \RuntimeException $e ) {
-            error_log( '[Givoly] Checkout error: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            error_log( '[Givoly] Checkout error: ' . \Givoly\Core\Format::redact_secrets( $e->getMessage() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
             wp_send_json_error( [ 'message' => __( 'Erreur lors de la création du paiement. Veuillez réessayer.', 'givoly' ) ], 500 );
         }
     }
@@ -361,7 +361,7 @@ final class AjaxHandler {
                 $this->handle_charge_refunded( $event['data']['object'] ?? [] );
             }
         } catch ( \RuntimeException $e ) {
-            error_log( '[Givoly] Stripe webhook processing error: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            error_log( '[Givoly] Stripe webhook processing error: ' . \Givoly\Core\Format::redact_secrets( $e->getMessage() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
             return new \WP_REST_Response( [ 'error' => 'Traitement webhook temporairement indisponible.' ], 500 );
         }
 
@@ -549,7 +549,7 @@ final class AjaxHandler {
                 }
             }
         } catch ( \RuntimeException $e ) {
-            error_log( '[Givoly] HelloAsso webhook processing error: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            error_log( '[Givoly] HelloAsso webhook processing error: ' . \Givoly\Core\Format::redact_secrets( $e->getMessage() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
             return new \WP_REST_Response( [ 'error' => 'Traitement webhook temporairement indisponible.' ], 500 );
         }
 

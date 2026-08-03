@@ -116,7 +116,7 @@ final class HelloAssoGateway {
 
         if ( ! in_array( $code, [ 200, 201 ], true ) || empty( $data['redirectUrl'] ) ) {
             $message = $this->extract_error_message( $data, $code );
-            error_log( '[Givoly] HelloAsso checkout intent failed: ' . $message ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            error_log( '[Givoly] HelloAsso checkout intent failed: ' . \Givoly\Core\Format::redact_secrets( $message ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
             throw new \RuntimeException( 'HelloAsso checkout intent failed: ' . $message ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
 
@@ -203,7 +203,7 @@ final class HelloAssoGateway {
 
         if ( empty( $data['access_token'] ) ) {
             $api_error = $this->extract_error_message( $data, $code );
-            error_log( '[Givoly] HelloAsso auth failed: ' . $api_error ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            error_log( '[Givoly] HelloAsso auth failed: ' . \Givoly\Core\Format::redact_secrets( $api_error ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
             throw new \RuntimeException( 'HelloAsso auth failed: ' . $api_error ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
 
