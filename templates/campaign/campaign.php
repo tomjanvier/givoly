@@ -21,13 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- template file, variables are local-scope
-$currency_symbol = match ( $campaign->get_currency() ) {
-    'USD' => '$',
-    'GBP' => '£',
-    'CHF' => 'CHF',
-    'MAD' => 'DH',
-    default => '€',
-};
+$currency_symbol = \Givoly\Form\FormConfig::currency_symbol( $campaign->get_currency() );
 
 $format_amount = static fn( float $amount ): string =>
     number_format( $amount, 0, ',', ' ' ) . ' ' . $currency_symbol;

@@ -201,11 +201,20 @@ final class FormConfig {
         return $this->amounts[1] ?? $this->amounts[0];
     }
 
+    public const SUPPORTED_CURRENCIES = [ 'EUR', 'USD', 'GBP', 'CHF', 'MAD' ];
+
     /**
      * Retourne le symbole de la devise courante.
      * Source unique — les templates ne doivent pas redéfinir ce tableau.
      */
     public function get_currency_symbol(): string {
+        return self::currency_symbol( $this->currency );
+    }
+
+    /**
+     * Symbole d'affichage pour un code devise ISO 4217.
+     */
+    public static function currency_symbol( string $currency ): string {
         $symbols = [
             'EUR' => '€',
             'USD' => '$',
@@ -214,7 +223,7 @@ final class FormConfig {
             'CHF' => 'CHF',
         ];
 
-        return $symbols[ $this->currency ] ?? $this->currency;
+        return $symbols[ $currency ] ?? $currency;
     }
 
     // ── Helpers couleur (purs PHP, sans dépendance WordPress) ─────────────

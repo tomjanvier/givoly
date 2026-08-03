@@ -157,7 +157,7 @@ JS;
             $status = Campaign::STATUS_DRAFT;
         }
 
-        $valid_currencies = [ 'EUR', 'USD', 'GBP', 'CHF', 'MAD' ];
+        $valid_currencies = \Givoly\Form\FormConfig::SUPPORTED_CURRENCIES;
         if ( ! in_array( $currency, $valid_currencies, true ) ) {
             $currency = 'EUR';
         }
@@ -375,7 +375,7 @@ JS;
                         <th scope="row"><label for="givoly-currency"><?php esc_html_e( 'Devise', 'givoly' ); ?></label></th>
                         <td>
                             <select id="givoly-currency" name="currency">
-                                <?php foreach ( [ 'EUR', 'USD', 'GBP', 'CHF', 'MAD' ] as $cur ) : ?>
+                                <?php foreach ( \Givoly\Form\FormConfig::SUPPORTED_CURRENCIES as $cur ) : ?>
                                     <option value="<?php echo esc_attr( $cur ); ?>"
                                         <?php selected( $is_edit ? $campaign->get_currency() : 'EUR', $cur ); ?>>
                                         <?php echo esc_html( $cur ); ?>
