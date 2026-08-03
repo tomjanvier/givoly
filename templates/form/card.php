@@ -68,6 +68,12 @@ $render_extra_fields = static function ( string $form_id, array $extra_fields ):
             <input type="hidden" name="campaign" value="<?php echo esc_attr( $config->campaign ); ?>">
         <?php endif; ?>
 
+        <?php if ( $config->show_title ) : ?>
+            <h2 class="givoly-form__title">
+                <?php echo esc_html( $config->title ); ?>
+            </h2>
+        <?php endif; ?>
+
 
         <!-- ── Fréquence du don ─────────────────────────────────────── -->
         <fieldset class="givoly-form__fieldset givoly-frequency">
