@@ -9,7 +9,6 @@
  *
  * Usage shortcode :
  *   [givoly_form theme="ocean" layout="card" amounts="10,25,50,100"]
- *   [givoly_form css="--givoly-form-max-width:640px;--givoly-form-padding:2.5rem"]
  *
  * @package Givoly\Form
  */
@@ -116,7 +115,6 @@ final class FormConfig {
     public readonly string $button_text;
     public readonly string $gateway;
     public readonly array  $extra_fields;
-    public readonly string $custom_css;
     public readonly string $custom_class;
 
     public function __construct( array $raw_atts ) {
@@ -130,7 +128,6 @@ final class FormConfig {
         $this->button_text = sanitize_text_field( ! empty( $raw_atts['button_text'] ) ? $raw_atts['button_text'] : __( 'Donner maintenant', 'givoly' ) );
         $this->gateway     = $this->parse_gateway( $raw_atts['gateway'] ?? '' );
         $this->extra_fields = $this->parse_extra_fields( $raw_atts['extra_fields'] ?? '' );
-        $this->custom_css  = $this->parse_custom_css( $raw_atts['css'] ?? '' );
         $this->custom_class = $this->parse_custom_class( $raw_atts['class'] ?? '' );
     }
 
@@ -169,12 +166,6 @@ final class FormConfig {
 
         // 5. Style bouton
         $vars['--givoly-btn-style'] = Settings::get_appearance_btn_style();
-
-        // 6. Variables CSS personnalisées depuis le shortcode.
-        //    Exemple : [givoly_form css="--givoly-form-max-width:640px;--givoly-form-padding:2.5rem"]
-        if ( $this->custom_css !== '' ) {
-            $vars = array_merge( $vars, $this->parse_css_declarations( $this->custom_css ) );
-        }
 
         // Sérialisation
         $pairs = [];
@@ -312,50 +303,6 @@ final class FormConfig {
         $fields = array_values( array_unique( array_filter( $fields, fn( $field ) => in_array( $field, $allowed, true ) ) ) );
 
         return $fields;
-    }
-
-    /**
-     * Nettoie une liste de déclarations CSS utilisable sur .givoly-wrap.
-     * Seules les custom properties --givoly-* sont acceptées pour éviter
-     * d'injecter des propriétés arbitraires dans l'attribut style.
-     */
-    private function parse_css_declarations( string $raw ): array {
-        $declarations = [];
-
-        foreach ( explode( ';', $raw ) as $declaration ) {
-            if ( ! str_contains( $declaration, ':' ) ) {
-                continue;
-            }
-
-            [ $property, $value ] = array_map( 'trim', explode( ':', $declaration, 2 ) );
-
-            if ( ! preg_match( '/^--givoly-[a-z0-9-]+$/', $property ) ) {
-                continue;
-            }
-
-            $value = safecss_filter_attr( $value );
-            if ( $value === '' ) {
-                continue;
-            }
-
-            $declarations[ $property ] = $value;
-        }
-
-        return $declarations;
-    }
-
-    private function parse_custom_css( string $raw ): string {
-        $declarations = $this->parse_css_declarations( wp_unslash( $raw ) );
-        if ( empty( $declarations ) ) {
-            return '';
-        }
-
-        $pairs = [];
-        foreach ( $declarations as $property => $value ) {
-            $pairs[] = $property . ':' . $value;
-        }
-
-        return implode( ';', $pairs );
     }
 
     private function parse_custom_class( string $raw ): string {

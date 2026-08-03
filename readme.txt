@@ -4,7 +4,7 @@ Tags: donation, nonprofit, stripe, helloasso, fundraising
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 8.1
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -49,11 +49,11 @@ Available attributes:
 | `show_title` | `yes` | `yes`, `no` |
 | `gateway` | admin setting | `stripe`, `helloasso` |
 | `class` | empty | custom CSS class added to the form wrapper |
-| `css` | empty | `--givoly-*` CSS variables separated with semicolons |
 
-Quick customization example:
-
-`[givoly_form class="homepage-donation" css="--givoly-form-max-width:640px;--givoly-form-padding:2.5rem;--givoly-form-shadow:none"]`
+To add CSS rules for a form, use WordPress's native Additional CSS editor under
+Appearance > Customize (or Appearance > Editor > Styles for block themes). The
+form wrapper uses the `.givoly-wrap` class and the plugin does not store or
+execute arbitrary CSS.
 
 **Campaign total widget**
 
@@ -137,6 +137,11 @@ Givoly relies on third-party payment services only when a site administrator con
 * Privacy policy: https://www.helloasso.com/confidentialite
 
 == Changelog ==
+
+= 1.0.1 =
+* Removed the plugin-owned arbitrary CSS setting and inline frontend output.
+* Added a link to WordPress's native Additional CSS / Site Editor CSS location.
+* Kept structured appearance controls for colors, corners, and button style.
 
 = 1.0.0 =
 * Renamed and rebranded the plugin as Givoly.
