@@ -38,7 +38,6 @@ final class ShortcodeManager {
             'button_text' => '',
             'gateway'     => '',
             'class'       => '',
-            'css'         => '',
         ], $atts, 'givoly_form' );
 
         // Charger les assets uniquement quand le shortcode est présent

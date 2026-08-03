@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Installer {
 
     const DB_VERSION_OPTION = 'givoly_db_version';
-    const DB_VERSION        = '1.5';
+    const DB_VERSION        = '1.6';
 
     public static function activate(): void {
         self::create_tables();
@@ -51,6 +51,10 @@ final class Installer {
      */
     private static function run_migrations(): void {
         global $wpdb;
+
+        // The former plugin-owned CSS setting is intentionally discarded. CSS
+        // customization now belongs in WordPress's native CSS editor.
+        delete_option( 'givoly_appearance_custom_css' );
 
         $table = $wpdb->prefix . 'givoly_donations';
 

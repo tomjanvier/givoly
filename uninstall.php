@@ -60,6 +60,8 @@ foreach ( [
     'givoly_appearance_accent_color',
     'givoly_appearance_radius',
     'givoly_appearance_btn_style',
+    // Legacy option from versions before the WordPress-native CSS editor.
+    'givoly_appearance_custom_css',
     'givoly_post_payment_show_phone',
     'givoly_post_payment_show_address',
 ] as $givoly_option ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound

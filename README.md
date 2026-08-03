@@ -112,11 +112,10 @@ Example with a campaign, theme, and gateway:
 [givoly_form campaign="emergency" theme="givoly" layout="card" gateway="helloasso"]
 ```
 
-Example for quickly customizing the form wrapper with CSS variables:
-
-```text
-[givoly_form class="homepage-donation" css="--givoly-form-max-width:640px;--givoly-form-padding:2.5rem;--givoly-form-shadow:none"]
-```
+To add CSS rules for a form, use WordPress's native Additional CSS editor under
+Appearance > Customize (or Appearance > Editor > Styles for block themes). The
+form wrapper uses the `.givoly-wrap` class and the plugin does not store or
+execute arbitrary CSS.
 
 **Campaign total widget**
 
