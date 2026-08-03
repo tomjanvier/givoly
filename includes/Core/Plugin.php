@@ -38,6 +38,7 @@ final class Plugin {
     public function boot(): void {
         Installer::maybe_upgrade();
         ( new \Givoly\Core\AssetsLoader() )->register();
+        ( new \Givoly\Mail\MailQueue() )->register();
         ( new \Givoly\Admin\AdminMenu() )->register();
         ( new \Givoly\Admin\AdminActions() )->register();
         ( new \Givoly\Admin\Pages\SettingsPage() )->register();

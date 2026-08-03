@@ -18,12 +18,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Installer {
 
     const DB_VERSION_OPTION = 'givoly_db_version';
-    const DB_VERSION        = '1.6';
+    const DB_VERSION        = '1.7';
 
     public static function activate(): void {
         self::create_tables();
         update_option( self::DB_VERSION_OPTION, self::DB_VERSION, false );
         add_option( \Givoly\Admin\Settings::OPT_PUBLIC_BRANDING_ENABLED, '0', '', false );
+        \Givoly\Mail\MailQueue::schedule();
         flush_rewrite_rules();
     }
 
@@ -39,6 +40,7 @@ final class Installer {
         // On ne supprime pas les données ici.
         // La suppression se fait dans uninstall.php.
         flush_rewrite_rules();
+        \Givoly\Mail\MailQueue::unschedule();
     }
 
     public static function needs_upgrade(): bool {
@@ -252,6 +254,25 @@ final class Installer {
             PRIMARY KEY     (id),
             UNIQUE KEY      uq_slug (slug),
             KEY             idx_status (status)
+        ) $charset;" );
+
+        // ── File des emails ─────────────────────────────────────────────────
+        dbDelta( "CREATE TABLE {$wpdb->prefix}givoly_email_jobs (
+            id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            batch_id     VARCHAR(80)              DEFAULT NULL,
+            job_type     VARCHAR(50)     NOT NULL,
+            recipient    VARCHAR(254)    NOT NULL DEFAULT '',
+            payload      LONGTEXT        NOT NULL,
+            status       VARCHAR(20)     NOT NULL DEFAULT 'pending',
+            attempts     SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+            available_at DATETIME        NOT NULL,
+            last_error   TEXT                     DEFAULT NULL,
+            created_at   DATETIME        NOT NULL,
+            updated_at   DATETIME        NOT NULL,
+            sent_at      DATETIME                 DEFAULT NULL,
+            PRIMARY KEY  (id),
+            KEY          idx_status_available (status, available_at),
+            KEY          idx_batch_status (batch_id, status)
         ) $charset;" );
 
     }

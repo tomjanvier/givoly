@@ -258,8 +258,14 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
         $email_sender_name   = (string) get_option( Settings::OPT_EMAIL_SENDER_NAME, '' );
         $email_thank_subject = (string) get_option( Settings::OPT_EMAIL_THANK_SUBJECT, '' );
         $email_thank_body    = (string) get_option( Settings::OPT_EMAIL_THANK_BODY, '' );
+        $email_admin_donation_subject = (string) get_option( Settings::OPT_EMAIL_ADMIN_DONATION_SUBJECT, '' );
+        $email_admin_donation_body    = (string) get_option( Settings::OPT_EMAIL_ADMIN_DONATION_BODY, '' );
         $email_tax_receipt_subject = (string) get_option( Settings::OPT_EMAIL_TAX_RECEIPT_SUBJECT, '' );
         $email_tax_receipt_body    = (string) get_option( Settings::OPT_EMAIL_TAX_RECEIPT_BODY, '' );
+        $tax_receipt_pdf_enabled   = Settings::should_attach_tax_receipt_pdf();
+        $tax_receipt_pdf_title     = (string) get_option( Settings::OPT_TAX_RECEIPT_PDF_TITLE, '' );
+        $tax_receipt_pdf_body      = (string) get_option( Settings::OPT_TAX_RECEIPT_PDF_BODY, '' );
+        $tax_receipt_pdf_footer    = (string) get_option( Settings::OPT_TAX_RECEIPT_PDF_FOOTER, '' );
 
         // Association
         $assoc = [
@@ -754,7 +760,7 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                             <?php esc_html_e( 'Apparence des emails', 'givoly' ); ?>
                         </h2>
                         <p class="givoly-card__desc">
-                            <?php esc_html_e( 'Personnalisez les emails envoyés automatiquement aux donateurs après chaque don.', 'givoly' ); ?>
+                            <?php esc_html_e( 'Personnalisez les notifications de dons, les messages aux donateurs et les reçus fiscaux avec leur pièce jointe PDF.', 'givoly' ); ?>
                         </p>
 
                         <table class="form-table" role="presentation">
@@ -845,6 +851,23 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                                 </tr>
                                 <tr>
                                     <th scope="row">
+                                        <label for="givoly-email-admin-donation-subject"><?php esc_html_e( 'Sujet email administrateur', 'givoly' ); ?></label>
+                                    </th>
+                                    <td>
+                                        <input type="text" class="regular-text" id="givoly-email-admin-donation-subject" name="email_admin_donation_subject" value="<?php echo esc_attr( $email_admin_donation_subject ); ?>" placeholder="<?php esc_attr_e( '[{site_name}] Nouveau don reçu — {amount}', 'givoly' ); ?>">
+                                        <p class="description"><?php esc_html_e( 'Email envoyé à l’adresse administrateur après confirmation du paiement. Variables : {site_name}, {amount}, {first_name}, {last_name}, {email}, {campaign}, {donation_id}.', 'givoly' ); ?></p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">
+                                        <label for="givoly-email-admin-donation-body"><?php esc_html_e( 'Texte email administrateur', 'givoly' ); ?></label>
+                                    </th>
+                                    <td>
+                                        <textarea id="givoly-email-admin-donation-body" name="email_admin_donation_body" rows="7" class="large-text" placeholder="<?php echo esc_attr( Settings::get_email_admin_donation_body() ); ?>"><?php echo esc_textarea( $email_admin_donation_body ); ?></textarea>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">
                                         <label for="givoly-email-tax-receipt-subject"><?php esc_html_e( 'Sujet reçu fiscal annuel', 'givoly' ); ?></label>
                                     </th>
                                     <td>
@@ -859,7 +882,7 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                                 </tr>
                                 <tr>
                                     <th scope="row">
-                                        <label for="givoly-email-tax-receipt-body"><?php esc_html_e( 'Document / texte du reçu fiscal', 'givoly' ); ?></label>
+                                        <label for="givoly-email-tax-receipt-body"><?php esc_html_e( 'Texte de l’email de reçu fiscal', 'givoly' ); ?></label>
                                     </th>
                                     <td>
                                         <textarea id="givoly-email-tax-receipt-body"
@@ -867,7 +890,33 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                                                   rows="10"
                                                   class="large-text"
                                                   placeholder="<?php echo esc_attr( Settings::get_email_tax_receipt_body() ); ?>"><?php echo esc_textarea( $email_tax_receipt_body ); ?></textarea>
-                                        <p class="description"><?php esc_html_e( 'Modèle utilisé pour le document fiscal envoyé depuis Donateurs. Variables : {donor_name}, {first_name}, {last_name}, {year}, {amount}, {donation_count}, {association}, {association_address}, {siret}, {rna}, {fiscal_id}.', 'givoly' ); ?></p>
+                                        <p class="description"><?php esc_html_e( 'Modèle du message envoyé depuis Donateurs. Variables : {donor_name}, {first_name}, {last_name}, {year}, {amount}, {donation_count}, {association}, {association_address}, {siret}, {rna}, {fiscal_id}.', 'givoly' ); ?></p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row"><?php esc_html_e( 'Pièce jointe PDF', 'givoly' ); ?></th>
+                                    <td>
+                                        <label><input type="checkbox" name="tax_receipt_pdf_enabled" value="1" <?php checked( $tax_receipt_pdf_enabled ); ?>> <?php esc_html_e( 'Joindre un PDF personnalisé à chaque reçu fiscal', 'givoly' ); ?></label>
+                                        <p class="description"><?php esc_html_e( 'Le PDF est généré sans service externe et envoyé avec le message. Les réglages ci-dessous permettent de modifier son contenu.', 'givoly' ); ?></p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row"><label for="givoly-tax-pdf-title"><?php esc_html_e( 'Titre du PDF', 'givoly' ); ?></label></th>
+                                    <td>
+                                        <input type="text" class="regular-text" id="givoly-tax-pdf-title" name="tax_receipt_pdf_title" value="<?php echo esc_attr( $tax_receipt_pdf_title ); ?>" placeholder="<?php echo esc_attr( Settings::get_tax_receipt_pdf_title() ); ?>">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row"><label for="givoly-tax-pdf-body"><?php esc_html_e( 'Contenu du PDF', 'givoly' ); ?></label></th>
+                                    <td>
+                                        <textarea id="givoly-tax-pdf-body" name="tax_receipt_pdf_body" rows="12" class="large-text" placeholder="<?php echo esc_attr( Settings::get_tax_receipt_pdf_body() ); ?>"><?php echo esc_textarea( $tax_receipt_pdf_body ); ?></textarea>
+                                        <p class="description"><?php esc_html_e( 'Variables : {donor_name}, {first_name}, {last_name}, {year}, {amount}, {donation_count}, {association}, {association_address}, {siret}, {rna}, {fiscal_id}.', 'givoly' ); ?></p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row"><label for="givoly-tax-pdf-footer"><?php esc_html_e( 'Pied de page du PDF', 'givoly' ); ?></label></th>
+                                    <td>
+                                        <textarea id="givoly-tax-pdf-footer" name="tax_receipt_pdf_footer" rows="4" class="large-text" placeholder="<?php echo esc_attr( Settings::get_tax_receipt_pdf_footer() ); ?>"><?php echo esc_textarea( $tax_receipt_pdf_footer ); ?></textarea>
                                     </td>
                                 </tr>
                             </table>

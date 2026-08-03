@@ -53,8 +53,16 @@ final class Settings {
     const OPT_EMAIL_SENDER_NAME   = 'givoly_email_sender_name';    // défaut : nom association
     const OPT_EMAIL_THANK_SUBJECT = 'givoly_email_thank_subject';
     const OPT_EMAIL_THANK_BODY    = 'givoly_email_thank_body';
+    const OPT_EMAIL_ADMIN_DONATION_SUBJECT = 'givoly_email_admin_donation_subject';
+    const OPT_EMAIL_ADMIN_DONATION_BODY    = 'givoly_email_admin_donation_body';
     const OPT_EMAIL_TAX_RECEIPT_SUBJECT = 'givoly_email_tax_receipt_subject';
     const OPT_EMAIL_TAX_RECEIPT_BODY    = 'givoly_email_tax_receipt_body';
+
+    // Reçu fiscal PDF
+    const OPT_TAX_RECEIPT_PDF_ENABLED = 'givoly_tax_receipt_pdf_enabled';
+    const OPT_TAX_RECEIPT_PDF_TITLE   = 'givoly_tax_receipt_pdf_title';
+    const OPT_TAX_RECEIPT_PDF_BODY    = 'givoly_tax_receipt_pdf_body';
+    const OPT_TAX_RECEIPT_PDF_FOOTER  = 'givoly_tax_receipt_pdf_footer';
 
     // Apparence — personnalisation visuelle du formulaire frontend
     const OPT_APPEARANCE_PRIMARY_COLOR = 'givoly_appearance_primary_color'; // hex, ex: #1B6B4A
@@ -187,6 +195,16 @@ final class Settings {
         return $body !== '' ? $body : __( "Bonjour {first_name},\n\nMerci pour votre don de {amount}. Votre soutien est précieux.", 'givoly' );
     }
 
+    public static function get_email_admin_donation_subject(): string {
+        $subject = (string) get_option( self::OPT_EMAIL_ADMIN_DONATION_SUBJECT, '' );
+        return $subject !== '' ? $subject : __( '[{site_name}] Nouveau don reçu — {amount}', 'givoly' );
+    }
+
+    public static function get_email_admin_donation_body(): string {
+        $body = (string) get_option( self::OPT_EMAIL_ADMIN_DONATION_BODY, '' );
+        return $body !== '' ? $body : __( "Un nouveau don a été reçu.\n\nID : {donation_id}\nMontant : {amount}\nDonateur : {first_name} {last_name}\nEmail : {email}\nCampagne : {campaign}", 'givoly' );
+    }
+
     public static function get_email_tax_receipt_subject(): string {
         $subject = (string) get_option( self::OPT_EMAIL_TAX_RECEIPT_SUBJECT, '' );
         return $subject !== '' ? $subject : __( 'Votre reçu fiscal {year} — {association}', 'givoly' );
@@ -195,6 +213,25 @@ final class Settings {
     public static function get_email_tax_receipt_body(): string {
         $body = (string) get_option( self::OPT_EMAIL_TAX_RECEIPT_BODY, '' );
         return $body !== '' ? $body : __( "Bonjour {donor_name},\n\nVous trouverez ci-dessous le récapitulatif de vos dons réalisés en {year}.\n\nMontant total : {amount}\nNombre de dons : {donation_count}\nAssociation : {association}\nAdresse : {association_address}\nSIRET : {siret}\nRNA : {rna}\nAgrément / rescrit fiscal : {fiscal_id}\n\nCe message facilite l'envoi de fin d'année. Vérifiez les informations de l'association et joignez votre reçu fiscal officiel si nécessaire avant utilisation comme justificatif.\n\nMerci pour votre soutien.", 'givoly' );
+    }
+
+    public static function should_attach_tax_receipt_pdf(): bool {
+        return (string) get_option( self::OPT_TAX_RECEIPT_PDF_ENABLED, '1' ) === '1';
+    }
+
+    public static function get_tax_receipt_pdf_title(): string {
+        $title = (string) get_option( self::OPT_TAX_RECEIPT_PDF_TITLE, '' );
+        return $title !== '' ? $title : __( 'Récapitulatif des dons — {year}', 'givoly' );
+    }
+
+    public static function get_tax_receipt_pdf_body(): string {
+        $body = (string) get_option( self::OPT_TAX_RECEIPT_PDF_BODY, '' );
+        return $body !== '' ? $body : __( "Donateur : {donor_name}\n\nMontant total des dons : {amount}\nNombre de dons : {donation_count}\n\nAssociation : {association}\nAdresse : {association_address}\nSIRET : {siret}\nRNA : {rna}\nAgrément / rescrit fiscal : {fiscal_id}", 'givoly' );
+    }
+
+    public static function get_tax_receipt_pdf_footer(): string {
+        $footer = (string) get_option( self::OPT_TAX_RECEIPT_PDF_FOOTER, '' );
+        return $footer !== '' ? $footer : __( 'Ce récapitulatif accompagne l’email et ne remplace pas un reçu fiscal officiel lorsque celui-ci est requis.', 'givoly' );
     }
 
     // ── Getters apparence ──────────────────────────────────────────────────
@@ -365,8 +402,14 @@ final class Settings {
         update_option( self::OPT_EMAIL_SENDER_NAME,   sanitize_text_field( $post['email_sender_name'] ?? '' ), false );
         update_option( self::OPT_EMAIL_THANK_SUBJECT, sanitize_text_field( $post['email_thank_subject'] ?? '' ), false );
         update_option( self::OPT_EMAIL_THANK_BODY,    sanitize_textarea_field( $post['email_thank_body'] ?? '' ), false );
+        update_option( self::OPT_EMAIL_ADMIN_DONATION_SUBJECT, sanitize_text_field( $post['email_admin_donation_subject'] ?? '' ), false );
+        update_option( self::OPT_EMAIL_ADMIN_DONATION_BODY,    sanitize_textarea_field( $post['email_admin_donation_body'] ?? '' ), false );
         update_option( self::OPT_EMAIL_TAX_RECEIPT_SUBJECT, sanitize_text_field( $post['email_tax_receipt_subject'] ?? '' ), false );
         update_option( self::OPT_EMAIL_TAX_RECEIPT_BODY,    sanitize_textarea_field( $post['email_tax_receipt_body'] ?? '' ), false );
+        update_option( self::OPT_TAX_RECEIPT_PDF_ENABLED, isset( $post['tax_receipt_pdf_enabled'] ) ? '1' : '0', false );
+        update_option( self::OPT_TAX_RECEIPT_PDF_TITLE,  sanitize_text_field( $post['tax_receipt_pdf_title'] ?? '' ), false );
+        update_option( self::OPT_TAX_RECEIPT_PDF_BODY,   sanitize_textarea_field( $post['tax_receipt_pdf_body'] ?? '' ), false );
+        update_option( self::OPT_TAX_RECEIPT_PDF_FOOTER, sanitize_textarea_field( $post['tax_receipt_pdf_footer'] ?? '' ), false );
         // Couleur : valider le format hex avant de sauvegarder
         $color = sanitize_text_field( $post['email_primary_color'] ?? '' );
         if ( preg_match( '/^#[0-9a-fA-F]{3,6}$/', $color ) ) {

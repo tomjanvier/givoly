@@ -10,6 +10,8 @@
 
 namespace Givoly\Ajax;
 
+use Givoly\Mail\MailQueue;
+
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
@@ -101,40 +103,19 @@ final class PaymentProcessor {
         $donation_id = (int) $wpdb->insert_id;
 
         if ( $donation_id > 0 ) {
-            $this->send_donation_notifications( $donation_id, $email, $first_name, $last_name, $amount, strtoupper( $currency ), $campaign );
-        }
-    }
-
-    
-    private function send_donation_notifications( int $donation_id, string $email, string $first_name, string $last_name, float $amount, string $currency, string $campaign ): void {
-        $site_name = wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
-        $amount_human = number_format_i18n( $amount, 2 ) . ' ' . $currency;
-        $campaign_label = $campaign ? $campaign : __( 'Générale', 'givoly' );
-
-        $subject_admin = sprintf( __( '[%s] Nouveau don reçu', 'givoly' ), $site_name );
-        $message_admin = sprintf(
-            __( "Un nouveau don a été reçu.\n\nID: %d\nMontant: %s\nDonateur: %s %s\nEmail: %s\nCampagne: %s", 'givoly' ),
-            $donation_id,
-            $amount_human,
-            $first_name,
-            $last_name,
-            $email,
-            $campaign_label
-        );
-
-        wp_mail( get_option( 'admin_email' ), $subject_admin, $message_admin );
-
-        if ( is_email( $email ) ) {
-            $variables = [
-                '{site_name}'  => $site_name,
-                '{amount}'     => $amount_human,
-                '{first_name}' => $first_name ?: __( 'donateur', 'givoly' ),
-                '{last_name}'  => $last_name,
-                '{campaign}'   => $campaign_label,
+            $payload = [
+                'donation_id' => $donation_id,
+                'email'       => $email,
+                'first_name'  => $first_name,
+                'last_name'   => $last_name,
+                'amount'      => $amount,
+                'currency'    => strtoupper( $currency ),
+                'campaign'    => $campaign,
             ];
-            $subject_donor = strtr( \Givoly\Admin\Settings::get_email_thank_subject(), $variables );
-            $message_donor = strtr( \Givoly\Admin\Settings::get_email_thank_body(), $variables );
-            wp_mail( $email, $subject_donor, $message_donor );
+
+            // Les webhooks restent rapides : SMTP est traité par WP-Cron.
+            MailQueue::enqueue( 'donation_admin', $payload, (string) get_option( 'admin_email' ) );
+            MailQueue::enqueue( 'donation_thank', $payload, $email );
         }
     }
 
