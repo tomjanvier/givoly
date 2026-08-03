@@ -73,8 +73,8 @@ Givoly does not add advertising tracking, analytics pixels, or telemetry. Data s
 * Donor management with donation history and total donated.
 * Fundraising campaigns with goals, dates, descriptions, and progress bars.
 * Admin dashboard with statistics and recent donations.
-* Customizable emails: sender, logo, color, subject, and thank-you message.
-* Annual fiscal receipt summary email workflow.
+* Customizable emails: sender, logo, color, administrator notifications, subjects, and templates.
+* Annual fiscal receipt workflow with recipient preview, individual or batch sending, queue status, and customizable PDF attachments.
 * CSV donation exports.
 * No tracking added by the plugin.
 

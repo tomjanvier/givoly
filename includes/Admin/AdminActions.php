@@ -9,6 +9,7 @@ namespace Givoly\Admin;
 
 use Givoly\Gateway\StripeGateway;
 use Givoly\Admin\Settings;
+use Givoly\Mail\TaxReceiptService;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -18,6 +19,9 @@ final class AdminActions {
 
     public function register(): void {
         add_action( 'admin_post_givoly_refund_donation', [ $this, 'handle_refund_donation' ] );
+        add_action( 'admin_post_givoly_queue_tax_receipt', [ $this, 'handle_queue_tax_receipt' ] );
+        add_action( 'admin_post_givoly_queue_tax_receipts', [ $this, 'handle_queue_tax_receipts' ] );
+        // Compatibilité avec l'action utilisée par les versions précédentes.
         add_action( 'admin_post_givoly_send_yearly_tax_receipts', [ $this, 'handle_send_yearly_tax_receipts' ] );
     }
 
@@ -83,7 +87,21 @@ final class AdminActions {
 
     public function handle_send_yearly_tax_receipts(): void {
         check_admin_referer( 'givoly_send_yearly_tax_receipts' );
+        $this->queue_tax_receipts( true );
+    }
 
+    public function handle_queue_tax_receipt(): void {
+        $donation_year = absint( wp_unslash( $_POST['receipt_year'] ?? 0 ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+        check_admin_referer( 'givoly_queue_tax_receipt_' . $donation_year . '_' . absint( $_POST['donor_id'] ?? 0 ) );
+        $this->queue_tax_receipts();
+    }
+
+    public function handle_queue_tax_receipts(): void {
+        check_admin_referer( 'givoly_queue_tax_receipts' );
+        $this->queue_tax_receipts();
+    }
+
+    private function queue_tax_receipts( bool $legacy_action = false ): void {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( esc_html__( 'Accès refusé.', 'givoly' ) );
         }
@@ -94,77 +112,22 @@ final class AdminActions {
             exit;
         }
 
-        $donors = $this->get_yearly_receipt_donors( $year );
-        if ( empty( $donors ) ) {
-            wp_safe_redirect( add_query_arg( [ 'givoly_tax_receipts_sent' => 0, 'givoly_tax_receipts_year' => $year ], admin_url( 'admin.php?page=givoly-donors' ) ) );
+        $single_donor_id = absint( wp_unslash( $_POST['single_donor_id'] ?? 0 ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+        $donor_ids       = array_values( array_filter( array_map( 'absint', (array) ( $_POST['donor_ids'] ?? [] ) ) ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+        $mode            = sanitize_key( $_POST['mode'] ?? '' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+        if ( $single_donor_id ) {
+            $donor_ids = [ $single_donor_id ];
+        } elseif ( ! $legacy_action && 'all' !== $mode && empty( $donor_ids ) ) {
+            wp_safe_redirect( add_query_arg( 'givoly_tax_receipts_error', 'empty_selection', admin_url( 'admin.php?page=givoly-donors' ) ) );
             exit;
         }
 
-        $sent = 0;
-        foreach ( $donors as $donor ) {
-            if ( $this->send_yearly_tax_receipt_email( $donor, $year ) ) {
-                $sent++;
-            }
-        }
-
-        wp_safe_redirect( add_query_arg( [ 'givoly_tax_receipts_sent' => $sent, 'givoly_tax_receipts_year' => $year ], admin_url( 'admin.php?page=givoly-donors' ) ) );
+        $result = TaxReceiptService::enqueue( $year, $donor_ids );
+        wp_safe_redirect( add_query_arg( [
+            'givoly_tax_receipts_queued' => $result['queued'],
+            'givoly_tax_receipts_year'   => $year,
+            'givoly_tax_receipts_batch'  => $result['batch_id'],
+        ], admin_url( 'admin.php?page=givoly-donors' ) ) );
         exit;
-    }
-
-    private function get_yearly_receipt_donors( int $year ): array {
-        global $wpdb;
-
-        $start    = sprintf( '%d-01-01 00:00:00', $year );
-        $end      = sprintf( '%d-01-01 00:00:00', $year + 1 );
-        $table_dn = $wpdb->prefix . 'givoly_donors';
-        $table_d  = $wpdb->prefix . 'givoly_donations';
-
-        return $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,PluginCheck.Security.DirectDB.UnescapedDBParameter
-            $wpdb->prepare(
-                "SELECT dn.id, dn.first_name, dn.last_name, dn.email, dn.company, dn.address_line1, dn.address_line2, dn.postal_code, dn.city, dn.country, COALESCE(SUM(d.amount), 0) AS total_amount, d.currency, COUNT(d.id) AS donation_count
-                 FROM {$table_dn} dn
-                 INNER JOIN {$table_d} d ON d.donor_id = dn.id
-                 WHERE d.status = 'completed' AND d.created_at >= %s AND d.created_at < %s AND dn.email <> ''
-                 GROUP BY dn.id, dn.first_name, dn.last_name, dn.email, dn.company, dn.address_line1, dn.address_line2, dn.postal_code, dn.city, dn.country, d.currency
-                 ORDER BY dn.last_name ASC, dn.first_name ASC, dn.email ASC",
-                $start,
-                $end
-            )
-        );
-    }
-
-    private function send_yearly_tax_receipt_email( object $donor, int $year ): bool {
-        if ( ! is_email( $donor->email ) ) {
-            return false;
-        }
-
-        $association = Settings::get_assoc_name() ?: get_bloginfo( 'name' );
-        $sender_name = Settings::get_email_sender_name();
-        $from_email  = Settings::get_assoc_email();
-        $name        = trim( (string) $donor->first_name . ' ' . (string) $donor->last_name );
-        $amount      = number_format_i18n( (float) $donor->total_amount, 2 ) . ' ' . ( $donor->currency ?: 'EUR' );
-        $assoc_address = trim( implode( ' ', array_filter( [ Settings::get_assoc_address(), Settings::get_assoc_postal_code(), Settings::get_assoc_city() ] ) ) );
-        $variables   = [
-            '{donor_name}'          => $name ?: __( 'cher donateur', 'givoly' ),
-            '{first_name}'          => (string) $donor->first_name,
-            '{last_name}'           => (string) $donor->last_name,
-            '{year}'                => (string) $year,
-            '{amount}'              => $amount,
-            '{donation_count}'      => (string) (int) $donor->donation_count,
-            '{association}'         => $association,
-            '{association_address}' => $assoc_address ?: __( 'non renseignée', 'givoly' ),
-            '{siret}'               => Settings::get_assoc_siret() ?: __( 'non renseigné', 'givoly' ),
-            '{rna}'                 => Settings::get_assoc_rna() ?: __( 'non renseigné', 'givoly' ),
-            '{fiscal_id}'           => Settings::get_assoc_fiscal_id() ?: __( 'non renseigné', 'givoly' ),
-        ];
-        $subject     = strtr( Settings::get_email_tax_receipt_subject(), $variables );
-        $body        = strtr( Settings::get_email_tax_receipt_body(), $variables );
-
-        $headers = [];
-        if ( is_email( $from_email ) ) {
-            $headers[] = 'From: ' . $sender_name . ' <' . $from_email . '>';
-        }
-
-        return wp_mail( $donor->email, $subject, $body, $headers );
     }
 }

@@ -17,6 +17,7 @@ foreach ( [
     $wpdb->prefix . 'givoly_donations',
     $wpdb->prefix . 'givoly_campaigns',
     $wpdb->prefix . 'givoly_donors',
+    $wpdb->prefix . 'givoly_email_jobs',
 ] as $givoly_table ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
     $wpdb->query( "DROP TABLE IF EXISTS `{$givoly_table}`" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.SchemaChange,WordPress.DB.DirectDatabaseQuery.NoCaching,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table names from $wpdb->prefix
 }
@@ -56,6 +57,14 @@ foreach ( [
     'givoly_email_sender_name',
     'givoly_email_thank_subject',
     'givoly_email_thank_body',
+    'givoly_email_admin_donation_subject',
+    'givoly_email_admin_donation_body',
+    'givoly_email_tax_receipt_subject',
+    'givoly_email_tax_receipt_body',
+    'givoly_tax_receipt_pdf_enabled',
+    'givoly_tax_receipt_pdf_title',
+    'givoly_tax_receipt_pdf_body',
+    'givoly_tax_receipt_pdf_footer',
     'givoly_appearance_primary_color',
     'givoly_appearance_accent_color',
     'givoly_appearance_radius',

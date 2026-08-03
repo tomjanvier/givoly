@@ -4,11 +4,11 @@ Tags: donation, nonprofit, stripe, helloasso, fundraising
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 8.1
-Stable tag: 1.0.1
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Givoly is a completely free donation form extension designed by and for nonprofit organizations, featuring payments via Stripe and HelloAsso, donor management, and campaign progress tracking.
+Donation forms for nonprofits with Stripe and HelloAsso, donor management, fundraising campaigns, and customizable emails.
 
 == Description ==
 
@@ -24,8 +24,9 @@ The plugin is maintained by **PLAID·ACT and its members**, with contributions f
 * **Donor management** with donation history, total donated, and latest donation details.
 * **Fundraising campaigns** with goals, dates, descriptions, and progress bars.
 * **Admin dashboard** with statistics and latest donations.
-* **Customizable emails**: sender, logo, color, subject, and thank-you message.
+* **Customizable emails**: sender, logo, color, subjects, donation notifications, thank-you messages, and tax receipt templates.
 * **Annual fiscal receipt summary emails** from the Donors page, grouped by fiscal year.
+* **Individual or batch receipt sending** with recipient preview, queue status, retries, and customizable PDF attachments.
 * **CSV donation exports** with protection against formula injection.
 * **No tracking added by the plugin**: no advertising pixels, analytics scripts, or telemetry.
 
@@ -103,7 +104,7 @@ Go to **Givoly > Settings > Email > Logo URL**. If no URL is provided, the organ
 
 = Does the plugin generate fiscal receipt PDFs? =
 
-No. The annual sending tool sends fiscal summary emails to donors. You can use these emails to prepare your fiscal receipt campaign and attach an official receipt if your process requires one.
+Yes. The annual sending tool can attach a text-based PDF summary to each email. Its title, content, footer, and email template are configurable in **Givoly > Settings > Email**. This summary does not replace an official tax receipt where one is legally required.
 
 = Are there paid features or upsells? =
 
@@ -138,6 +139,10 @@ Givoly relies on third-party payment services only when a site administrator con
 
 == Changelog ==
 
+= 1.1.0 =
+* Added a persistent email queue processed by WP-Cron so payment webhooks do not wait for SMTP.
+* Added individual, selected-recipient, and all-recipient fiscal receipt batches with visible queue status.
+* Added customizable administrator donation notifications and text-based PDF receipt templates.
 = 1.0.1 =
 * Removed the plugin-owned arbitrary CSS setting and inline frontend output.
 * Added a link to WordPress's native Additional CSS / Site Editor CSS location.
