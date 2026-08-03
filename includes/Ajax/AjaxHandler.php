@@ -93,6 +93,7 @@ final class AjaxHandler {
         $email       = sanitize_email( wp_unslash( $_POST['email'] ?? '' ) );
         $first_name  = sanitize_text_field( wp_unslash( $_POST['first_name'] ?? '' ) );
         $last_name   = sanitize_text_field( wp_unslash( $_POST['last_name'] ?? '' ) );
+        $message     = sanitize_textarea_field( wp_unslash( $_POST['message'] ?? '' ) );
         $campaign    = sanitize_text_field( wp_unslash( $_POST['campaign'] ?? '' ) );
         $gateway_key = sanitize_text_field( wp_unslash( $_POST['gateway'] ?? Settings::get_default_gateway() ) );
         $gateway_key = in_array( $gateway_key, [ 'stripe', 'helloasso' ], true ) ? $gateway_key : Settings::get_default_gateway();
@@ -116,7 +117,7 @@ final class AjaxHandler {
                 throw new \RuntimeException( 'Passerelle désactivée.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
             }
 
-            $this->store_pending_donor_profile( $post_payment_token, $email );
+            $this->store_pending_donor_profile( $post_payment_token, $email, $message );
 
             if ( $gateway_key === 'helloasso' ) {
                 $checkout_url = $this->checkout_helloasso(
@@ -222,10 +223,11 @@ final class AjaxHandler {
     }
 
 
-    private function store_pending_donor_profile( string $post_payment_token, string $email ): void {
+    private function store_pending_donor_profile( string $post_payment_token, string $email, string $message = '' ): void {
         $profile = array_filter(
             [
                 'email'         => $email,
+                'message'       => $message,
                 'phone'         => sanitize_text_field( wp_unslash( $_POST['phone'] ?? '' ) ),
                 'company'       => sanitize_text_field( wp_unslash( $_POST['company'] ?? '' ) ),
                 'address_line1' => sanitize_text_field( wp_unslash( $_POST['address_line1'] ?? '' ) ),
