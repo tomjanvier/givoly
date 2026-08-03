@@ -225,6 +225,7 @@ $post_payment_token = isset( $_GET['givoly_token'] ) ? sanitize_text_field( wp_u
             <h3 class="givoly-post-payment__title"><?php esc_html_e( 'Complétez votre profil donateur', 'givoly' ); ?></h3>
             <p class="givoly-hint"><?php esc_html_e( 'Merci ! Pour mieux vous accompagner, merci de compléter ces informations.', 'givoly' ); ?></p>
             <form class="givoly-post-payment-form" novalidate>
+                <?php wp_nonce_field( 'givoly_submit_donation', 'givoly_nonce' ); ?>
                 <input type="hidden" name="post_payment_token" value="<?php echo esc_attr( $post_payment_token ); ?>">
                 <div class="givoly-row">
                     <div class="givoly-field">

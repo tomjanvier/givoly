@@ -78,7 +78,7 @@ final class AdminActions {
             wp_safe_redirect( add_query_arg( 'givoly_refunded', '1', $redirect_base ) );
 
         } catch ( \RuntimeException $e ) {
-            error_log( '[Givoly] Erreur remboursement don #' . $donation_id . ' : ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            error_log( '[Givoly] Erreur remboursement don #' . $donation_id . ' : ' . \Givoly\Core\Format::redact_secrets( $e->getMessage() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
             wp_safe_redirect( add_query_arg( 'givoly_refund_error', '1', $redirect_base ) );
         }
 
