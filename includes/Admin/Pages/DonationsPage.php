@@ -43,12 +43,6 @@ final class DonationsPage {
             $status = '';
         }
 
-        $is_export = isset( $_GET['export'] ) && 'csv' === sanitize_key( wp_unslash( $_GET['export'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-        if ( $is_export ) {
-            check_admin_referer( 'givoly_export_donations' );
-            $this->export_csv( $status );
-        }
-
         $paged       = max( 1, absint( wp_unslash( $_GET['paged'] ?? 1 ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
         $total       = $this->count_donations( $status );
         $donations   = $this->get_donations( $status, $paged );
@@ -57,7 +51,7 @@ final class DonationsPage {
         <div class="wrap">
             <h1><?php esc_html_e( 'Givoly — Dons', 'givoly' ); ?></h1>
             <p>
-                <a class="button button-primary" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?page=givoly-donations&export=csv' . ( $status ? '&status=' . rawurlencode( $status ) : '' ) ), 'givoly_export_donations' ) ); ?>">
+                <a class="button button-primary" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=givoly_export_donations' . ( $status ? '&status=' . rawurlencode( $status ) : '' ) ), 'givoly_export_donations' ) ); ?>">
                     <?php esc_html_e( 'Exporter les dons (CSV)', 'givoly' ); ?>
                 </a>
             </p>
@@ -122,7 +116,7 @@ final class DonationsPage {
                                         <form method="post"
                                               action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>"
                                               style="display:inline;"
-                                              onsubmit="return confirm('<?php esc_attr_e( 'Confirmer le remboursement de ce don ? Cette action est irréversible.', 'givoly' ); ?>')">
+                                              onsubmit='return confirm(<?php echo wp_json_encode( __( 'Confirmer le remboursement de ce don ? Cette action est irréversible.', 'givoly' ) ); ?>)'>
                                             <?php wp_nonce_field( 'givoly_refund_donation_' . $row->id ); ?>
                                             <input type="hidden" name="action"      value="givoly_refund_donation">
                                             <input type="hidden" name="donation_id" value="<?php echo esc_attr( $row->id ); ?>">
@@ -243,58 +237,5 @@ final class DonationsPage {
         ];
 
         return $labels[ $status ] ?? $status;
-    }
-
-    private function export_csv( string $status ): void {
-        global $wpdb;
-        $table_d  = $wpdb->prefix . 'givoly_donations';
-        $table_dn = $wpdb->prefix . 'givoly_donors';
-        $sql      = "SELECT d.id, d.amount, d.currency, d.status, d.created_at, d.gateway, dn.first_name, dn.last_name, dn.email
-                     FROM {$table_d} d
-                     LEFT JOIN {$table_dn} dn ON d.donor_id = dn.id";
-        if ( $status !== '' ) {
-            $rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-                $wpdb->prepare( $sql . ' WHERE d.status = %s ORDER BY d.created_at DESC', $status ) // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-            );
-        } else {
-            $rows = $wpdb->get_results( $sql . ' ORDER BY d.created_at DESC' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-        }
-
-        header( 'Content-Type: text/csv; charset=utf-8' );
-        header( 'Content-Disposition: attachment; filename="givoly-dons-' . gmdate( 'Y-m-d-His' ) . '.csv"' );
-
-        $output = fopen( 'php://output', 'w' );
-        if ( ! $output ) {
-            exit;
-        }
-
-        fputcsv( $output, [ 'id', 'date', 'donateur', 'email', 'montant', 'devise', 'statut', 'passerelle' ], ';' );
-        foreach ( $rows as $row ) {
-            fputcsv( $output, [
-                $this->sanitize_csv_value( $row->id ),
-                $this->sanitize_csv_value( $row->created_at ),
-                $this->sanitize_csv_value( trim( $row->first_name . ' ' . $row->last_name ) ),
-                $this->sanitize_csv_value( $row->email ),
-                $this->sanitize_csv_value( $row->amount ),
-                $this->sanitize_csv_value( $row->currency ),
-                $this->sanitize_csv_value( $row->status ),
-                $this->sanitize_csv_value( $row->gateway ),
-            ], ';' );
-        }
-        fclose( $output );
-        exit;
-    }
-
-    /**
-     * Évite l'injection de formules quand les administrateurs ouvrent l'export CSV.
-     */
-    private function sanitize_csv_value( mixed $value ): string {
-        $value = (string) $value;
-
-        if ( $value !== '' && preg_match( '/^[=+\-@]/', $value ) ) {
-            return "'" . $value;
-        }
-
-        return $value;
     }
 }
