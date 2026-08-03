@@ -109,7 +109,7 @@ final class DonationsPage {
                                 </td>
                                 <td>
                                     <span class="givoly-badge givoly-badge--<?php echo esc_attr( $row->status ); ?>">
-                                        <?php echo esc_html( $this->format_status( $row->status ) ); ?>
+                                        <?php echo esc_html( \Givoly\Core\Format::status( $row->status ) ); ?>
                                     </span>
                                 </td>
                                 <td><?php echo esc_html( date_i18n( 'd/m/Y H:i', strtotime( $row->created_at ) ) ); ?></td>
@@ -231,18 +231,6 @@ final class DonationsPage {
             'next_text' => '&raquo;',
         ] );
         echo '</div></div>';
-    }
-
-    private function format_status( string $status ): string {
-        $labels = [
-            'completed' => __( 'Complété', 'givoly' ),
-            'pending'   => __( 'En attente', 'givoly' ),
-            'failed'    => __( 'Échoué', 'givoly' ),
-            'refunded'  => __( 'Remboursé', 'givoly' ),
-            'cancelled' => __( 'Annulé', 'givoly' ),
-        ];
-
-        return $labels[ $status ] ?? $status;
     }
 
     private function export_csv( string $status ): void {

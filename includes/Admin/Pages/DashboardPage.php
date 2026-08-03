@@ -111,7 +111,7 @@ final class DashboardPage {
                                 </td>
                                 <td>
                                     <span class="givoly-badge givoly-badge--<?php echo esc_attr( $donation->status ); ?>">
-                                        <?php echo esc_html( $this->format_status( $donation->status ) ); ?>
+                                        <?php echo esc_html( \Givoly\Core\Format::status( $donation->status ) ); ?>
                                     </span>
                                 </td>
                                 <td>
@@ -166,19 +166,5 @@ final class DashboardPage {
                 $limit
             )
         );
-    }
-
-    // ── Helpers ────────────────────────────────────────────────────────────
-
-    private function format_status( string $status ): string {
-        $labels = [
-            'completed' => __( 'Complété', 'givoly' ),
-            'pending'   => __( 'En attente', 'givoly' ),
-            'failed'    => __( 'Échoué', 'givoly' ),
-            'refunded'  => __( 'Remboursé', 'givoly' ),
-            'cancelled' => __( 'Annulé', 'givoly' ),
-        ];
-
-        return $labels[ $status ] ?? $status;
     }
 }

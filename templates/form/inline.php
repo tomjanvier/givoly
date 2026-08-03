@@ -25,27 +25,6 @@ $default_form_gateway = $show_stripe_gateway ? 'stripe' : 'helloasso';
 $symbol = $config->get_currency_symbol();
 
 $wrap_style = $config->get_inline_css_vars();
-
-$render_extra_fields = static function ( string $form_id, array $extra_fields ): void {
-    foreach ( $extra_fields as $field ) {
-        if ( $field === 'phone' ) { ?>
-            <div class="givoly-field">
-                <label for="<?php echo esc_attr( $form_id ); ?>-phone" class="givoly-label"><?php esc_html_e( 'Téléphone', 'givoly' ); ?></label>
-                <input type="tel" id="<?php echo esc_attr( $form_id ); ?>-phone" name="phone" class="givoly-input" maxlength="40" autocomplete="tel">
-            </div>
-        <?php } elseif ( $field === 'company' ) { ?>
-            <div class="givoly-field">
-                <label for="<?php echo esc_attr( $form_id ); ?>-company" class="givoly-label"><?php esc_html_e( 'Organisation', 'givoly' ); ?></label>
-                <input type="text" id="<?php echo esc_attr( $form_id ); ?>-company" name="company" class="givoly-input" maxlength="120" autocomplete="organization">
-            </div>
-        <?php } elseif ( $field === 'message' ) { ?>
-            <div class="givoly-field">
-                <label for="<?php echo esc_attr( $form_id ); ?>-message" class="givoly-label"><?php esc_html_e( 'Message', 'givoly' ); ?></label>
-                <textarea id="<?php echo esc_attr( $form_id ); ?>-message" name="message" class="givoly-input givoly-textarea" rows="3" maxlength="500"></textarea>
-            </div>
-        <?php }
-    }
-};
 ?>
 <div class="givoly-wrap givoly-layout-inline <?php echo esc_attr( $config->get_wrap_classes() ); ?>"
      style="<?php echo esc_attr( $wrap_style ); ?>"
@@ -145,7 +124,7 @@ $render_extra_fields = static function ( string $form_id, array $extra_fields ):
                    placeholder="<?php esc_attr_e( 'Votre email', 'givoly' ); ?>">
         </div>
 
-        <?php $render_extra_fields( $form_id, $config->extra_fields ); ?>
+        <?php $extra_fields = $config->extra_fields; include GIVOLY_PLUGIN_DIR . 'templates/form/partials/extra-fields.php'; ?>
 
         <!-- ── Messages retour ────────────────────────────────────────── -->
         <div class="givoly-form__messages"
@@ -154,39 +133,7 @@ $render_extra_fields = static function ( string $form_id, array $extra_fields ):
              hidden></div>
 
         <!-- ── Bouton ─────────────────────────────────────────────────── -->
-        <div class="givoly-gateway-actions">
-        <?php if ( $show_stripe_gateway ) : ?>
-        <button type="submit"
-                class="givoly-btn givoly-btn--primary givoly-form__submit givoly-gateway-submit is-active"
-                data-gateway="stripe"
-                data-label="<?php echo esc_attr( $config->button_text ); ?>"
-                data-label-amount="<?php esc_attr_e( 'Faire un don de', 'givoly' ); ?>">
-            <span class="givoly-btn__text">
-                <?php echo esc_html( $config->button_text ); ?>
-            </span>
-            <span class="givoly-btn__spinner" hidden aria-hidden="true"></span>
-        </button>
-        <?php endif; ?>
-
-        <?php if ( $show_helloasso_gateway ) : ?>
-        <button type="submit"
-                class="HaPayButton givoly-form__submit givoly-gateway-submit"
-                data-gateway="helloasso">
-            <span class="HaPayButtonLogoWrap"><img class="HaPayButtonLogo" src="<?php echo esc_url( GIVOLY_PLUGIN_URL . 'assets/logo-ha.svg' ); ?>" alt="" loading="lazy" decoding="async"></span>
-            <span class="HaPayButtonLabel"><?php esc_html_e( 'Payer avec HelloAsso*', 'givoly' ); ?></span>
-        </button>
-
-        <?php $ha_other_payments_url = \Givoly\Admin\Settings::get_helloasso_other_payments_url(); ?>
-        <?php if ( $ha_other_payments_url ) : ?>
-            <a href="<?php echo esc_url( $ha_other_payments_url ); ?>" class="givoly-ha-other-payments" target="_blank" rel="noopener"><?php esc_html_e( 'Autres modes de paiements', 'givoly' ); ?></a>
-        <?php endif; ?>
-
-        <?php $ha_notice = \Givoly\Admin\Settings::get_helloasso_button_notice(); ?>
-        <?php if ( $ha_notice ) : ?>
-            <p class="givoly-ha-note"><?php echo esc_html( $ha_notice ); ?></p>
-        <?php endif; ?>
-        <?php endif; ?>
-        </div>
+        <?php $is_card = false; include GIVOLY_PLUGIN_DIR . 'templates/form/partials/gateway-buttons.php'; ?>
 
 
         <?php $gateway_label = $show_stripe_gateway && $show_helloasso_gateway ? 'Stripe / HelloAsso' : ( $show_helloasso_gateway ? 'HelloAsso' : 'Stripe' ); ?>
