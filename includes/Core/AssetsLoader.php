@@ -81,5 +81,16 @@ final class AssetsLoader {
             [],
             GIVOLY_VERSION
         );
+
+        $page = sanitize_key( $_GET['page'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        if ( in_array( $page, [ 'givoly-campaigns', 'givoly-settings' ], true ) ) {
+            wp_enqueue_script(
+                'givoly-admin',
+                GIVOLY_PLUGIN_URL . 'assets/js/givoly-admin.js',
+                [],
+                GIVOLY_VERSION,
+                true
+            );
+        }
     }
 }

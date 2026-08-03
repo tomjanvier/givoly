@@ -29,37 +29,6 @@ final class CampaignsPage {
         $this->repo = new CampaignRepository();
     }
 
-    public function register(): void {
-        add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_page_assets' ] );
-    }
-
-    public function enqueue_page_assets( string $hook ): void {
-        if ( ! str_contains( $hook, 'givoly' ) ) {
-            return;
-        }
-        $js = <<<'JS'
-( function() {
-    var titleInput = document.getElementById( 'givoly-title' );
-    var slugInput  = document.getElementById( 'givoly-slug' );
-    if ( ! titleInput || ! slugInput ) return;
-
-    titleInput.addEventListener( 'input', function() {
-        if ( slugInput.dataset.edited ) return;
-        slugInput.value = titleInput.value
-            .toLowerCase()
-            .normalize( 'NFD' ).replace( /[\u0300-\u036f]/g, '' )
-            .replace( /[^a-z0-9]+/g, '-' )
-            .replace( /^-+|-+$/g, '' );
-    } );
-
-    slugInput.addEventListener( 'input', function() {
-        slugInput.dataset.edited = '1';
-    } );
-} )();
-JS;
-        wp_add_inline_script( 'givoly-admin', $js );
-    }
-
     /**
      * Appelé par load-{hook} avant tout output WordPress.
      * Gère les actions POST (save) et GET (archive) qui font des redirections.

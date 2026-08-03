@@ -42,7 +42,6 @@ final class Plugin {
         ( new \Givoly\Admin\AdminMenu() )->register();
         ( new \Givoly\Admin\AdminActions() )->register();
         ( new \Givoly\Admin\Pages\SettingsPage() )->register();
-        ( new \Givoly\Admin\Pages\CampaignsPage() )->register();
         ( new \Givoly\Form\ShortcodeManager() )->register();
         ( new \Givoly\Ajax\AjaxHandler() )->register();
     }
