@@ -24,6 +24,14 @@ final class DashboardPage {
         $stats            = DonationStats::summary();
         $monthly          = DonationStats::monthly_totals();
         $recent_donations = DonationStats::recent_donations();
+        $support_donation_url = add_query_arg(
+            [
+                'utm_source'   => 'givoly',
+                'utm_medium'   => 'plugin_admin',
+                'utm_campaign' => 'dashboard_donation',
+            ],
+            'https://plaidact.org/don/'
+        );
         ?>
         <div class="wrap givoly-dashboard">
             <header class="givoly-dashboard__header">
@@ -76,6 +84,30 @@ final class DashboardPage {
                     </ul>
                 </section>
             </div>
+
+            <section class="givoly-panel givoly-install-panel" aria-labelledby="givoly-install-title">
+                <div class="givoly-panel__heading">
+                    <div>
+                        <h2 id="givoly-install-title"><?php esc_html_e( 'Ajouter un formulaire de don', 'givoly' ); ?></h2>
+                        <p><?php esc_html_e( 'Copiez ce shortcode dans une page ou un article WordPress pour afficher votre formulaire.', 'givoly' ); ?></p>
+                    </div>
+                    <span class="givoly-install-panel__badge" aria-hidden="true">Givoly</span>
+                </div>
+                <div class="givoly-shortcode-field">
+                    <code id="givoly-dashboard-shortcode">[givoly_form]</code>
+                    <button type="button" class="button givoly-copy-btn" data-target="givoly-dashboard-shortcode">
+                        <span class="dashicons dashicons-clipboard" aria-hidden="true"></span>
+                        <?php esc_html_e( 'Copier le shortcode', 'givoly' ); ?>
+                    </button>
+                </div>
+                <div class="givoly-install-panel__footer">
+                    <span class="description"><?php esc_html_e( 'Le formulaire reprend automatiquement vos réglages de paiement et d’apparence.', 'givoly' ); ?></span>
+                    <a class="button button-secondary" href="<?php echo esc_url( $support_donation_url ); ?>" target="_blank" rel="noopener noreferrer">
+                        <span aria-hidden="true">♥</span>
+                        <?php esc_html_e( 'Soutenir PLAID·ACT', 'givoly' ); ?>
+                    </a>
+                </div>
+            </section>
 
             <section class="givoly-panel givoly-panel--recent" aria-labelledby="givoly-recent-title">
                 <div class="givoly-panel__heading">
