@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- local variables in an included template.
 foreach ( $extra_fields as $field ) {
     if ( $field === 'phone' ) { ?>
         <div class="givoly-field">
@@ -29,3 +30,4 @@ foreach ( $extra_fields as $field ) {
         </div>
     <?php }
 }
+// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound

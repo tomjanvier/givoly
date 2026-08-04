@@ -42,7 +42,7 @@ final class MailQueue {
     public static function enqueue( string $type, array $payload, string $recipient = '', string $batch_id = '' ): int {
         global $wpdb;
 
-        $inserted = $wpdb->insert(
+        $inserted = $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- this is the plugin-owned persistent queue table.
             self::table(),
             [
                 'batch_id'    => $batch_id ?: null,
@@ -94,9 +94,10 @@ final class MailQueue {
             return [ 'total' => 0, 'pending' => 0, 'processing' => 0, 'sent' => 0, 'failed' => 0 ];
         }
 
-        $rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+        $table = esc_sql( self::table() );
+        $rows  = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prepare(
-                'SELECT status, COUNT(*) AS total FROM ' . self::table() . ' WHERE batch_id = %s GROUP BY status',
+                'SELECT status, COUNT(*) AS total FROM ' . $table . ' WHERE batch_id = %s GROUP BY status', // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table identifiers cannot be placeholders and are escaped from the trusted WordPress prefix.
                 $batch_id
             ),
             ARRAY_A
@@ -125,9 +126,11 @@ final class MailQueue {
             return [];
         }
 
+        $table = esc_sql( self::table() );
+
         return $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prepare(
-                'SELECT id, recipient, status, attempts, last_error, created_at, sent_at FROM ' . self::table() . ' WHERE batch_id = %s ORDER BY id DESC LIMIT %d',
+                'SELECT id, recipient, status, attempts, last_error, created_at, sent_at FROM ' . $table . ' WHERE batch_id = %s ORDER BY id DESC LIMIT %d', // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table identifiers cannot be placeholders and are escaped from the trusted WordPress prefix.
                 $batch_id,
                 max( 1, min( 100, $limit ) )
             )
@@ -142,13 +145,15 @@ final class MailQueue {
     private function claim_next_job(): ?array {
         global $wpdb;
 
+        $table = esc_sql( self::table() );
+
         // Récupérer les jobs abandonnés après un crash PHP ou une coupure SMTP.
         $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-            "UPDATE " . self::table() . " SET status = 'pending', updated_at = UTC_TIMESTAMP() WHERE status = 'processing' AND updated_at < UTC_TIMESTAMP() - INTERVAL 15 MINUTE"
+            "UPDATE {$table} SET status = 'pending', updated_at = UTC_TIMESTAMP() WHERE status = 'processing' AND updated_at < UTC_TIMESTAMP() - INTERVAL 15 MINUTE" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table identifier is escaped from the trusted WordPress prefix.
         );
 
         $job = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-            "SELECT * FROM " . self::table() . " WHERE status = 'pending' AND available_at <= UTC_TIMESTAMP() ORDER BY id ASC LIMIT 1",
+            "SELECT * FROM {$table} WHERE status = 'pending' AND available_at <= UTC_TIMESTAMP() ORDER BY id ASC LIMIT 1", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table identifier is escaped from the trusted WordPress prefix.
             ARRAY_A
         );
 
@@ -158,7 +163,7 @@ final class MailQueue {
 
         $claimed = $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prepare(
-                "UPDATE " . self::table() . " SET status = 'processing', attempts = attempts + 1, updated_at = UTC_TIMESTAMP() WHERE id = %d AND status = 'pending'",
+                "UPDATE {$table} SET status = 'processing', attempts = attempts + 1, updated_at = UTC_TIMESTAMP() WHERE id = %d AND status = 'pending'", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table identifier is escaped from the trusted WordPress prefix.
                 (int) $job['id']
             )
         );
@@ -279,15 +284,16 @@ final class MailQueue {
 
     private function mark_sent( int $id ): void {
         global $wpdb;
-        $wpdb->update( self::table(), [ 'status' => 'sent', 'sent_at' => current_time( 'mysql', true ), 'updated_at' => current_time( 'mysql', true ) ], [ 'id' => $id ], [ '%s', '%s', '%s' ], [ '%d' ] ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+        $wpdb->update( esc_sql( self::table() ), [ 'status' => 'sent', 'sent_at' => current_time( 'mysql', true ), 'updated_at' => current_time( 'mysql', true ) ], [ 'id' => $id ], [ '%s', '%s', '%s' ], [ '%d' ] ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- this is the plugin-owned persistent queue table.
     }
 
     private function mark_failed( array $job, string $error ): void {
         global $wpdb;
+        $table   = esc_sql( self::table() );
         $attempts = (int) $job['attempts'];
         $retry     = $attempts < self::MAX_ATTEMPTS;
-        $wpdb->update(
-            self::table(),
+        $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- this is the plugin-owned persistent queue table.
+            $table,
             [
                 'status'       => $retry ? 'pending' : 'failed',
                 'available_at' => $retry ? gmdate( 'Y-m-d H:i:s', time() + ( $attempts * 300 ) ) : current_time( 'mysql', true ),
@@ -297,11 +303,12 @@ final class MailQueue {
             [ 'id' => (int) $job['id'] ],
             [ '%s', '%s', '%s', '%s' ],
             [ '%d' ]
-        ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+        );
     }
 
     private function has_pending_jobs(): bool {
         global $wpdb;
-        return (bool) $wpdb->get_var( "SELECT id FROM " . self::table() . " WHERE status = 'pending' LIMIT 1" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+        $table = esc_sql( self::table() );
+        return (bool) $wpdb->get_var( "SELECT id FROM {$table} WHERE status = 'pending' LIMIT 1" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table identifier is escaped from the trusted WordPress prefix.
     }
 }

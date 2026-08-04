@@ -62,7 +62,7 @@ final class Installer {
         // customization now belongs in WordPress's native CSS editor.
         delete_option( 'givoly_appearance_custom_css' );
 
-        $table = $wpdb->prefix . 'givoly_donations';
+        $table = esc_sql( $wpdb->prefix . 'givoly_donations' );
 
         if ( ! self::table_exists( $table ) ) {
             return;
@@ -142,9 +142,9 @@ final class Installer {
         );
 
         if ( ! $notes_col ) {
-            // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange,PluginCheck.Security.DirectDB.UnescapedDBParameter -- DDL migration, table name from $wpdb->prefix (trusted)
+            // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange,PluginCheck.Security.DirectDB.UnescapedDBParameter -- DDL migration, table name escaped from the trusted WordPress prefix.
             $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `donor_notes` TEXT DEFAULT NULL AFTER `donor_message`" );
-            // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange,PluginCheck.Security.DirectDB.UnescapedDBParameter
+            // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange,PluginCheck.Security.DirectDB.UnescapedDBParameter
         }
     }
 
@@ -166,7 +166,7 @@ final class Installer {
              FROM {$table}
              WHERE gateway_transaction_id IS NOT NULL AND gateway_transaction_id <> ''
              GROUP BY gateway, gateway_transaction_id
-             HAVING COUNT(*) > 1",
+             HAVING COUNT(*) > 1", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table identifier is escaped from the trusted WordPress prefix.
             ARRAY_A
         );
 
@@ -203,7 +203,7 @@ final class Installer {
             $delete_placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
             $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->prepare(
-                    "DELETE FROM {$table} WHERE id IN ({$delete_placeholders})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                    "DELETE FROM {$table} WHERE id IN ({$delete_placeholders})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table identifier is escaped and placeholders are generated only from integer IDs.
                     ...$ids
                 )
             );
@@ -307,7 +307,7 @@ final class Installer {
     private static function table_exists( string $table ): bool {
         global $wpdb;
 
-        return (bool) $wpdb->get_var(
+        return (bool) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $table ) ) // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
         );
     }

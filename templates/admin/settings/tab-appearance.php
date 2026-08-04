@@ -83,6 +83,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                                 <td>
                                     <div class="givoly-shape-group">
                                         <?php
+                                        // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- local template configuration values.
                                         $radius_opts = [
                                             'square'  => [ 'label' => 'Carré',       'preview_r' => '0px',  'desc' => '0 px'  ],
                                             'rounded' => [ 'label' => 'Arrondi',      'preview_r' => '8px',  'desc' => '12 px' ],
@@ -99,6 +100,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                                                 <span class="givoly-shape-card__desc"><?php echo esc_html( $opt['desc'] ); ?></span>
                                             </label>
                                         <?php endforeach; ?>
+                                        <?php // phpcs:enable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound ?>
                                     </div>
                                 </td>
                             </tr>
@@ -164,8 +166,10 @@ if ( ! defined( 'ABSPATH' ) ) {
                             <?php esc_html_e( 'Rendu du formulaire avec vos réglages actuels sauvegardés.', 'givoly' ); ?>
                         </p>
                         <?php
+                        // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- local template preview values.
                         $preview_nonce = wp_create_nonce( 'givoly_form_preview' );
                         $preview_url   = admin_url( 'admin-ajax.php?action=givoly_form_preview&_wpnonce=' . $preview_nonce );
+                        // phpcs:enable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
                         ?>
                         <iframe id="givoly-ap-preview"
                                 src="<?php echo esc_url( $preview_url ); ?>"

@@ -49,6 +49,7 @@ final class DonorsPage {
             <?php if ( isset( $_GET['givoly_tax_receipts_queued'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
                 <?php $queued = absint( wp_unslash( $_GET['givoly_tax_receipts_queued'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized ?>
                 <div class="notice notice-success is-dismissible"><p>
+                    <?php /* translators: %d: number of fiscal receipts queued for delivery. */ ?>
                     <?php printf( esc_html( _n( '%d reçu fiscal a été mis en file.', '%d reçus fiscaux ont été mis en file.', $queued, 'givoly' ) ), esc_html( (string) $queued ) ); ?>
                 </p></div>
             <?php endif; ?>
@@ -123,7 +124,8 @@ final class DonorsPage {
 
                 <?php if ( $batch_id && $batch_stats['total'] > 0 ) : ?>
                     <h3><?php esc_html_e( 'Suivi de la dernière file', 'givoly' ); ?></h3>
-                    <p><?php printf( esc_html__( '%1$d total : %2$d en attente, %3$d en cours, %4$d envoyé(s), %5$d en échec.', 'givoly' ), $batch_stats['total'], $batch_stats['pending'], $batch_stats['processing'], $batch_stats['sent'], $batch_stats['failed'] ); ?></p>
+                    <?php /* translators: 1: total jobs, 2: pending jobs, 3: processing jobs, 4: sent jobs, 5: failed jobs. */ ?>
+                    <p><?php printf( esc_html__( '%1$d total : %2$d en attente, %3$d en cours, %4$d envoyé(s), %5$d en échec.', 'givoly' ), esc_html( (string) $batch_stats['total'] ), esc_html( (string) $batch_stats['pending'] ), esc_html( (string) $batch_stats['processing'] ), esc_html( (string) $batch_stats['sent'] ), esc_html( (string) $batch_stats['failed'] ) ); ?></p>
                     <table class="widefat striped"><thead><tr><th><?php esc_html_e( 'Destinataire', 'givoly' ); ?></th><th><?php esc_html_e( 'Statut', 'givoly' ); ?></th><th><?php esc_html_e( 'Erreur', 'givoly' ); ?></th></tr></thead><tbody>
                     <?php foreach ( $batch_jobs as $job ) : ?><tr><td><?php echo esc_html( $job->recipient ); ?></td><td><?php echo esc_html( $job->status ); ?></td><td><?php echo esc_html( $job->last_error ?: '—' ); ?></td></tr><?php endforeach; ?>
                     </tbody></table>

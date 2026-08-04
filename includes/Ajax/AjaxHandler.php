@@ -117,7 +117,14 @@ final class AjaxHandler {
                 throw new \RuntimeException( 'Passerelle désactivée.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
             }
 
-            $this->store_pending_donor_profile( $post_payment_token, $email, $message );
+            $profile_fields = [
+                'phone'         => sanitize_text_field( wp_unslash( $_POST['phone'] ?? '' ) ),
+                'company'       => sanitize_text_field( wp_unslash( $_POST['company'] ?? '' ) ),
+                'address_line1' => sanitize_text_field( wp_unslash( $_POST['address_line1'] ?? '' ) ),
+                'postal_code'   => sanitize_text_field( wp_unslash( $_POST['postal_code'] ?? '' ) ),
+                'city'          => sanitize_text_field( wp_unslash( $_POST['city'] ?? '' ) ),
+            ];
+            $this->store_pending_donor_profile( $post_payment_token, $email, $message, $profile_fields );
 
             if ( $gateway_key === 'helloasso' ) {
                 $checkout_url = $this->checkout_helloasso(
@@ -144,8 +151,9 @@ final class AjaxHandler {
             wp_send_json_error( [ 'message' => __( 'Requête invalide.', 'givoly' ) ], 403 );
         }
 
-        $email = sanitize_email( wp_unslash( $_POST['email'] ?? '' ) );
-        $token = $this->sanitize_post_payment_token( wp_unslash( $_POST['post_payment_token'] ?? '' ) );
+        $email       = sanitize_email( wp_unslash( $_POST['email'] ?? '' ) );
+        $raw_token   = sanitize_text_field( wp_unslash( $_POST['post_payment_token'] ?? '' ) );
+        $token       = $this->sanitize_post_payment_token( $raw_token );
 
         if ( ! is_email( $email ) || $token === '' ) {
             wp_send_json_error( [ 'message' => __( 'Email invalide.', 'givoly' ) ], 422 );
@@ -193,7 +201,7 @@ final class AjaxHandler {
             wp_send_json_error( [ 'message' => __( 'L’email saisi ne correspond pas au paiement.', 'givoly' ) ], 422 );
         }
 
-        $updated = $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+        $updated = $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prefix . 'givoly_donors',
             [
                 'phone'         => sanitize_text_field( wp_unslash( $_POST['phone'] ?? '' ) ) ?: null,
@@ -223,17 +231,18 @@ final class AjaxHandler {
     }
 
 
-    private function store_pending_donor_profile( string $post_payment_token, string $email, string $message = '' ): void {
+    /**
+     * @param array<string,string> $profile_fields Already sanitized form fields.
+     */
+    private function store_pending_donor_profile( string $post_payment_token, string $email, string $message = '', array $profile_fields = [] ): void {
         $profile = array_filter(
-            [
-                'email'         => $email,
-                'message'       => $message,
-                'phone'         => sanitize_text_field( wp_unslash( $_POST['phone'] ?? '' ) ),
-                'company'       => sanitize_text_field( wp_unslash( $_POST['company'] ?? '' ) ),
-                'address_line1' => sanitize_text_field( wp_unslash( $_POST['address_line1'] ?? '' ) ),
-                'postal_code'   => sanitize_text_field( wp_unslash( $_POST['postal_code'] ?? '' ) ),
-                'city'          => sanitize_text_field( wp_unslash( $_POST['city'] ?? '' ) ),
-            ],
+            array_merge(
+                [
+                    'email'   => $email,
+                    'message' => $message,
+                ],
+                $profile_fields
+            ),
             static fn( string $value ): bool => $value !== ''
         );
 

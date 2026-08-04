@@ -109,18 +109,26 @@ final class AdminActions {
      */
     private function export_donations_csv( string $status ): void {
         global $wpdb;
-        $table_d  = $wpdb->prefix . 'givoly_donations';
-        $table_dn = $wpdb->prefix . 'givoly_donors';
-        $sql      = "SELECT d.id, d.amount, d.currency, d.status, d.created_at, d.gateway, dn.first_name, dn.last_name, dn.email
-                     FROM {$table_d} d
-                     LEFT JOIN {$table_dn} dn ON d.donor_id = dn.id";
+        $table_d  = esc_sql( $wpdb->prefix . 'givoly_donations' );
+        $table_dn = esc_sql( $wpdb->prefix . 'givoly_donors' );
 
         if ( $status !== '' ) {
             $rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-                $wpdb->prepare( $sql . ' WHERE d.status = %s ORDER BY d.created_at DESC', $status ) // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+                $wpdb->prepare(
+                    "SELECT d.id, d.amount, d.currency, d.status, d.created_at, d.gateway, dn.first_name, dn.last_name, dn.email
+                     FROM {$table_d} d
+                     LEFT JOIN {$table_dn} dn ON d.donor_id = dn.id
+                     WHERE d.status = %s ORDER BY d.created_at DESC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table names come from $wpdb->prefix
+                    $status
+                )
             );
         } else {
-            $rows = $wpdb->get_results( $sql . ' ORDER BY d.created_at DESC' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+            $rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+                "SELECT d.id, d.amount, d.currency, d.status, d.created_at, d.gateway, dn.first_name, dn.last_name, dn.email
+                 FROM {$table_d} d
+                 LEFT JOIN {$table_dn} dn ON d.donor_id = dn.id
+                 ORDER BY d.created_at DESC" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table names come from $wpdb->prefix
+            );
         }
 
         if ( ! headers_sent() ) {
@@ -146,7 +154,7 @@ final class AdminActions {
                 $this->sanitize_csv_value( $row->gateway ),
             ], ';' );
         }
-        fclose( $output );
+        fclose( $output ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- php://output is the HTTP response stream, not a file managed by WP_Filesystem.
     }
 
     /**
@@ -173,6 +181,8 @@ final class AdminActions {
     }
 
     private function queue_tax_receipts( bool $legacy_action = false ): void {
+        check_admin_referer( $legacy_action ? 'givoly_send_yearly_tax_receipts' : 'givoly_queue_tax_receipts' );
+
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( esc_html__( 'Accès refusé.', 'givoly' ) );
         }
