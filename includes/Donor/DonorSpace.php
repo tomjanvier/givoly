@@ -228,7 +228,7 @@ final class DonorSpace {
         <section class="givoly-donor-space" aria-labelledby="givoly-donor-space-title">
             <div class="givoly-donor-space__header">
                 <div>
-                    <p class="givoly-donor-space__eyebrow"><?php esc_html_e( 'Numéro donateur', 'givoly' ); ?> #<?php echo esc_html( (string) $donor->id ); ?></p>
+                    <p class="givoly-donor-space__eyebrow"><?php esc_html_e( 'Numéro donateur', 'givoly' ); ?> <?php echo esc_html( $donor->donor_reference ?: '#' . (string) $donor->id ); ?></p>
                     <h2 id="givoly-donor-space-title"><?php echo esc_html( trim( $donor->first_name . ' ' . $donor->last_name ) ?: __( 'Votre espace donateur', 'givoly' ) ); ?></h2>
                     <p><?php echo esc_html( $donor->email ); ?></p>
                 </div>

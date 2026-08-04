@@ -11,6 +11,7 @@ use Givoly\Gateway\StripeGateway;
 use Givoly\Admin\Settings;
 use Givoly\Mail\TaxReceiptService;
 use Givoly\Ajax\PaymentProcessor;
+use Givoly\Integration\StripeSync;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -21,6 +22,7 @@ final class AdminActions {
     public function register(): void {
         add_action( 'admin_post_givoly_refund_donation', [ $this, 'handle_refund_donation' ] );
         add_action( 'admin_post_givoly_cancel_subscription', [ $this, 'handle_cancel_subscription' ] );
+        add_action( 'admin_post_givoly_sync_stripe_now', [ $this, 'handle_sync_stripe_now' ] );
         add_action( 'admin_post_givoly_export_donations', [ $this, 'handle_export_donations' ] );
         add_action( 'admin_post_givoly_queue_tax_receipts', [ $this, 'handle_queue_tax_receipts' ] );
         add_action( 'admin_post_givoly_add_manual_donation', [ $this, 'handle_add_manual_donation' ] );
@@ -137,6 +139,21 @@ final class AdminActions {
         exit;
     }
 
+    public function handle_sync_stripe_now(): void {
+        check_admin_referer( 'givoly_sync_stripe_now' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( esc_html__( 'Accès refusé.', 'givoly' ) );
+        }
+
+        $redirect_base = admin_url( 'admin.php?page=givoly-donations' );
+        $success       = ( new StripeSync() )->run( true );
+        $notice         = $success ? 'givoly_stripe_sync_done' : 'givoly_stripe_sync_error';
+
+        wp_safe_redirect( add_query_arg( $notice, '1', $redirect_base ) );
+        exit;
+    }
+
     public function handle_export_donations(): void {
         check_admin_referer( 'givoly_export_donations' );
 
@@ -170,7 +187,7 @@ final class AdminActions {
             // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
             $rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->prepare(
-                    "SELECT d.id, d.amount, d.currency, d.status, d.created_at, d.gateway, dn.first_name, dn.last_name, dn.email
+                    "SELECT d.id, d.amount, d.currency, d.status, d.created_at, d.gateway, dn.donor_reference, dn.first_name, dn.last_name, dn.email
                      FROM {$table_d} d
                      LEFT JOIN {$table_dn} dn ON d.donor_id = dn.id
                      WHERE d.status = %s ORDER BY d.created_at DESC",
@@ -181,7 +198,7 @@ final class AdminActions {
         } else {
             // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
             $rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-                "SELECT d.id, d.amount, d.currency, d.status, d.created_at, d.gateway, dn.first_name, dn.last_name, dn.email
+                "SELECT d.id, d.amount, d.currency, d.status, d.created_at, d.gateway, dn.donor_reference, dn.first_name, dn.last_name, dn.email
                  FROM {$table_d} d
                  LEFT JOIN {$table_dn} dn ON d.donor_id = dn.id
                  ORDER BY d.created_at DESC"
@@ -199,11 +216,12 @@ final class AdminActions {
             exit;
         }
 
-        fputcsv( $output, [ 'id', 'date', 'donateur', 'email', 'montant', 'devise', 'statut', 'passerelle' ], ';' );
+        fputcsv( $output, [ 'id', 'date', 'numero_donateur', 'donateur', 'email', 'montant', 'devise', 'statut', 'passerelle' ], ';' );
         foreach ( $rows as $row ) {
             fputcsv( $output, [
                 $this->sanitize_csv_value( $row->id ),
                 $this->sanitize_csv_value( $row->created_at ),
+                $this->sanitize_csv_value( $row->donor_reference ),
                 $this->sanitize_csv_value( trim( $row->first_name . ' ' . $row->last_name ) ),
                 $this->sanitize_csv_value( $row->email ),
                 $this->sanitize_csv_value( $row->amount ),

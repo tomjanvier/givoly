@@ -24,7 +24,7 @@ final class StripeSync {
     private const LAST_SYNC_OPTION = 'givoly_stripe_last_invoice_sync_at';
     private const PAGE_SIZE        = 100;
     private const MAX_PAGES        = 20;
-    private const FIRST_LOOKBACK_MONTHS = 6;
+    private const FIRST_LOOKBACK_MONTHS  = 6;
 
     public function register(): void {
         add_action( self::HOOK, [ $this, 'run' ] );
@@ -41,14 +41,14 @@ final class StripeSync {
         wp_clear_scheduled_hook( self::HOOK );
     }
 
-    public function run(): void {
+    public function run( bool $full_backfill = false ): bool {
         $secret_key = Settings::get_stripe_secret_key();
         if ( $secret_key === '' ) {
-            return;
+            return false;
         }
 
         $last_sync = (string) get_option( self::LAST_SYNC_OPTION, '' );
-        $from      = '' === $last_sync
+        $from      = $full_backfill || '' === $last_sync
             ? strtotime( '-' . self::FIRST_LOOKBACK_MONTHS . ' months' )
             : max( 0, (int) strtotime( $last_sync ) - 10 * MINUTE_IN_SECONDS );
 
@@ -78,12 +78,14 @@ final class StripeSync {
             // Ne pas avancer le curseur si la limite de sécurité a interrompu
             // la pagination : le prochain passage reprendra la même fenêtre.
             if ( $has_more ) {
-                return;
+                return false;
             }
 
             update_option( self::LAST_SYNC_OPTION, current_time( 'mysql', true ), false );
+            return true;
         } catch ( \Throwable $exception ) {
             error_log( '[Givoly] Stripe invoice sync error: ' . \Givoly\Core\Format::redact_secrets( $exception->getMessage() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            return false;
         }
     }
 }
