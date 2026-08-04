@@ -18,6 +18,12 @@ foreach ( [
     $wpdb->prefix . 'givoly_campaigns',
     $wpdb->prefix . 'givoly_donors',
     $wpdb->prefix . 'givoly_email_jobs',
+    // Legacy Givasso tables are owned by the same plugin and are removed
+    // only when the administrator explicitly uninstalls it.
+    $wpdb->prefix . 'givasso_donations',
+    $wpdb->prefix . 'givasso_campaigns',
+    $wpdb->prefix . 'givasso_donors',
+    $wpdb->prefix . 'givasso_email_jobs',
 ] as $givoly_table ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
     $wpdb->query( "DROP TABLE IF EXISTS `{$givoly_table}`" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.SchemaChange,WordPress.DB.DirectDatabaseQuery.NoCaching,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table names from $wpdb->prefix
 }
@@ -25,6 +31,7 @@ foreach ( [
 // Supprimer les options — liste à tenir à jour avec Settings::OPT_*
 foreach ( [
     'givoly_db_version',
+    'givoly_legacy_migration_version',
     'givoly_stripe_mode',
     'givoly_stripe_pk_test',
     'givoly_stripe_sk_test',
@@ -81,6 +88,10 @@ foreach ( [
     'givoly_ha_expires_at',
 ] as $givoly_option ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
     delete_option( $givoly_option );
+
+    if ( str_starts_with( $givoly_option, 'givoly_' ) ) {
+        delete_option( 'givasso_' . substr( $givoly_option, strlen( 'givoly_' ) ) );
+    }
 }
 
 // Supprimer les transients liés au checkout (profils donateur en attente) et

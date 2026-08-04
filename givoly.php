@@ -3,7 +3,7 @@
  * Plugin Name: Givoly
  * Plugin URI:       https://givoly.org
  * Description:      Givoly is a completely free donation form extension designed by and for nonprofit organizations, featuring payments via Stripe and HelloAsso, donor management, and campaign progress tracking.
- * Version:          1.2.0
+ * Version:          1.3.0
  * Requires at least: 6.0
  * Requires PHP:     8.1
  * Author:           PLAID·ACT
@@ -21,11 +21,19 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'GIVOLY_VERSION', '1.2.0' );
+define( 'GIVOLY_VERSION', '1.3.0' );
 define( 'GIVOLY_PLUGIN_FILE', __FILE__ );
 define( 'GIVOLY_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'GIVOLY_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'GIVOLY_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
+
+// Compatibility aliases for sites that previously ran the plugin as Givasso.
+// Keep existing constants untouched if the former plugin is still loaded.
+defined( 'GIVASSO_VERSION' ) || define( 'GIVASSO_VERSION', GIVOLY_VERSION );
+defined( 'GIVASSO_PLUGIN_FILE' ) || define( 'GIVASSO_PLUGIN_FILE', GIVOLY_PLUGIN_FILE );
+defined( 'GIVASSO_PLUGIN_DIR' ) || define( 'GIVASSO_PLUGIN_DIR', GIVOLY_PLUGIN_DIR );
+defined( 'GIVASSO_PLUGIN_URL' ) || define( 'GIVASSO_PLUGIN_URL', GIVOLY_PLUGIN_URL );
+defined( 'GIVASSO_PLUGIN_BASENAME' ) || define( 'GIVASSO_PLUGIN_BASENAME', GIVOLY_PLUGIN_BASENAME );
 
 // Lightweight PSR-4 autoloader for the plugin namespace.
 

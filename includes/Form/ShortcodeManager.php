@@ -24,6 +24,12 @@ final class ShortcodeManager {
         add_shortcode( 'givoly_form',     [ $this, 'render_form' ] );
         add_shortcode( 'givoly_total',    [ $this, 'render_total' ] );
         add_shortcode( 'givoly_campaign', [ $this, 'render_campaign' ] );
+
+        // Backward-compatible aliases for content created before the rebrand.
+        add_shortcode( 'givasso',          [ $this, 'render_form' ] );
+        add_shortcode( 'givasso_form',     [ $this, 'render_form' ] );
+        add_shortcode( 'givasso_total',    [ $this, 'render_total' ] );
+        add_shortcode( 'givasso_campaign', [ $this, 'render_campaign' ] );
     }
 
     public function render_form( $atts ): string {
