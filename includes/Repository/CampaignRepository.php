@@ -227,14 +227,14 @@ final class CampaignRepository {
         $formats = [ '%s', '%s', '%s', '%f', '%s', '%s', '%s', '%s', '%d' ];
 
         if ( $campaign->get_id() === 0 ) {
-            $wpdb->insert(
+            $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- this is the plugin-owned campaigns table.
                 $this->table,
                 array_merge( $data, [
                     'created_at' => current_time( 'mysql', true ),
                     'updated_at' => current_time( 'mysql', true ),
                 ] ),
                 array_merge( $formats, [ '%s', '%s' ] )
-            ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+            );
             $id = (int) $wpdb->insert_id;
         } else {
             $wpdb->update( $this->table, $data, [ 'id' => $campaign->get_id() ], $formats, [ '%d' ] ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching

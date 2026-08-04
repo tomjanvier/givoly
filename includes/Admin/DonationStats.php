@@ -21,13 +21,13 @@ final class DonationStats {
     public static function summary(): array {
         global $wpdb;
 
-        $table = $wpdb->prefix . 'givoly_donations';
+        $table = esc_sql( $wpdb->prefix . 'givoly_donations' );
         $row   = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             "SELECT COALESCE( SUM(amount), 0 ) AS total_amount,
                     COUNT(*) AS total_donations,
                     COUNT(DISTINCT donor_id) AS total_donors
              FROM {$table}
-             WHERE status = 'completed'" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
+             WHERE status = 'completed'" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table identifier is escaped from the trusted WordPress prefix.
         );
 
         $total_amount    = (float) ( $row->total_amount ?? 0 );
@@ -54,7 +54,7 @@ final class DonationStats {
         $current_month = new \DateTimeImmutable( 'first day of this month 00:00:00', $timezone );
         $start_month   = $current_month->modify( '-5 months' );
         $start_date    = $start_month->format( 'Y-m-d H:i:s' );
-        $table         = $wpdb->prefix . 'givoly_donations';
+        $table         = esc_sql( $wpdb->prefix . 'givoly_donations' );
 
         $rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prepare(
@@ -64,7 +64,7 @@ final class DonationStats {
                  FROM {$table}
                  WHERE status = 'completed' AND created_at >= %s
                  GROUP BY DATE_FORMAT(created_at, '%%Y-%%m')
-                 ORDER BY month ASC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
+                 ORDER BY month ASC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table identifier is escaped from the trusted WordPress prefix.
                 $start_date
             )
         );
@@ -102,9 +102,9 @@ final class DonationStats {
     public static function recent_donations( int $limit = 8 ): array {
         global $wpdb;
 
-        $donations_table = $wpdb->prefix . 'givoly_donations';
-        $donors_table    = $wpdb->prefix . 'givoly_donors';
-        $campaigns_table = $wpdb->prefix . 'givoly_campaigns';
+        $donations_table = esc_sql( $wpdb->prefix . 'givoly_donations' );
+        $donors_table    = esc_sql( $wpdb->prefix . 'givoly_donors' );
+        $campaigns_table = esc_sql( $wpdb->prefix . 'givoly_campaigns' );
 
         return (array) $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prepare(
@@ -116,7 +116,7 @@ final class DonationStats {
                  LEFT JOIN {$campaigns_table} c ON d.campaign_id = c.id
                  WHERE d.status = 'completed'
                  ORDER BY d.created_at DESC
-                 LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
+                 LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table identifiers are escaped from the trusted WordPress prefix.
                 max( 1, min( 50, $limit ) )
             )
         );

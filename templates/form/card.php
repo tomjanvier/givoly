@@ -11,11 +11,10 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-$show_post_payment_phone   = \Givoly\Admin\Settings::should_show_post_payment_phone();
-$show_post_payment_address = \Givoly\Admin\Settings::should_show_post_payment_address();
-
 // ── Helpers locaux ──────────────────────────────────────────────────────────
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- template file, variables are local-scope
+$show_post_payment_phone   = \Givoly\Admin\Settings::should_show_post_payment_phone();
+$show_post_payment_address = \Givoly\Admin\Settings::should_show_post_payment_address();
 
 $form_id = 'givoly-form-' . wp_unique_id();
 $show_stripe_gateway = in_array( $config->gateway, [ 'stripe', 'both' ], true );
@@ -219,8 +218,9 @@ $wrap_style = $config->get_inline_css_vars();
 
 <?php
 $post_payment_token = isset( $_GET['givoly_token'] ) ? sanitize_text_field( wp_unslash( $_GET['givoly_token'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+$givoly_success     = isset( $_GET['givoly_success'] ) ? sanitize_key( wp_unslash( $_GET['givoly_success'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 ?>
-<?php if ( isset( $_GET['givoly_success'] ) && '1' === wp_unslash( $_GET['givoly_success'] ) && $post_payment_token !== '' ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
+<?php if ( '1' === $givoly_success && $post_payment_token !== '' ) : ?>
         <section class="givoly-post-payment" aria-live="polite">
             <h3 class="givoly-post-payment__title"><?php esc_html_e( 'Complétez votre profil donateur', 'givoly' ); ?></h3>
             <p class="givoly-hint"><?php esc_html_e( 'Merci ! Pour mieux vous accompagner, merci de compléter ces informations.', 'givoly' ); ?></p>

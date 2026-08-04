@@ -57,8 +57,8 @@ final class TaxReceiptService {
 
         $start    = sprintf( '%d-01-01 00:00:00', $year );
         $end      = sprintf( '%d-01-01 00:00:00', $year + 1 );
-        $table_dn = $wpdb->prefix . 'givoly_donors';
-        $table_d  = $wpdb->prefix . 'givoly_donations';
+        $table_dn = esc_sql( $wpdb->prefix . 'givoly_donors' );
+        $table_d  = esc_sql( $wpdb->prefix . 'givoly_donations' );
         $where    = '';
         $args     = [ $start, $end ];
 
@@ -77,8 +77,8 @@ final class TaxReceiptService {
         }
 
         // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table names trusted, placeholders built from integers
-        $rows = $wpdb->get_results(
-            $wpdb->prepare(
+        $rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- the optional donor and pagination placeholders are built together with their matching integer arguments.
                 "SELECT dn.id, dn.first_name, dn.last_name, dn.email, COALESCE(SUM(d.amount), 0) AS total_amount, d.currency, COUNT(d.id) AS donation_count
                  FROM {$table_dn} dn
                  INNER JOIN {$table_d} d ON d.donor_id = dn.id
@@ -99,8 +99,8 @@ final class TaxReceiptService {
 
         $start    = sprintf( '%d-01-01 00:00:00', $year );
         $end      = sprintf( '%d-01-01 00:00:00', $year + 1 );
-        $table_dn = $wpdb->prefix . 'givoly_donors';
-        $table_d  = $wpdb->prefix . 'givoly_donations';
+        $table_dn = esc_sql( $wpdb->prefix . 'givoly_donors' );
+        $table_d  = esc_sql( $wpdb->prefix . 'givoly_donations' );
 
         return (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prepare(
@@ -110,7 +110,7 @@ final class TaxReceiptService {
                     INNER JOIN {$table_d} d ON d.donor_id = dn.id
                     WHERE d.status = 'completed' AND d.created_at >= %s AND d.created_at < %s AND dn.email <> ''
                     GROUP BY dn.id, d.currency
-                ) AS recipients",
+                ) AS recipients", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table identifiers are escaped from the trusted WordPress prefix.
                 $start,
                 $end
             )

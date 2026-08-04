@@ -45,6 +45,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     <span class="HaPayButtonLabel"><?php esc_html_e( 'Payer avec HelloAsso*', 'givoly' ); ?></span>
 </button>
 
+<?php // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- local variables in an included template. ?>
 <?php $ha_other_payments_url = \Givoly\Admin\Settings::get_helloasso_other_payments_url(); ?>
 <?php if ( $ha_other_payments_url ) : ?>
     <a href="<?php echo esc_url( $ha_other_payments_url ); ?>" class="givoly-ha-other-payments" target="_blank" rel="noopener"><?php esc_html_e( 'Autres modes de paiements', 'givoly' ); ?></a>
@@ -54,5 +55,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 <?php if ( $ha_notice ) : ?>
     <p class="givoly-ha-note"><?php echo esc_html( $ha_notice ); ?></p>
 <?php endif; ?>
+<?php // phpcs:enable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound ?>
 <?php endif; ?>
 </div>

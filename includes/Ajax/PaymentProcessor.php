@@ -66,9 +66,9 @@ final class PaymentProcessor {
             throw new \RuntimeException(
                 sprintf(
                     'Impossible de créer ou retrouver le donateur. Gateway : %s | Transaction : %s | Email : %s',
-                    $gateway,
-                    $transaction_id,
-                    $email
+                    esc_html( $gateway ),
+                    esc_html( $transaction_id ),
+                    esc_html( $email )
                 )
             ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
