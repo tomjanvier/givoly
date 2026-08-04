@@ -35,6 +35,21 @@ final class AssetsLoader {
             GIVOLY_VERSION,
             true
         );
+
+        wp_register_style(
+            'givoly-donor-space',
+            GIVOLY_PLUGIN_URL . 'assets/css/givoly-donor-space.css',
+            [],
+            GIVOLY_VERSION
+        );
+
+        wp_register_script(
+            'givoly-donor-space',
+            GIVOLY_PLUGIN_URL . 'assets/js/givoly-donor-space.js',
+            [],
+            GIVOLY_VERSION,
+            true
+        );
     }
 
     /**

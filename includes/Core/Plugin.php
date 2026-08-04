@@ -39,10 +39,12 @@ final class Plugin {
         Installer::maybe_upgrade();
         ( new \Givoly\Core\AssetsLoader() )->register();
         ( new \Givoly\Mail\MailQueue() )->register();
+        ( new \Givoly\Integration\HelloAssoSync() )->register();
         ( new \Givoly\Admin\AdminMenu() )->register();
         ( new \Givoly\Admin\AdminActions() )->register();
         ( new \Givoly\Admin\Pages\SettingsPage() )->register();
         ( new \Givoly\Form\ShortcodeManager() )->register();
         ( new \Givoly\Ajax\AjaxHandler() )->register();
+        ( new \Givoly\Donor\DonorSpace() )->register();
     }
 }

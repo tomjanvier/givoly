@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Installer {
 
     const DB_VERSION_OPTION = 'givoly_db_version';
-    const DB_VERSION        = '1.9';
+    const DB_VERSION        = '2.0';
 
     public static function activate(): void {
         self::create_tables();
@@ -26,6 +26,7 @@ final class Installer {
         update_option( self::DB_VERSION_OPTION, self::DB_VERSION, false );
         add_option( \Givoly\Admin\Settings::OPT_PUBLIC_BRANDING_ENABLED, '0', '', false );
         \Givoly\Mail\MailQueue::schedule();
+        \Givoly\Integration\HelloAssoSync::schedule();
         flush_rewrite_rules();
     }
 
@@ -45,6 +46,7 @@ final class Installer {
         // La suppression se fait dans uninstall.php.
         flush_rewrite_rules();
         \Givoly\Mail\MailQueue::unschedule();
+        \Givoly\Integration\HelloAssoSync::unschedule();
     }
 
     public static function needs_upgrade(): bool {
@@ -239,11 +241,18 @@ final class Installer {
             country         CHAR(2)         NOT NULL DEFAULT 'FR',
             phone           VARCHAR(30)              DEFAULT NULL,
             wp_user_id      BIGINT UNSIGNED          DEFAULT NULL,
+            stripe_customer_id     VARCHAR(255)        DEFAULT NULL,
+            stripe_subscription_id VARCHAR(255)        DEFAULT NULL,
+            magic_token_hash       CHAR(64)            DEFAULT NULL,
+            magic_token_expires_at DATETIME            DEFAULT NULL,
             created_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY     (id),
             UNIQUE KEY      uq_email (email),
-            KEY             idx_wp_user (wp_user_id)
+            KEY             idx_wp_user (wp_user_id),
+            KEY             idx_stripe_customer (stripe_customer_id),
+            KEY             idx_stripe_subscription (stripe_subscription_id),
+            KEY             idx_magic_token (magic_token_hash)
         ) $charset;" );
 
         // ── Dons ─────────────────────────────────────────────────────────────

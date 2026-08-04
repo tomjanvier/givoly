@@ -10,6 +10,7 @@ namespace Givoly\Admin;
 use Givoly\Gateway\StripeGateway;
 use Givoly\Admin\Settings;
 use Givoly\Mail\TaxReceiptService;
+use Givoly\Ajax\PaymentProcessor;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -21,6 +22,7 @@ final class AdminActions {
         add_action( 'admin_post_givoly_refund_donation', [ $this, 'handle_refund_donation' ] );
         add_action( 'admin_post_givoly_export_donations', [ $this, 'handle_export_donations' ] );
         add_action( 'admin_post_givoly_queue_tax_receipts', [ $this, 'handle_queue_tax_receipts' ] );
+        add_action( 'admin_post_givoly_add_manual_donation', [ $this, 'handle_add_manual_donation' ] );
         // Compatibilité avec l'action utilisée par les versions précédentes.
         add_action( 'admin_post_givoly_send_yearly_tax_receipts', [ $this, 'handle_send_yearly_tax_receipts' ] );
     }
@@ -184,6 +186,46 @@ final class AdminActions {
     public function handle_queue_tax_receipts(): void {
         check_admin_referer( 'givoly_queue_tax_receipts' );
         $this->queue_tax_receipts();
+    }
+
+    public function handle_add_manual_donation(): void {
+        check_admin_referer( 'givoly_add_manual_donation', 'givoly_manual_nonce' );
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( esc_html__( 'Accès refusé.', 'givoly' ) );
+        }
+
+        $email          = sanitize_email( wp_unslash( $_POST['email'] ?? '' ) );
+        $first_name     = sanitize_text_field( wp_unslash( $_POST['first_name'] ?? '' ) );
+        $last_name      = sanitize_text_field( wp_unslash( $_POST['last_name'] ?? '' ) );
+        $amount_raw     = str_replace( ',', '.', sanitize_text_field( wp_unslash( $_POST['amount'] ?? '' ) ) );
+        $donation_date  = sanitize_text_field( wp_unslash( $_POST['donation_date'] ?? '' ) );
+        $payment_method = sanitize_key( wp_unslash( $_POST['payment_method'] ?? '' ) );
+        $send_receipt   = '1' === sanitize_text_field( wp_unslash( $_POST['send_receipt'] ?? '' ) );
+        $methods        = [ 'virement', 'cheque', 'especes' ];
+        $date           = \DateTimeImmutable::createFromFormat( '!Y-m-d', $donation_date );
+
+        $amount_cents = is_numeric( $amount_raw ) ? (int) round( (float) $amount_raw * 100 ) : 0;
+        if ( ! is_email( $email ) || '' === $first_name || '' === $last_name || $amount_cents < 100 || $amount_cents > 10_000_000 || ! in_array( $payment_method, $methods, true ) || ! $date || $date->format( 'Y-m-d' ) !== $donation_date ) {
+            wp_safe_redirect( add_query_arg( 'givoly_manual_error', '1', admin_url( 'admin.php?page=givoly-manual-donation' ) ) );
+            exit;
+        }
+
+        try {
+            ( new PaymentProcessor() )->process_manual(
+                $email,
+                $first_name,
+                $last_name,
+                $amount_cents,
+                $donation_date,
+                $payment_method,
+                $send_receipt
+            );
+            wp_safe_redirect( add_query_arg( 'givoly_manual_saved', '1', admin_url( 'admin.php?page=givoly-manual-donation' ) ) );
+        } catch ( \Throwable $exception ) {
+            error_log( '[Givoly] Manual donation error: ' . \Givoly\Core\Format::redact_secrets( $exception->getMessage() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            wp_safe_redirect( add_query_arg( 'givoly_manual_error', '1', admin_url( 'admin.php?page=givoly-manual-donation' ) ) );
+        }
+        exit;
     }
 
     private function queue_tax_receipts( bool $legacy_action = false ): void {

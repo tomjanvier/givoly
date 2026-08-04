@@ -1,0 +1,35 @@
+.givoly-donor-space {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 2rem;
+    border: 1px solid #c6e0d6;
+    border-radius: 14px;
+    background: #fff;
+    color: #1a2e24;
+    box-shadow: 0 8px 28px rgba(26, 46, 36, .08);
+}
+
+.givoly-donor-space h2,
+.givoly-donor-space h3 { color: #1a2e24; }
+.givoly-donor-space__header { display: flex; justify-content: space-between; gap: 1rem; align-items: flex-start; }
+.givoly-donor-space__eyebrow { margin: 0; color: #1b6b4a; font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+.givoly-donor-space__login { display: grid; gap: .5rem; max-width: 460px; }
+.givoly-donor-space input[type="email"] { width: 100%; padding: .7rem .8rem; border: 2px solid #c6e0d6; border-radius: 8px; }
+.givoly-donor-space button { padding: .7rem 1rem; border: 0; border-radius: 8px; background: #1b6b4a; color: #fff; font-weight: 700; cursor: pointer; }
+.givoly-donor-space button:hover { background: #155438; }
+.givoly-donor-space button.is-secondary { background: transparent; color: #1b6b4a; border: 1px solid #1b6b4a; }
+.givoly-donor-space button.is-danger { background: #b42318; }
+.givoly-donor-space__logout { background: transparent !important; color: #1b6b4a !important; border: 1px solid #c6e0d6 !important; }
+.givoly-donor-space__subscription { margin: 2rem 0; padding: 1.25rem; border-radius: 10px; background: #f0f8f4; }
+.givoly-donor-space__subscription button { margin: .25rem .5rem .25rem 0; }
+.givoly-donor-space__retention { margin-top: 1rem; padding: 1rem; border-left: 4px solid #dba617; background: #fff9e6; }
+.givoly-donor-space__table-wrap { overflow-x: auto; }
+.givoly-donor-space table { width: 100%; border-collapse: collapse; }
+.givoly-donor-space th, .givoly-donor-space td { padding: .75rem; border-bottom: 1px solid #e5eee9; text-align: left; }
+.givoly-donor-space a { color: #1b6b4a; font-weight: 600; }
+.givoly-donor-space__message { min-height: 1.4em; margin: .75rem 0 0; color: #1b6b4a; }
+.givoly-donor-space__message.is-error { color: #b42318; }
+@media (max-width: 600px) {
+    .givoly-donor-space { padding: 1.25rem; }
+    .givoly-donor-space__header { flex-direction: column; }
+}
