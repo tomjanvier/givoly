@@ -365,7 +365,7 @@ final class AjaxHandler {
             if ( $event_type === 'checkout.session.completed' ) {
                 $this->handle_checkout_session_completed( $event['data']['object'] ?? [] );
             } elseif ( $event_type === 'invoice.payment_succeeded' ) {
-                $this->handle_invoice_payment_succeeded( $event['data']['object'] ?? [] );
+                $this->process_stripe_invoice( $event['data']['object'] ?? [] );
             } elseif ( $event_type === 'charge.refunded' ) {
                 $this->handle_charge_refunded( $event['data']['object'] ?? [] );
             }
@@ -389,8 +389,9 @@ final class AjaxHandler {
         $amount_cents   = (int) ( $session['amount_total'] ?? 0 );
         $transaction_id = sanitize_text_field( $session['id'] ?? '' );
         $post_payment_token = $this->sanitize_post_payment_token( $meta['post_payment_token'] ?? '' );
-        $stripe_customer_id = sanitize_text_field( (string) ( $session['customer'] ?? '' ) );
-        $stripe_subscription_id = sanitize_text_field( (string) ( $session['subscription'] ?? '' ) );
+        $stripe_customer_id = $this->sanitize_gateway_identifier( $session['customer'] ?? '' );
+        $stripe_subscription_id = $this->sanitize_gateway_identifier( $session['subscription'] ?? '' );
+        $payment_intent_id = $this->sanitize_gateway_identifier( $session['payment_intent'] ?? '' );
 
         $campaign_id = $campaign
             ? ( ( new CampaignRepository() )->find_by_slug( $campaign )?->get_id() ?? 0 )
@@ -408,11 +409,11 @@ final class AjaxHandler {
             campaign_id:    $campaign_id,
             post_payment_token: $post_payment_token,
             stripe_customer_id: $stripe_customer_id,
-            stripe_subscription_id: $stripe_subscription_id
+            stripe_subscription_id: $stripe_subscription_id,
+            gateway_refund_ref: $payment_intent_id
         );
 
         // Stocker la référence de remboursement gateway (Stripe: payment_intent_id)
-        $payment_intent_id = sanitize_text_field( $session['payment_intent'] ?? '' );
         if ( $payment_intent_id && $transaction_id ) {
             $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->prefix . 'givoly_donations',
@@ -428,46 +429,60 @@ final class AjaxHandler {
     /**
      * Enregistre les paiements récurrents Stripe après le premier passage Checkout.
      *
-     * Le premier paiement d'un abonnement est déjà traité par checkout.session.completed.
-     * Les échéances suivantes arrivent via invoice.payment_succeeded avec billing_reason
-     * subscription_cycle. On les stocke avec l'ID de facture pour conserver
-     * l'idempotence de chaque échéance.
+     * Les échéances arrivent via invoice.payment_succeeded. La première facture
+     * utilise billing_reason=subscription_create, puis subscription_cycle pour
+     * les échéances suivantes. L'ID de facture identifie chaque échéance et le
+     * payment intent évite le doublon avec checkout.session.completed.
      */
-    private function handle_invoice_payment_succeeded( array $invoice ): void {
+    public function process_stripe_invoice( array $invoice ): void {
         $billing_reason = (string) ( $invoice['billing_reason'] ?? '' );
 
-        if ( $billing_reason !== 'subscription_cycle' ) {
+        if ( ! in_array( $billing_reason, [ 'subscription_create', 'subscription_cycle', 'subscription_update', 'subscription_threshold' ], true ) ) {
             return;
         }
 
         $subscription_details = is_array( $invoice['subscription_details'] ?? null ) ? $invoice['subscription_details'] : [];
         $lines                = is_array( $invoice['lines']['data'] ?? null ) ? $invoice['lines']['data'] : [];
         $first_line           = is_array( $lines[0] ?? null ) ? $lines[0] : [];
-        $meta                 = $invoice['metadata'] ?? [];
-        $subscription_id      = sanitize_text_field( (string) ( $invoice['subscription'] ?? '' ) );
-        $customer_id          = sanitize_text_field( (string) ( $invoice['customer'] ?? '' ) );
+        $meta                 = is_array( $invoice['metadata'] ?? null ) ? $invoice['metadata'] : [];
+        $subscription_id      = $this->sanitize_gateway_identifier( $invoice['subscription'] ?? '' );
+        $customer_id          = $this->sanitize_gateway_identifier( $invoice['customer'] ?? '' );
+        $stripe_gateway       = null;
 
-        if ( ! $meta && is_array( $subscription_details['metadata'] ?? null ) ) {
-            $meta = $subscription_details['metadata'];
+        if ( empty( $meta['donor_email'] ) && is_array( $subscription_details['metadata'] ?? null ) ) {
+            $meta = array_merge( $subscription_details['metadata'], $meta );
         }
 
-        if ( ! $meta && is_array( $first_line['metadata'] ?? null ) ) {
-            $meta = $first_line['metadata'];
+        if ( empty( $meta['donor_email'] ) && is_array( $first_line['metadata'] ?? null ) ) {
+            $meta = array_merge( $first_line['metadata'], $meta );
         }
 
-        if ( ! $meta && $subscription_id && Settings::get_stripe_secret_key() !== '' ) {
-            $subscription = ( new StripeGateway( Settings::get_stripe_secret_key() ) )->get_subscription( $subscription_id );
-            $meta         = is_array( $subscription['metadata'] ?? null ) ? $subscription['metadata'] : [];
-            $customer_id  = $customer_id ?: sanitize_text_field( (string) ( $subscription['customer'] ?? '' ) );
+        if ( empty( $meta['donor_email'] ) && $subscription_id && Settings::get_stripe_secret_key() !== '' ) {
+            $stripe_gateway = new StripeGateway( Settings::get_stripe_secret_key() );
+            $subscription    = $stripe_gateway->get_subscription( $subscription_id );
+            $subscription_meta = is_array( $subscription['metadata'] ?? null ) ? $subscription['metadata'] : [];
+            $meta            = array_merge( $subscription_meta, $meta );
+            $customer_id  = $customer_id ?: $this->sanitize_gateway_identifier( $subscription['customer'] ?? '' );
         }
 
         $email          = sanitize_email( (string) ( $meta['donor_email'] ?? $invoice['customer_email'] ?? '' ) );
+        $customer       = [];
+
+        if ( ! $email && $customer_id && Settings::get_stripe_secret_key() !== '' ) {
+            $stripe_gateway = $stripe_gateway ?: new StripeGateway( Settings::get_stripe_secret_key() );
+            $customer       = $stripe_gateway->get_customer( $customer_id );
+            $email          = sanitize_email( (string) ( $customer['email'] ?? '' ) );
+        }
+
         $first_name     = sanitize_text_field( (string) ( $meta['donor_first_name'] ?? '' ) );
         $last_name      = sanitize_text_field( (string) ( $meta['donor_last_name'] ?? '' ) );
         $campaign       = sanitize_text_field( (string) ( $meta['campaign'] ?? '' ) );
         $currency       = strtoupper( sanitize_text_field( (string) ( $meta['currency'] ?? $invoice['currency'] ?? 'EUR' ) ) );
         $amount_cents   = (int) ( $invoice['amount_paid'] ?? 0 );
         $transaction_id = sanitize_text_field( (string) ( $invoice['id'] ?? '' ) );
+        $payment_intent_id = $this->sanitize_gateway_identifier( $invoice['payment_intent'] ?? '' );
+        $charge_id = $this->sanitize_gateway_identifier( $invoice['charge'] ?? '' );
+        $refund_reference = $payment_intent_id ?: $charge_id;
 
         if ( $amount_cents <= 0 || ! $transaction_id || ! $email ) {
             return;
@@ -488,7 +503,8 @@ final class AjaxHandler {
             campaign:       $campaign,
             campaign_id:    $campaign_id,
             stripe_customer_id: $customer_id,
-            stripe_subscription_id: $subscription_id
+            stripe_subscription_id: $subscription_id,
+            gateway_refund_ref: $refund_reference
         );
     }
 
@@ -501,7 +517,7 @@ final class AjaxHandler {
     private function handle_charge_refunded( array $charge ): void {
         global $wpdb;
 
-        $payment_intent_id = sanitize_text_field( $charge['payment_intent'] ?? '' );
+        $payment_intent_id = $this->sanitize_gateway_identifier( $charge['payment_intent'] ?? $charge['id'] ?? '' );
 
         if ( ! $payment_intent_id ) {
             return;
@@ -548,21 +564,25 @@ final class AjaxHandler {
         }
 
         $event_type = strtolower( (string) ( $event['eventType'] ?? $event['type'] ?? '' ) );
-        $data       = $event['data'] ?? $event;
+        $data       = is_array( $event['data'] ?? null ) ? $event['data'] : $event;
 
         if ( str_contains( $event_type, 'refund' ) ) {
             $this->handle_helloasso_refunded( sanitize_text_field( (string) ( $data['payment']['id'] ?? $data['id'] ?? '' ) ) );
             return new \WP_REST_Response( [ 'received' => true ], 200 );
         }
 
-        if ( ! str_contains( $event_type, 'payment' ) && ! str_contains( $event_type, 'order' ) ) {
+        $order = is_array( $data['order'] ?? null ) ? $data['order'] : [];
+        $has_payment_payload = is_array( $data['payment'] ?? null )
+            || is_array( $data['payments'] ?? null )
+            || is_array( $order['payments'] ?? null );
+
+        if ( ! str_contains( $event_type, 'payment' ) && ! str_contains( $event_type, 'order' ) && ! $has_payment_payload ) {
             return new \WP_REST_Response( [ 'received' => true ], 200 );
         }
 
-        $order          = is_array( $data['order'] ?? null ) ? $data['order'] : [];
         $payments       = is_array( $data['payments'] ?? null ) ? $data['payments'] : ( is_array( $order['payments'] ?? null ) ? $order['payments'] : [] );
-        $metadata = is_array( $data['metadata'] ?? null ) ? $data['metadata'] : ( is_array( $order['metadata'] ?? null ) ? $order['metadata'] : [] );
-        $payer    = is_array( $data['payer'] ?? null ) ? $data['payer'] : ( is_array( $order['payer'] ?? null ) ? $order['payer'] : ( is_array( $data['user'] ?? null ) ? $data['user'] : [] ) );
+        $metadata       = is_array( $data['metadata'] ?? null ) ? $data['metadata'] : ( is_array( $order['metadata'] ?? null ) ? $order['metadata'] : [] );
+        $payer          = is_array( $data['payer'] ?? null ) ? $data['payer'] : ( is_array( $order['payer'] ?? null ) ? $order['payer'] : ( is_array( $data['user'] ?? null ) ? $data['user'] : [] ) );
         $payments = $payments ?: [ is_array( $data['payment'] ?? null ) ? $data['payment'] : $data ];
 
         try {
@@ -581,10 +601,17 @@ final class AjaxHandler {
 
     private function process_helloasso_payment( array $payment, array $data, array $order, array $metadata, array $payer ): void {
         $payment_payer  = is_array( $payment['payer'] ?? null ) ? $payment['payer'] : $payer;
-        $amount_cents   = (int) ( $payment['amount'] ?? $payment['initialAmount'] ?? $data['amount'] ?? $data['totalAmount'] ?? $order['amount']['total'] ?? 0 );
+        $payment_state  = strtolower( (string) ( $payment['state'] ?? $payment['status'] ?? $data['state'] ?? $data['status'] ?? '' ) );
+        if ( $payment_state !== '' && ! in_array( $payment_state, [ 'authorized', 'registered', 'processed', 'paid', 'cashedout', 'cashout' ], true ) ) {
+            return;
+        }
+
+        $amount_cents   = $this->normalize_helloasso_amount( $payment['amount'] ?? $payment['initialAmount'] ?? $data['amount'] ?? $data['totalAmount'] ?? $order['amount']['total'] ?? 0 );
         $transaction_id = sanitize_text_field( (string) ( $payment['id'] ?? $data['id'] ?? $order['id'] ?? '' ) );
+        $payment_meta   = is_array( $payment['metadata'] ?? null ) ? $payment['metadata'] : [];
+        $metadata       = array_merge( $metadata, $payment_meta );
         $campaign       = sanitize_text_field( (string) ( $metadata['campaign'] ?? '' ) );
-        $currency       = strtoupper( sanitize_text_field( (string) ( $metadata['currency'] ?? 'EUR' ) ) );
+        $currency       = strtoupper( sanitize_text_field( (string) ( $metadata['currency'] ?? $payment['currency'] ?? 'EUR' ) ) );
         $email          = sanitize_email( (string) ( $payment_payer['email'] ?? $data['payerEmail'] ?? $order['payerEmail'] ?? '' ) );
         $first_name     = sanitize_text_field( (string) ( $payment_payer['firstName'] ?? $payment_payer['firstname'] ?? '' ) );
         $last_name      = sanitize_text_field( (string) ( $payment_payer['lastName'] ?? $payment_payer['lastname'] ?? '' ) );
@@ -610,6 +637,22 @@ final class AjaxHandler {
             campaign_id:    $campaign_id,
             post_payment_token: $post_payment_token
         );
+    }
+
+    private function normalize_helloasso_amount( mixed $amount ): int {
+        if ( is_array( $amount ) ) {
+            $amount = $amount['total'] ?? $amount['value'] ?? $amount['amount'] ?? $amount['totalAmount'] ?? 0;
+        }
+
+        return max( 0, (int) $amount );
+    }
+
+    private function sanitize_gateway_identifier( mixed $value ): string {
+        if ( is_array( $value ) ) {
+            $value = $value['id'] ?? '';
+        }
+
+        return sanitize_text_field( (string) $value );
     }
 
     private function parse_amount_to_cents( string $raw ): int {

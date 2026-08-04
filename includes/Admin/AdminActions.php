@@ -20,6 +20,7 @@ final class AdminActions {
 
     public function register(): void {
         add_action( 'admin_post_givoly_refund_donation', [ $this, 'handle_refund_donation' ] );
+        add_action( 'admin_post_givoly_cancel_subscription', [ $this, 'handle_cancel_subscription' ] );
         add_action( 'admin_post_givoly_export_donations', [ $this, 'handle_export_donations' ] );
         add_action( 'admin_post_givoly_queue_tax_receipts', [ $this, 'handle_queue_tax_receipts' ] );
         add_action( 'admin_post_givoly_add_manual_donation', [ $this, 'handle_add_manual_donation' ] );
@@ -83,6 +84,54 @@ final class AdminActions {
         } catch ( \RuntimeException $e ) {
             error_log( '[Givoly] Erreur remboursement don #' . $donation_id . ' : ' . \Givoly\Core\Format::redact_secrets( $e->getMessage() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
             wp_safe_redirect( add_query_arg( 'givoly_refund_error', '1', $redirect_base ) );
+        }
+
+        exit;
+    }
+
+    public function handle_cancel_subscription(): void {
+        $donation_id = absint( wp_unslash( $_POST['donation_id'] ?? 0 ) );
+
+        check_admin_referer( 'givoly_cancel_subscription_' . $donation_id );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( esc_html__( 'Accès refusé.', 'givoly' ) );
+        }
+
+        $redirect_base = admin_url( 'admin.php?page=givoly-donations' );
+        if ( ! $donation_id ) {
+            wp_safe_redirect( add_query_arg( 'givoly_subscription_cancel_error', '1', $redirect_base ) );
+            exit;
+        }
+
+        global $wpdb;
+
+        $subscription_id = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->prepare(
+                "SELECT dn.stripe_subscription_id
+                 FROM {$wpdb->prefix}givoly_donations d
+                 INNER JOIN {$wpdb->prefix}givoly_donors dn ON dn.id = d.donor_id
+                 WHERE d.id = %d AND d.gateway = 'stripe'
+                 LIMIT 1",
+                $donation_id
+            )
+        );
+
+        if ( ! is_string( $subscription_id ) || $subscription_id === '' ) {
+            wp_safe_redirect( add_query_arg( 'givoly_subscription_cancel_error', '1', $redirect_base ) );
+            exit;
+        }
+
+        try {
+            $cancelled = ( new StripeGateway( Settings::get_stripe_secret_key() ) )->cancel_subscription_at_period_end( $subscription_id );
+            if ( ! $cancelled ) {
+                throw new \RuntimeException( 'Stripe n’a pas confirmé la programmation de la résiliation.' );
+            }
+
+            wp_safe_redirect( add_query_arg( 'givoly_subscription_cancelled', '1', $redirect_base ) );
+        } catch ( \Throwable $exception ) {
+            error_log( '[Givoly] Erreur annulation abonnement #' . $donation_id . ' : ' . \Givoly\Core\Format::redact_secrets( $exception->getMessage() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            wp_safe_redirect( add_query_arg( 'givoly_subscription_cancel_error', '1', $redirect_base ) );
         }
 
         exit;

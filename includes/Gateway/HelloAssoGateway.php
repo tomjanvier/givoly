@@ -128,7 +128,7 @@ final class HelloAssoGateway {
      *
      * @return array<string,mixed>
      */
-    public function get_payments( int $page = 1, int $page_size = 100, string $from = '' ): array {
+    public function get_payments( int $page = 1, int $page_size = 100, string $from = '', string $to = '' ): array {
         $token = $this->get_valid_token();
         $base  = $this->sandbox ? self::API_SANDBOX : self::API_LIVE;
         $url   = add_query_arg(
@@ -137,6 +137,7 @@ final class HelloAssoGateway {
                     'pageIndex' => max( 1, $page ),
                     'pageSize'  => max( 1, min( 100, $page_size ) ),
                     'from'      => $from,
+                    'to'        => $to,
                 ],
                 static fn( mixed $value ): bool => $value !== ''
             ),
@@ -162,6 +163,40 @@ final class HelloAssoGateway {
 
         if ( $code < 200 || $code >= 300 || ! is_array( $data ) ) {
             throw new \RuntimeException( 'HelloAsso payments sync failed: ' . $this->extract_error_message( $data, $code ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+        }
+
+        return $data;
+    }
+
+    /**
+     * Récupère le détail d'un paiement lorsqu'une réponse paginée est synthétique.
+     *
+     * @return array<string,mixed>
+     */
+    public function get_payment( int|string $payment_id ): array {
+        $token = $this->get_valid_token();
+        $base  = $this->sandbox ? self::API_SANDBOX : self::API_LIVE;
+        $url   = $base . '/v5/payments/' . rawurlencode( (string) $payment_id );
+
+        $response = wp_remote_get(
+            $url,
+            [
+                'headers'     => [ 'Authorization' => 'Bearer ' . $token, 'Accept' => 'application/json' ],
+                'timeout'     => 20,
+                'redirection' => 0,
+                'user-agent'  => self::USER_AGENT,
+            ]
+        );
+
+        if ( is_wp_error( $response ) ) {
+            throw new \RuntimeException( 'HelloAsso API error: ' . $response->get_error_message() ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+        }
+
+        $code = wp_remote_retrieve_response_code( $response );
+        $data = json_decode( wp_remote_retrieve_body( $response ), true );
+
+        if ( $code < 200 || $code >= 300 || ! is_array( $data ) ) {
+            throw new \RuntimeException( 'HelloAsso payment detail failed: ' . $this->extract_error_message( $data, $code ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
 
         return $data;
