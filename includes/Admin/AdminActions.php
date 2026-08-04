@@ -23,6 +23,7 @@ final class AdminActions {
         add_action( 'admin_post_givoly_export_donations', [ $this, 'handle_export_donations' ] );
         add_action( 'admin_post_givoly_queue_tax_receipts', [ $this, 'handle_queue_tax_receipts' ] );
         add_action( 'admin_post_givoly_add_manual_donation', [ $this, 'handle_add_manual_donation' ] );
+        add_action( 'admin_post_givoly_update_donor', [ $this, 'handle_update_donor' ] );
         // Compatibilité avec l'action utilisée par les versions précédentes.
         add_action( 'admin_post_givoly_send_yearly_tax_receipts', [ $this, 'handle_send_yearly_tax_receipts' ] );
     }
@@ -225,6 +226,64 @@ final class AdminActions {
             error_log( '[Givoly] Manual donation error: ' . \Givoly\Core\Format::redact_secrets( $exception->getMessage() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
             wp_safe_redirect( add_query_arg( 'givoly_manual_error', '1', admin_url( 'admin.php?page=givoly-manual-donation' ) ) );
         }
+        exit;
+    }
+
+    public function handle_update_donor(): void {
+        $donor_id = absint( wp_unslash( $_POST['donor_id'] ?? 0 ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+        check_admin_referer( 'givoly_update_donor_' . $donor_id, 'givoly_update_donor_nonce' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( esc_html__( 'Accès refusé.', 'givoly' ) );
+        }
+
+        $redirect = admin_url( 'admin.php?page=givoly-donors' );
+        $email    = sanitize_email( wp_unslash( $_POST['email'] ?? '' ) );
+        $country  = strtoupper( sanitize_text_field( wp_unslash( $_POST['country'] ?? 'FR' ) ) );
+        $data     = [
+            'email'         => $email,
+            'first_name'    => sanitize_text_field( wp_unslash( $_POST['first_name'] ?? '' ) ),
+            'last_name'     => sanitize_text_field( wp_unslash( $_POST['last_name'] ?? '' ) ),
+            'company'       => sanitize_text_field( wp_unslash( $_POST['company'] ?? '' ) ),
+            'address_line1' => sanitize_text_field( wp_unslash( $_POST['address_line1'] ?? '' ) ),
+            'address_line2' => sanitize_text_field( wp_unslash( $_POST['address_line2'] ?? '' ) ),
+            'postal_code'   => sanitize_text_field( wp_unslash( $_POST['postal_code'] ?? '' ) ),
+            'city'          => sanitize_text_field( wp_unslash( $_POST['city'] ?? '' ) ),
+            'country'       => preg_match( '/^[A-Z]{2}$/', $country ) ? $country : 'FR',
+            'phone'         => sanitize_text_field( wp_unslash( $_POST['phone'] ?? '' ) ),
+            'updated_at'    => current_time( 'mysql', true ),
+        ];
+
+        if ( ! $donor_id || ! is_email( $email ) || '' === $data['first_name'] || '' === $data['last_name'] ) {
+            wp_safe_redirect( add_query_arg( [ 'edit_donor' => $donor_id, 'givoly_donor_update_error' => '1' ], $redirect ) );
+            exit;
+        }
+
+        global $wpdb;
+        $table = esc_sql( $wpdb->prefix . 'givoly_donors' );
+        $duplicate_id = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->prepare( "SELECT id FROM {$table} WHERE email = %s AND id <> %d LIMIT 1", $email, $donor_id ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
+        );
+
+        if ( $duplicate_id ) {
+            wp_safe_redirect( add_query_arg( [ 'edit_donor' => $donor_id, 'givoly_donor_update_error' => '1' ], $redirect ) );
+            exit;
+        }
+
+        $updated = $wpdb->update(
+            $table,
+            $data,
+            [ 'id' => $donor_id ],
+            array_fill( 0, count( $data ), '%s' ),
+            [ '%d' ]
+        ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+
+        if ( false === $updated ) {
+            wp_safe_redirect( add_query_arg( [ 'edit_donor' => $donor_id, 'givoly_donor_update_error' => '1' ], $redirect ) );
+            exit;
+        }
+
+        wp_safe_redirect( add_query_arg( 'givoly_donor_updated', '1', $redirect ) );
         exit;
     }
 
