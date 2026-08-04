@@ -18,10 +18,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Installer {
 
     const DB_VERSION_OPTION = 'givoly_db_version';
-    const DB_VERSION        = '1.8';
+    const DB_VERSION        = '1.9';
 
     public static function activate(): void {
         self::create_tables();
+        LegacyMigration::run();
         update_option( self::DB_VERSION_OPTION, self::DB_VERSION, false );
         add_option( \Givoly\Admin\Settings::OPT_PUBLIC_BRANDING_ENABLED, '0', '', false );
         \Givoly\Mail\MailQueue::schedule();
@@ -32,8 +33,11 @@ final class Installer {
         if ( self::needs_upgrade() ) {
             self::run_migrations(); // avant dbDelta pour que les renommages soient visibles
             self::create_tables();
+            self::run_migrations(); // les installations sans table courante arrivent ici
             update_option( self::DB_VERSION_OPTION, self::DB_VERSION, false );
         }
+
+        LegacyMigration::run();
     }
 
     public static function deactivate(): void {
@@ -59,6 +63,10 @@ final class Installer {
         delete_option( 'givoly_appearance_custom_css' );
 
         $table = $wpdb->prefix . 'givoly_donations';
+
+        if ( ! self::table_exists( $table ) ) {
+            return;
+        }
 
         // v1.3 → v1.4 : renommer stripe_payment_intent_id → gateway_refund_ref
         $old_col = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -294,5 +302,13 @@ final class Installer {
             KEY          idx_batch_status (batch_id, status)
         ) $charset;" );
 
+    }
+
+    private static function table_exists( string $table ): bool {
+        global $wpdb;
+
+        return (bool) $wpdb->get_var(
+            $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $table ) ) // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+        );
     }
 }

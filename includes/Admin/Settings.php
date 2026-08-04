@@ -85,8 +85,34 @@ final class Settings {
 
     // ── Lecture ────────────────────────────────────────────────────────────
 
+    /**
+     * Lit une option Givoly et retombe sur sa clé Givasso si nécessaire.
+     *
+     * Le fallback couvre notamment un site où l'ancien plugin est encore
+     * actif pendant la transition ou une migration interrompue.
+     *
+     * @param mixed $default
+     * @return mixed
+     */
+    private static function get_compat_option( string $option, $default = null ) {
+        $value = get_option( $option, null );
+        if ( null !== $value ) {
+            return $value;
+        }
+
+        if ( str_starts_with( $option, 'givoly_' ) ) {
+            $legacy = 'givasso_' . substr( $option, strlen( 'givoly_' ) );
+            $value  = get_option( $legacy, null );
+            if ( null !== $value ) {
+                return $value;
+            }
+        }
+
+        return $default;
+    }
+
     public static function get_stripe_mode(): string {
-        return get_option( self::OPT_STRIPE_MODE, 'test' );
+        return self::get_compat_option( self::OPT_STRIPE_MODE, 'test' );
     }
 
     public static function is_test_mode(): bool {
@@ -95,42 +121,42 @@ final class Settings {
 
     public static function get_stripe_public_key(): string {
         $opt = self::is_test_mode() ? self::OPT_STRIPE_PK_TEST : self::OPT_STRIPE_PK_LIVE;
-        return (string) get_option( $opt, '' );
+        return (string) self::get_compat_option( $opt, '' );
     }
 
     public static function get_stripe_secret_key(): string {
         $opt = self::is_test_mode() ? self::OPT_STRIPE_SK_TEST : self::OPT_STRIPE_SK_LIVE;
-        return (string) get_option( $opt, '' );
+        return (string) self::get_compat_option( $opt, '' );
     }
 
     public static function get_webhook_secret(): string {
-        return (string) get_option( self::OPT_WEBHOOK_SECRET, '' );
+        return (string) self::get_compat_option( self::OPT_WEBHOOK_SECRET, '' );
     }
 
     public static function get_success_url(): string {
-        $url = (string) get_option( self::OPT_SUCCESS_URL, '' );
+        $url = (string) self::get_compat_option( self::OPT_SUCCESS_URL, '' );
         return $url ?: home_url( '/?givoly=success' );
     }
 
     public static function get_cancel_url(): string {
-        $url = (string) get_option( self::OPT_CANCEL_URL, '' );
+        $url = (string) self::get_compat_option( self::OPT_CANCEL_URL, '' );
         return $url ?: home_url( '/?givoly=cancel' );
     }
 
     public static function should_show_post_payment_phone(): bool {
-        return (string) get_option( self::OPT_POST_PAYMENT_SHOW_PHONE, '1' ) === '1';
+        return (string) self::get_compat_option( self::OPT_POST_PAYMENT_SHOW_PHONE, '1' ) === '1';
     }
 
     public static function should_show_post_payment_address(): bool {
-        return (string) get_option( self::OPT_POST_PAYMENT_SHOW_ADDRESS, '1' ) === '1';
+        return (string) self::get_compat_option( self::OPT_POST_PAYMENT_SHOW_ADDRESS, '1' ) === '1';
     }
 
     public static function is_stripe_enabled(): bool {
-        return (string) get_option( self::OPT_STRIPE_ENABLED, '1' ) === '1';
+        return (string) self::get_compat_option( self::OPT_STRIPE_ENABLED, '1' ) === '1';
     }
 
     public static function is_helloasso_enabled(): bool {
-        return (string) get_option( self::OPT_HELLOASSO_ENABLED, '1' ) === '1';
+        return (string) self::get_compat_option( self::OPT_HELLOASSO_ENABLED, '1' ) === '1';
     }
 
     public static function get_enabled_gateways(): array {
@@ -147,14 +173,14 @@ final class Settings {
 
     // ── Getters association ────────────────────────────────────────────────
 
-    public static function get_assoc_name(): string        { return (string) get_option( self::OPT_ASSOC_NAME, '' ); }
-    public static function get_assoc_address(): string     { return (string) get_option( self::OPT_ASSOC_ADDRESS, '' ); }
-    public static function get_assoc_postal_code(): string { return (string) get_option( self::OPT_ASSOC_POSTAL_CODE, '' ); }
-    public static function get_assoc_city(): string        { return (string) get_option( self::OPT_ASSOC_CITY, '' ); }
-    public static function get_assoc_siret(): string       { return (string) get_option( self::OPT_ASSOC_SIRET, '' ); }
-    public static function get_assoc_rna(): string         { return (string) get_option( self::OPT_ASSOC_RNA, '' ); }
-    public static function get_assoc_fiscal_id(): string   { return (string) get_option( self::OPT_ASSOC_FISCAL_ID, '' ); }
-    public static function get_assoc_email(): string       { return (string) get_option( self::OPT_ASSOC_EMAIL, get_option( 'admin_email', '' ) ); }
+    public static function get_assoc_name(): string        { return (string) self::get_compat_option( self::OPT_ASSOC_NAME, '' ); }
+    public static function get_assoc_address(): string     { return (string) self::get_compat_option( self::OPT_ASSOC_ADDRESS, '' ); }
+    public static function get_assoc_postal_code(): string { return (string) self::get_compat_option( self::OPT_ASSOC_POSTAL_CODE, '' ); }
+    public static function get_assoc_city(): string        { return (string) self::get_compat_option( self::OPT_ASSOC_CITY, '' ); }
+    public static function get_assoc_siret(): string       { return (string) self::get_compat_option( self::OPT_ASSOC_SIRET, '' ); }
+    public static function get_assoc_rna(): string         { return (string) self::get_compat_option( self::OPT_ASSOC_RNA, '' ); }
+    public static function get_assoc_fiscal_id(): string   { return (string) self::get_compat_option( self::OPT_ASSOC_FISCAL_ID, '' ); }
+    public static function get_assoc_email(): string       { return (string) self::get_compat_option( self::OPT_ASSOC_EMAIL, get_option( 'admin_email', '' ) ); }
 
     // ── Getters email ──────────────────────────────────────────────────────
 
@@ -163,7 +189,7 @@ final class Settings {
      * Vide si non configuré — le template affiche alors uniquement le nom textuel.
      */
     public static function get_email_logo_url(): string {
-        return (string) get_option( self::OPT_EMAIL_LOGO_URL, '' );
+        return (string) self::get_compat_option( self::OPT_EMAIL_LOGO_URL, '' );
     }
 
     /**
@@ -171,7 +197,7 @@ final class Settings {
      * Utilisée pour l'en-tête et le montant.
      */
     public static function get_email_primary_color(): string {
-        $color = (string) get_option( self::OPT_EMAIL_PRIMARY_COLOR, '' );
+        $color = (string) self::get_compat_option( self::OPT_EMAIL_PRIMARY_COLOR, '' );
         // Valider le format hex strict : #rgb (3) ou #rrggbb (6) uniquement
         return preg_match( '/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $color ) ? $color : '#1e293b';
     }
@@ -181,56 +207,56 @@ final class Settings {
      * Défaut : nom de l'association (ou nom du blog si l'asso n'est pas configurée).
      */
     public static function get_email_sender_name(): string {
-        $name = (string) get_option( self::OPT_EMAIL_SENDER_NAME, '' );
+        $name = (string) self::get_compat_option( self::OPT_EMAIL_SENDER_NAME, '' );
         return $name ?: ( self::get_assoc_name() ?: get_bloginfo( 'name' ) );
     }
 
     public static function get_email_thank_subject(): string {
-        $subject = (string) get_option( self::OPT_EMAIL_THANK_SUBJECT, '' );
+        $subject = (string) self::get_compat_option( self::OPT_EMAIL_THANK_SUBJECT, '' );
         return $subject !== '' ? $subject : __( 'Merci pour votre don — {site_name}', 'givoly' );
     }
 
     public static function get_email_thank_body(): string {
-        $body = (string) get_option( self::OPT_EMAIL_THANK_BODY, '' );
+        $body = (string) self::get_compat_option( self::OPT_EMAIL_THANK_BODY, '' );
         return $body !== '' ? $body : __( "Bonjour {first_name},\n\nMerci pour votre don de {amount}. Votre soutien est précieux.", 'givoly' );
     }
 
     public static function get_email_admin_donation_subject(): string {
-        $subject = (string) get_option( self::OPT_EMAIL_ADMIN_DONATION_SUBJECT, '' );
+        $subject = (string) self::get_compat_option( self::OPT_EMAIL_ADMIN_DONATION_SUBJECT, '' );
         return $subject !== '' ? $subject : __( '[{site_name}] Nouveau don reçu — {amount}', 'givoly' );
     }
 
     public static function get_email_admin_donation_body(): string {
-        $body = (string) get_option( self::OPT_EMAIL_ADMIN_DONATION_BODY, '' );
+        $body = (string) self::get_compat_option( self::OPT_EMAIL_ADMIN_DONATION_BODY, '' );
         return $body !== '' ? $body : __( "Un nouveau don a été reçu.\n\nID : {donation_id}\nMontant : {amount}\nDonateur : {first_name} {last_name}\nEmail : {email}\nCampagne : {campaign}", 'givoly' );
     }
 
     public static function get_email_tax_receipt_subject(): string {
-        $subject = (string) get_option( self::OPT_EMAIL_TAX_RECEIPT_SUBJECT, '' );
+        $subject = (string) self::get_compat_option( self::OPT_EMAIL_TAX_RECEIPT_SUBJECT, '' );
         return $subject !== '' ? $subject : __( 'Votre reçu fiscal {year} — {association}', 'givoly' );
     }
 
     public static function get_email_tax_receipt_body(): string {
-        $body = (string) get_option( self::OPT_EMAIL_TAX_RECEIPT_BODY, '' );
+        $body = (string) self::get_compat_option( self::OPT_EMAIL_TAX_RECEIPT_BODY, '' );
         return $body !== '' ? $body : __( "Bonjour {donor_name},\n\nVous trouverez ci-dessous le récapitulatif de vos dons réalisés en {year}.\n\nMontant total : {amount}\nNombre de dons : {donation_count}\nAssociation : {association}\nAdresse : {association_address}\nSIRET : {siret}\nRNA : {rna}\nAgrément / rescrit fiscal : {fiscal_id}\n\nCe message facilite l'envoi de fin d'année. Vérifiez les informations de l'association et joignez votre reçu fiscal officiel si nécessaire avant utilisation comme justificatif.\n\nMerci pour votre soutien.", 'givoly' );
     }
 
     public static function should_attach_tax_receipt_pdf(): bool {
-        return (string) get_option( self::OPT_TAX_RECEIPT_PDF_ENABLED, '1' ) === '1';
+        return (string) self::get_compat_option( self::OPT_TAX_RECEIPT_PDF_ENABLED, '1' ) === '1';
     }
 
     public static function get_tax_receipt_pdf_title(): string {
-        $title = (string) get_option( self::OPT_TAX_RECEIPT_PDF_TITLE, '' );
+        $title = (string) self::get_compat_option( self::OPT_TAX_RECEIPT_PDF_TITLE, '' );
         return $title !== '' ? $title : __( 'Récapitulatif des dons — {year}', 'givoly' );
     }
 
     public static function get_tax_receipt_pdf_body(): string {
-        $body = (string) get_option( self::OPT_TAX_RECEIPT_PDF_BODY, '' );
+        $body = (string) self::get_compat_option( self::OPT_TAX_RECEIPT_PDF_BODY, '' );
         return $body !== '' ? $body : __( "Donateur : {donor_name}\n\nMontant total des dons : {amount}\nNombre de dons : {donation_count}\n\nAssociation : {association}\nAdresse : {association_address}\nSIRET : {siret}\nRNA : {rna}\nAgrément / rescrit fiscal : {fiscal_id}", 'givoly' );
     }
 
     public static function get_tax_receipt_pdf_footer(): string {
-        $footer = (string) get_option( self::OPT_TAX_RECEIPT_PDF_FOOTER, '' );
+        $footer = (string) self::get_compat_option( self::OPT_TAX_RECEIPT_PDF_FOOTER, '' );
         return $footer !== '' ? $footer : __( 'Ce récapitulatif accompagne l’email et ne remplace pas un reçu fiscal officiel lorsque celui-ci est requis.', 'givoly' );
     }
 
@@ -241,7 +267,7 @@ final class Settings {
      * Retourne '' si non définie — FormConfig utilise alors la couleur du thème.
      */
     public static function get_appearance_primary_color(): string {
-        $color = (string) get_option( self::OPT_APPEARANCE_PRIMARY_COLOR, '' );
+        $color = (string) self::get_compat_option( self::OPT_APPEARANCE_PRIMARY_COLOR, '' );
         return preg_match( '/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $color ) ? $color : '';
     }
 
@@ -250,7 +276,7 @@ final class Settings {
      * Retourne '' si non définie.
      */
     public static function get_appearance_accent_color(): string {
-        $color = (string) get_option( self::OPT_APPEARANCE_ACCENT_COLOR, '' );
+        $color = (string) self::get_compat_option( self::OPT_APPEARANCE_ACCENT_COLOR, '' );
         return preg_match( '/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $color ) ? $color : '';
     }
 
@@ -258,7 +284,7 @@ final class Settings {
      * Rayon des coins : 'square', 'rounded' (défaut), 'pill'.
      */
     public static function get_appearance_radius(): string {
-        $val = (string) get_option( self::OPT_APPEARANCE_RADIUS, 'rounded' );
+        $val = (string) self::get_compat_option( self::OPT_APPEARANCE_RADIUS, 'rounded' );
         return in_array( $val, [ 'square', 'rounded', 'pill' ], true ) ? $val : 'rounded';
     }
 
@@ -266,7 +292,7 @@ final class Settings {
      * Style du bouton : 'filled' (défaut) ou 'outline'.
      */
     public static function get_appearance_btn_style(): string {
-        $val = (string) get_option( self::OPT_APPEARANCE_BTN_STYLE, 'filled' );
+        $val = (string) self::get_compat_option( self::OPT_APPEARANCE_BTN_STYLE, 'filled' );
         return in_array( $val, [ 'filled', 'outline' ], true ) ? $val : 'filled';
     }
 
@@ -275,7 +301,7 @@ final class Settings {
     }
 
     public static function should_show_public_branding(): bool {
-        return (string) get_option( self::OPT_PUBLIC_BRANDING_ENABLED, '0' ) === '1';
+        return (string) self::get_compat_option( self::OPT_PUBLIC_BRANDING_ENABLED, '0' ) === '1';
     }
 
     // ── Stripe ─────────────────────────────────────────────────────────────
@@ -287,36 +313,36 @@ final class Settings {
     // ── HelloAsso ──────────────────────────────────────────────────────────
 
     public static function get_helloasso_client_id(): string {
-        return (string) get_option( self::OPT_HA_CLIENT_ID, '' );
+        return (string) self::get_compat_option( self::OPT_HA_CLIENT_ID, '' );
     }
 
     public static function get_helloasso_client_secret(): string {
-        return (string) get_option( self::OPT_HA_CLIENT_SECRET, '' );
+        return (string) self::get_compat_option( self::OPT_HA_CLIENT_SECRET, '' );
     }
 
     public static function get_helloasso_org_slug(): string {
-        return (string) get_option( self::OPT_HA_ORG_SLUG, '' );
+        return (string) self::get_compat_option( self::OPT_HA_ORG_SLUG, '' );
     }
 
     public static function get_helloasso_mode(): string {
-        return (string) get_option( self::OPT_HA_MODE, 'sandbox' );
+        return (string) self::get_compat_option( self::OPT_HA_MODE, 'sandbox' );
     }
 
     public static function get_helloasso_signature_key(): string {
-        return (string) get_option( self::OPT_HA_SIGNATURE_KEY, '' );
+        return (string) self::get_compat_option( self::OPT_HA_SIGNATURE_KEY, '' );
     }
 
 
     public static function get_helloasso_button_notice(): string {
-        return (string) get_option( self::OPT_HA_BUTTON_NOTICE, '' );
+        return (string) self::get_compat_option( self::OPT_HA_BUTTON_NOTICE, '' );
     }
 
     public static function get_helloasso_other_payments_url(): string {
-        return (string) get_option( self::OPT_HA_OTHER_PAYMENTS_URL, '' );
+        return (string) self::get_compat_option( self::OPT_HA_OTHER_PAYMENTS_URL, '' );
     }
 
     public static function should_use_helloasso_other_payments_for_once(): bool {
-        return (string) get_option( self::OPT_HA_ONCE_USE_OTHER_PAYMENTS_URL, '0' ) === '1';
+        return (string) self::get_compat_option( self::OPT_HA_ONCE_USE_OTHER_PAYMENTS_URL, '0' ) === '1';
     }
 
     public static function is_helloasso_sandbox(): bool {
@@ -332,7 +358,7 @@ final class Settings {
     // ── Passerelle par défaut ──────────────────────────────────────────────
 
     public static function get_default_gateway(): string {
-        $gw = (string) get_option( self::OPT_DEFAULT_GATEWAY, 'stripe' );
+        $gw = (string) self::get_compat_option( self::OPT_DEFAULT_GATEWAY, 'stripe' );
         if ( ! in_array( $gw, [ 'stripe', 'helloasso' ], true ) ) {
             $gw = 'stripe';
         }

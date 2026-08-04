@@ -4,7 +4,7 @@ Tags: donation, nonprofit, stripe, helloasso, fundraising
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 8.1
-Stable tag: 1.2.0
+Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -88,6 +88,10 @@ Before sending, complete the nonprofit details in **Givoly > Settings > Organiza
 3. Configure your payment gateways in **Givoly > Settings**.
 4. Publish a donation form with `[givoly_form]`.
 
+= Upgrade from Givasso =
+
+Deactivate Givasso before activating Givoly. On the first load, Givoly copies the former `givasso_*` settings and the `givasso_donors`, `givasso_campaigns`, and `givasso_donations` tables into their `givoly_*` counterparts. The original tables are kept as a safety copy, and old Givasso shortcodes remain supported.
+
 == Frequently Asked Questions ==
 
 = Who develops Givoly? =
@@ -138,6 +142,11 @@ Givoly relies on third-party payment services only when a site administrator con
 * Privacy policy: https://www.helloasso.com/confidentialite
 
 == Changelog ==
+
+= 1.3.0 =
+* Added non-destructive migration of legacy Givasso options, donors, campaigns, and donations.
+* Added compatibility aliases for Givasso constants and shortcodes.
+* Kept Givasso data intact after migration and added a read fallback during the transition.
 
 = 1.2.0 =
 * Added an associative support block with links to Givoly and PLAID·ACT on every Givoly admin page.
