@@ -102,6 +102,9 @@ final class TaxReceiptService {
         $table_dn = esc_sql( $wpdb->prefix . 'givoly_donors' );
         $table_d  = esc_sql( $wpdb->prefix . 'givoly_donations' );
 
+        // Les identifiants de tables ne peuvent pas être des placeholders.
+        // Ils proviennent du préfixe WordPress et sont échappés avant interpolation.
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
         return (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prepare(
                 "SELECT COUNT(*) FROM (
@@ -110,10 +113,11 @@ final class TaxReceiptService {
                     INNER JOIN {$table_d} d ON d.donor_id = dn.id
                     WHERE d.status = 'completed' AND d.created_at >= %s AND d.created_at < %s AND dn.email <> ''
                     GROUP BY dn.id, d.currency
-                ) AS recipients", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table identifiers are escaped from the trusted WordPress prefix.
+                ) AS recipients",
                 $start,
                 $end
             )
         );
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
     }
 }

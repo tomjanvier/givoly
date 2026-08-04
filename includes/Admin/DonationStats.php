@@ -22,13 +22,17 @@ final class DonationStats {
         global $wpdb;
 
         $table = esc_sql( $wpdb->prefix . 'givoly_donations' );
+        // Les identifiants de tables ne peuvent pas être des placeholders.
+        // Ils proviennent du préfixe WordPress et sont échappés avant interpolation.
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
         $row   = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             "SELECT COALESCE( SUM(amount), 0 ) AS total_amount,
                     COUNT(*) AS total_donations,
                     COUNT(DISTINCT donor_id) AS total_donors
              FROM {$table}
-             WHERE status = 'completed'" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table identifier is escaped from the trusted WordPress prefix.
+             WHERE status = 'completed'"
         );
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
 
         $total_amount    = (float) ( $row->total_amount ?? 0 );
         $total_donations = (int) ( $row->total_donations ?? 0 );
@@ -56,6 +60,7 @@ final class DonationStats {
         $start_date    = $start_month->format( 'Y-m-d H:i:s' );
         $table         = esc_sql( $wpdb->prefix . 'givoly_donations' );
 
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
         $rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prepare(
                 "SELECT DATE_FORMAT(created_at, '%%Y-%%m') AS month,
@@ -64,10 +69,11 @@ final class DonationStats {
                  FROM {$table}
                  WHERE status = 'completed' AND created_at >= %s
                  GROUP BY DATE_FORMAT(created_at, '%%Y-%%m')
-                 ORDER BY month ASC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table identifier is escaped from the trusted WordPress prefix.
+                 ORDER BY month ASC",
                 $start_date
             )
         );
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
 
         $by_month = [];
         foreach ( (array) $rows as $row ) {
@@ -106,6 +112,7 @@ final class DonationStats {
         $donors_table    = esc_sql( $wpdb->prefix . 'givoly_donors' );
         $campaigns_table = esc_sql( $wpdb->prefix . 'givoly_campaigns' );
 
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
         return (array) $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prepare(
                 "SELECT d.id, d.amount, d.currency, d.status, d.donor_message, d.donor_notes, d.created_at,
@@ -116,9 +123,10 @@ final class DonationStats {
                  LEFT JOIN {$campaigns_table} c ON d.campaign_id = c.id
                  WHERE d.status = 'completed'
                  ORDER BY d.created_at DESC
-                 LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table identifiers are escaped from the trusted WordPress prefix.
+                 LIMIT %d",
                 max( 1, min( 50, $limit ) )
             )
         );
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
     }
 }

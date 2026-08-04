@@ -159,6 +159,11 @@ final class Installer {
     private static function deduplicate_gateway_transactions( string $table ): void {
         global $wpdb;
 
+        $table = esc_sql( $table );
+
+        // L'identifiant de table provient du préfixe WordPress et est échappé.
+        // Il ne peut pas être remplacé par un placeholder SQL.
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
         $duplicates = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             "SELECT gateway, gateway_transaction_id, GROUP_CONCAT(id ORDER BY id ASC) AS ids,
                     MAX(CASE WHEN status = 'refunded' THEN 1 ELSE 0 END) AS has_refunded,
@@ -166,9 +171,10 @@ final class Installer {
              FROM {$table}
              WHERE gateway_transaction_id IS NOT NULL AND gateway_transaction_id <> ''
              GROUP BY gateway, gateway_transaction_id
-             HAVING COUNT(*) > 1", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table identifier is escaped from the trusted WordPress prefix.
+             HAVING COUNT(*) > 1",
             ARRAY_A
         );
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
 
         foreach ( $duplicates as $duplicate ) {
             $ids = array_values( array_filter( array_map( 'intval', explode( ',', (string) $duplicate['ids'] ) ) ) );
@@ -201,12 +207,14 @@ final class Installer {
             }
 
             $delete_placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+            // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,PluginCheck.Security.DirectDB.UnescapedDBParameter
             $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->prepare(
-                    "DELETE FROM {$table} WHERE id IN ({$delete_placeholders})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table identifier is escaped and placeholders are generated only from integer IDs.
+                    "DELETE FROM {$table} WHERE id IN ({$delete_placeholders})",
                     ...$ids
                 )
             );
+            // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,PluginCheck.Security.DirectDB.UnescapedDBParameter
         }
     }
 
