@@ -4,7 +4,7 @@ Tags: donation, nonprofit, stripe, helloasso, fundraising
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 8.1
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -138,6 +138,12 @@ Givoly relies on third-party payment services only when a site administrator con
 * Privacy policy: https://www.helloasso.com/confidentialite
 
 == Changelog ==
+
+= 1.2.0 =
+* Added an associative support block with links to Givoly and PLAID·ACT on every Givoly admin page.
+* Added a WordPress dashboard widget with donation totals, recent donors, and a six-month chart.
+* Improved the Givoly dashboard with KPIs, quick actions, recent donor data, and an accessible empty state.
+* Added a reduced-motion-aware support button animation and responsive admin layouts.
 
 = 1.1.0 =
 * Added a persistent email queue processed by WP-Cron so payment webhooks do not wait for SMTP.
