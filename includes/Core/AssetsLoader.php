@@ -86,7 +86,7 @@ final class AssetsLoader {
             GIVOLY_VERSION
         );
 
-        if ( in_array( $page, [ 'givoly-campaigns', 'givoly-settings' ], true ) ) {
+        if ( in_array( $page, [ 'givoly-campaigns', 'givoly-settings', 'givoly-dashboard' ], true ) ) {
             wp_enqueue_script(
                 'givoly-admin',
                 GIVOLY_PLUGIN_URL . 'assets/js/givoly-admin.js',

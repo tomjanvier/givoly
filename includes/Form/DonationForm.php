@@ -46,9 +46,17 @@ final class DonationForm {
         if ( ! Settings::should_show_public_branding() ) {
             return;
         }
+        $branding_url = add_query_arg(
+            [
+                'utm_source'   => 'givoly',
+                'utm_medium'   => 'plugin_frontend',
+                'utm_campaign' => 'branding',
+            ],
+            self::BRANDING_URL
+        );
         ?>
         <div class="givoly-branding" data-givoly-branding="optional" aria-label="<?php esc_attr_e( 'Propulsé par Givoly', 'givoly' ); ?>">
-            <a class="givoly-branding__link" href="<?php echo esc_url( self::BRANDING_URL ); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e( 'Découvrir Givoly', 'givoly' ); ?>">
+            <a class="givoly-branding__link" href="<?php echo esc_url( $branding_url ); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e( 'Découvrir Givoly', 'givoly' ); ?>">
                 <img class="givoly-branding__logo" src="<?php echo esc_url( GIVOLY_PLUGIN_URL . self::BRANDING_LOGO_PATH ); ?>" alt="Givoly" loading="lazy" decoding="async">
             </a>
         </div>

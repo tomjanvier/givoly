@@ -385,6 +385,64 @@
     margin-bottom: 20px;
 }
 
+.givoly-install-panel {
+    margin-bottom: 20px;
+    background: #f8fcfa;
+}
+
+.givoly-install-panel__badge {
+    padding: 5px 9px;
+    border: 1px solid #b8dcca;
+    border-radius: 999px;
+    background: #E8F5EE;
+    color: #1B6B4A;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+.givoly-shortcode-field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 560px;
+    padding: 8px;
+    border: 1px solid #c6e0d6;
+    border-radius: 6px;
+    background: #fff;
+}
+
+.givoly-shortcode-field code {
+    flex: 1;
+    padding: 6px 8px;
+    color: #1A2E24;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.givoly-copy-btn {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.givoly-install-panel__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 12px;
+}
+
+.givoly-install-panel__footer .button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
 .givoly-panel {
     background: #fff;
     border: 1px solid #d9e9e1;
@@ -755,6 +813,12 @@
 
     .givoly-panel {
         padding: 18px 16px;
+    }
+
+    .givoly-shortcode-field,
+    .givoly-install-panel__footer {
+        align-items: stretch;
+        flex-direction: column;
     }
 
     .givoly-admin-support__actions {
