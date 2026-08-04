@@ -40,7 +40,8 @@ final class PaymentProcessor {
         int    $campaign_id = 0,
         string $post_payment_token = '',
         string $stripe_customer_id = '',
-        string $stripe_subscription_id = ''
+        string $stripe_subscription_id = '',
+        string $gateway_refund_ref = ''
     ): void {
         global $wpdb;
 
@@ -48,12 +49,22 @@ final class PaymentProcessor {
             return;
         }
 
-        // Idempotence : ignorer si ce paiement est déjà enregistré
+        // Idempotence : Stripe peut notifier le même paiement via Checkout puis
+        // invoice.payment_succeeded. La référence du payment intent permet de
+        // reconnaître ces deux notifications comme un seul don.
         $exists = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prepare(
-                "SELECT id FROM {$wpdb->prefix}givoly_donations WHERE gateway = %s AND gateway_transaction_id = %s",
+                "SELECT id FROM {$wpdb->prefix}givoly_donations
+                 WHERE gateway = %s
+                 AND (
+                    gateway_transaction_id = %s
+                    OR ( gateway_refund_ref <> '' AND %s <> '' AND gateway_refund_ref = %s )
+                 )
+                 LIMIT 1",
                 $gateway,
-                $transaction_id
+                $transaction_id,
+                $gateway_refund_ref,
+                $gateway_refund_ref
             )
         );
 
@@ -96,13 +107,14 @@ final class PaymentProcessor {
                 'status'                 => 'completed',
                 'gateway'                => $gateway,
                 'gateway_transaction_id' => $transaction_id,
+                'gateway_refund_ref'     => $gateway_refund_ref !== '' ? $gateway_refund_ref : null,
                 'post_payment_token'     => $post_payment_token !== '' ? $post_payment_token : null,
                 'donor_message'          => $campaign ?: null,
                 'donor_notes'            => $donor_notes !== '' ? $donor_notes : null,
                 'created_at'             => current_time( 'mysql', true ),
                 'updated_at'             => current_time( 'mysql', true ),
             ],
-            [ '%d', '%d', '%f', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ]
+            [ '%d', '%d', '%f', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ]
         );
 
         if ( false === $inserted && $this->is_duplicate_entry_error( $wpdb->last_error ) ) {

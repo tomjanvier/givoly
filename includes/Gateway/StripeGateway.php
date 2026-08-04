@@ -96,6 +96,15 @@ final class StripeGateway {
         return $this->get( '/subscriptions/' . rawurlencode( $subscription_id ) );
     }
 
+    /**
+     * Retourne les données d'un client Stripe, notamment son adresse e-mail.
+     *
+     * @return array<string,mixed>
+     */
+    public function get_customer( string $customer_id ): array {
+        return $this->get( '/customers/' . rawurlencode( $customer_id ) );
+    }
+
     /** Crée une session du portail client Stripe. */
     public function create_billing_portal_session( string $customer_id, string $return_url ): string {
         $response = $this->post( '/billing_portal/sessions', [
