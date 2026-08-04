@@ -16,6 +16,7 @@ final class AdminMenu {
     public function register(): void {
         add_action( 'admin_menu', [ $this, 'add_menus' ] );
         add_action( 'admin_notices', [ $this, 'render_support_header' ] );
+        add_action( 'wp_dashboard_setup', [ $this, 'register_wordpress_dashboard_widget' ] );
     }
 
     public function add_menus(): void {
@@ -67,14 +68,60 @@ final class AdminMenu {
         if ( ! str_starts_with( $page, 'givoly-' ) ) {
             return;
         }
+
+        $givoly_url   = 'https://givoly.org';
+        $plaidact_url = 'https://plaidact.org';
+        $donate_url   = $givoly_url . '/don';
         ?>
-        <div class="givoly-admin-support">
-            <img class="givoly-admin-support__logo" src="<?php echo esc_url( GIVOLY_PLUGIN_URL . 'logo.png' ); ?>" alt="Givoly">
-            <a class="button button-primary givoly-admin-support__button" href="<?php echo esc_url( 'https://givoly.org/don' ); ?>" target="_blank" rel="noopener noreferrer">
-                <?php esc_html_e( 'Donner pour soutenir le plugin', 'givoly' ); ?>
-            </a>
-        </div>
+        <section class="givoly-admin-support" aria-labelledby="givoly-support-title">
+            <div class="givoly-admin-support__copy">
+                <p class="givoly-admin-support__title" id="givoly-support-title">
+                    <span class="givoly-admin-support__heart" aria-hidden="true">♥</span>
+                    <?php esc_html_e( 'Gratuit, associatif, sans mauvaise surprise.', 'givoly' ); ?>
+                </p>
+                <p class="givoly-admin-support__text">
+                    <?php
+                    echo wp_kses(
+                        sprintf(
+                            /* translators: 1: PLAID·ACT link, 2: Givoly link. */
+                            __( '%2$s est maintenu par %1$s, une association à but non lucratif de défense des Droits humains. L’objectif est simple : proposer aux associations un outil clair pour recevoir des dons en ligne depuis WordPress, sans abonnement imposé et sans commission ajoutée par le plugin.', 'givoly' ),
+                            '<a href="' . esc_url( $plaidact_url ) . '" target="_blank" rel="noopener noreferrer">PLAID·ACT</a>',
+                            '<a href="' . esc_url( $givoly_url ) . '" target="_blank" rel="noopener noreferrer">Givoly</a>'
+                        ),
+                        [ 'a' => [ 'href' => true, 'target' => true, 'rel' => true ] ]
+                    );
+                    ?>
+                </p>
+            </div>
+            <div class="givoly-admin-support__actions">
+                <a class="givoly-admin-support__link" href="<?php echo esc_url( $givoly_url ); ?>" target="_blank" rel="noopener noreferrer">
+                    <?php esc_html_e( 'Découvrir Givoly', 'givoly' ); ?>
+                </a>
+                <a class="givoly-admin-support__link" href="<?php echo esc_url( $plaidact_url ); ?>" target="_blank" rel="noopener noreferrer">
+                    <?php esc_html_e( 'PLAID·ACT', 'givoly' ); ?>
+                </a>
+                <a class="button button-primary givoly-admin-support__button" href="<?php echo esc_url( $donate_url ); ?>" target="_blank" rel="noopener noreferrer">
+                    <span aria-hidden="true">♥</span>
+                    <?php esc_html_e( 'Faire un don pour aider', 'givoly' ); ?>
+                </a>
+            </div>
+        </section>
         <?php
+    }
+
+    /**
+     * Ajoute le résumé Givoly au tableau de bord natif de WordPress.
+     */
+    public function register_wordpress_dashboard_widget(): void {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            return;
+        }
+
+        wp_add_dashboard_widget(
+            'givoly_dashboard_widget',
+            __( 'Givoly — Dons reçus', 'givoly' ),
+            [ \Givoly\Admin\Pages\DashboardPage::class, 'render_wordpress_widget' ]
+        );
     }
 
     public function handle_campaigns_early(): void {

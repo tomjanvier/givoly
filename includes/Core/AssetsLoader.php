@@ -71,7 +71,11 @@ final class AssetsLoader {
     }
 
     public function enqueue_admin_assets( string $hook ): void {
-        if ( ! str_contains( $hook, 'givoly' ) ) {
+        $page             = sanitize_key( $_GET['page'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $is_givoly_page   = str_contains( $hook, 'givoly' );
+        $is_dashboard     = 'index.php' === $hook;
+
+        if ( ! $is_givoly_page && ! $is_dashboard ) {
             return;
         }
 
@@ -82,7 +86,6 @@ final class AssetsLoader {
             GIVOLY_VERSION
         );
 
-        $page = sanitize_key( $_GET['page'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         if ( in_array( $page, [ 'givoly-campaigns', 'givoly-settings' ], true ) ) {
             wp_enqueue_script(
                 'givoly-admin',
