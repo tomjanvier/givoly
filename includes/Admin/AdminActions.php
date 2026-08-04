@@ -113,22 +113,28 @@ final class AdminActions {
         $table_dn = esc_sql( $wpdb->prefix . 'givoly_donors' );
 
         if ( $status !== '' ) {
+            // Les identifiants de tables ne peuvent pas être des placeholders.
+            // Ils proviennent du préfixe WordPress et sont échappés avant interpolation.
+            // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
             $rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->prepare(
                     "SELECT d.id, d.amount, d.currency, d.status, d.created_at, d.gateway, dn.first_name, dn.last_name, dn.email
                      FROM {$table_d} d
                      LEFT JOIN {$table_dn} dn ON d.donor_id = dn.id
-                     WHERE d.status = %s ORDER BY d.created_at DESC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table names come from $wpdb->prefix
+                     WHERE d.status = %s ORDER BY d.created_at DESC",
                     $status
                 )
             );
+            // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
         } else {
+            // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
             $rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
                 "SELECT d.id, d.amount, d.currency, d.status, d.created_at, d.gateway, dn.first_name, dn.last_name, dn.email
                  FROM {$table_d} d
                  LEFT JOIN {$table_dn} dn ON d.donor_id = dn.id
-                 ORDER BY d.created_at DESC" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table names come from $wpdb->prefix
+                 ORDER BY d.created_at DESC"
             );
+            // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
         }
 
         if ( ! headers_sent() ) {

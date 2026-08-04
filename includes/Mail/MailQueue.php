@@ -95,13 +95,17 @@ final class MailQueue {
         }
 
         $table = esc_sql( self::table() );
+        // Les placeholders ne peuvent pas représenter un identifiant de table.
+        // Le nom vient du préfixe WordPress et est échappé avant interpolation.
+        // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $rows  = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prepare(
-                'SELECT status, COUNT(*) AS total FROM ' . $table . ' WHERE batch_id = %s GROUP BY status', // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table identifiers cannot be placeholders and are escaped from the trusted WordPress prefix.
+                'SELECT status, COUNT(*) AS total FROM ' . $table . ' WHERE batch_id = %s GROUP BY status',
                 $batch_id
             ),
             ARRAY_A
         );
+        // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         $stats = [ 'total' => 0, 'pending' => 0, 'processing' => 0, 'sent' => 0, 'failed' => 0 ];
         foreach ( $rows ?: [] as $row ) {
@@ -128,13 +132,17 @@ final class MailQueue {
 
         $table = esc_sql( self::table() );
 
+        // Les placeholders ne peuvent pas représenter un identifiant de table.
+        // Le nom vient du préfixe WordPress et est échappé avant interpolation.
+        // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         return $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prepare(
-                'SELECT id, recipient, status, attempts, last_error, created_at, sent_at FROM ' . $table . ' WHERE batch_id = %s ORDER BY id DESC LIMIT %d', // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table identifiers cannot be placeholders and are escaped from the trusted WordPress prefix.
+                'SELECT id, recipient, status, attempts, last_error, created_at, sent_at FROM ' . $table . ' WHERE batch_id = %s ORDER BY id DESC LIMIT %d',
                 $batch_id,
                 max( 1, min( 100, $limit ) )
             )
         ) ?: [];
+        // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
     }
 
     public static function table(): string {
