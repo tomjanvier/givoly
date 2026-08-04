@@ -38,7 +38,9 @@ final class PaymentProcessor {
         string $last_name,
         string $campaign    = '',
         int    $campaign_id = 0,
-        string $post_payment_token = ''
+        string $post_payment_token = '',
+        string $stripe_customer_id = '',
+        string $stripe_subscription_id = ''
     ): void {
         global $wpdb;
 
@@ -72,6 +74,8 @@ final class PaymentProcessor {
                 )
             ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
+
+        $this->update_stripe_identifiers( $donor_id, $stripe_customer_id, $stripe_subscription_id );
 
         // Le message du donateur est transporté dans la transient de profil
         // (liée au post_payment_token) : on le lit avant que le profil ne soit consommé.
@@ -128,6 +132,69 @@ final class PaymentProcessor {
         }
     }
 
+    /**
+     * Enregistre un don saisi manuellement par un administrateur.
+     */
+    public function process_manual(
+        string $email,
+        string $first_name,
+        string $last_name,
+        int $amount_cents,
+        string $date,
+        string $payment_method,
+        bool $send_receipt = false
+    ): int {
+        global $wpdb;
+
+        $donor_id = $this->get_or_create_donor( $email, $first_name, $last_name );
+        if ( ! $donor_id ) {
+            throw new \RuntimeException( 'Impossible de créer le donateur manuel.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+        }
+
+        $this->update_donor_name( (int) $donor_id, $first_name, $last_name );
+        $created_at     = get_gmt_from_date( $date . ' 12:00:00' );
+        $gateway        = 'manual_' . sanitize_key( $payment_method );
+        $transaction_id = 'manual-' . wp_generate_uuid4();
+
+        $inserted = $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->prefix . 'givoly_donations',
+            [
+                'donor_id'               => (int) $donor_id,
+                'amount'                 => $amount_cents / 100,
+                'currency'               => 'EUR',
+                'status'                 => 'completed',
+                'gateway'                => $gateway,
+                'gateway_transaction_id' => $transaction_id,
+                'created_at'             => $created_at,
+                'updated_at'             => current_time( 'mysql', true ),
+            ],
+            [ '%d', '%f', '%s', '%s', '%s', '%s', '%s', '%s' ]
+        );
+
+        if ( false === $inserted ) {
+            throw new \RuntimeException( 'Impossible d’enregistrer le don manuel.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+        }
+
+        $donation_id = (int) $wpdb->insert_id;
+        $payload = [
+            'donation_id' => $donation_id,
+            'email'       => $email,
+            'first_name'  => $first_name,
+            'last_name'   => $last_name,
+            'amount'      => $amount_cents / 100,
+            'currency'    => 'EUR',
+            'campaign'    => '',
+        ];
+        MailQueue::enqueue( 'donation_admin', $payload, (string) get_option( 'admin_email' ) );
+        MailQueue::enqueue( 'donation_thank', $payload, $email );
+
+        if ( $send_receipt ) {
+            \Givoly\Mail\TaxReceiptService::enqueue( (int) gmdate( 'Y', strtotime( $date ) ), [ (int) $donor_id ] );
+        }
+
+        return $donation_id;
+    }
+
 // ── Helpers privés ─────────────────────────────────────────────────────
 
     private function get_or_create_donor( string $email, string $first_name, string $last_name ): int|false {
@@ -176,6 +243,46 @@ final class PaymentProcessor {
 
     private function is_duplicate_entry_error( string $error ): bool {
         return str_contains( strtolower( $error ), 'duplicate entry' );
+    }
+
+    private function update_donor_name( int $donor_id, string $first_name, string $last_name ): void {
+        global $wpdb;
+
+        $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->prefix . 'givoly_donors',
+            [
+                'first_name' => $first_name,
+                'last_name'  => $last_name,
+                'updated_at' => current_time( 'mysql', true ),
+            ],
+            [ 'id' => $donor_id ],
+            [ '%s', '%s', '%s' ],
+            [ '%d' ]
+        );
+    }
+
+    private function update_stripe_identifiers( int $donor_id, string $customer_id, string $subscription_id ): void {
+        global $wpdb;
+
+        $data = array_filter(
+            [
+                'stripe_customer_id'     => sanitize_text_field( $customer_id ),
+                'stripe_subscription_id' => sanitize_text_field( $subscription_id ),
+            ],
+            static fn( string $value ): bool => $value !== ''
+        );
+        if ( ! $data ) {
+            return;
+        }
+
+        $data['updated_at'] = current_time( 'mysql', true );
+        $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->prefix . 'givoly_donors',
+            $data,
+            [ 'id' => $donor_id ],
+            array_fill( 0, count( $data ), '%s' ),
+            [ '%d' ]
+        );
     }
 
     /**

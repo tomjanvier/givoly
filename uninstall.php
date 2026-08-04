@@ -86,6 +86,7 @@ foreach ( [
     'givoly_ha_access_token',
     'givoly_ha_refresh_token',
     'givoly_ha_expires_at',
+    'givoly_helloasso_last_sync_at',
 ] as $givoly_option ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
     delete_option( $givoly_option );
 
@@ -97,7 +98,7 @@ foreach ( [
 // Supprimer les transients liés au checkout (profils donateur en attente) et
 // au rate limiter (givoly_rl_*), ainsi que leurs lignes de timeout.
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- local variables used only by the uninstall routine.
-foreach ( [ 'givoly_checkout_profile_%', 'givoly_rl_%' ] as $givoly_prefix ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+foreach ( [ 'givoly_checkout_profile_%', 'givoly_donor_session_%', 'givoly_rl_%' ] as $givoly_prefix ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
     $transient_names = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
         $wpdb->prepare(
             "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s",
@@ -113,3 +114,4 @@ foreach ( [ 'givoly_checkout_profile_%', 'givoly_rl_%' ] as $givoly_prefix ) { /
 
 // Retirer tout WP-Cron planifié pour la file d'emails Givoly.
 wp_clear_scheduled_hook( 'givoly_process_mail_queue' );
+wp_clear_scheduled_hook( 'givoly_sync_helloasso_payments' );

@@ -201,6 +201,11 @@ final class MailQueue {
             return;
         }
 
+        if ( 'donor_magic_login' === $job['job_type'] ) {
+            $this->send_magic_login_email( $payload );
+            return;
+        }
+
         throw new \RuntimeException( 'Type de job email inconnu.' );
     }
 
@@ -230,6 +235,25 @@ final class MailQueue {
 
         if ( ! is_email( $recipient ) || ! wp_mail( $recipient, $subject, EmailRenderer::render( $body, $subject ), EmailRenderer::headers() ) ) {
             throw new \RuntimeException( 'wp_mail() a refusé l’email de don.' );
+        }
+    }
+
+    private function send_magic_login_email( array $payload ): void {
+        $recipient = sanitize_email( $payload['email'] ?? '' );
+        $url       = esc_url_raw( $payload['url'] ?? '' );
+        if ( ! is_email( $recipient ) || ! wp_http_validate_url( $url ) ) {
+            throw new \RuntimeException( 'Lien d’accès donateur invalide.' );
+        }
+
+        $subject = __( 'Votre accès à l’espace donateur', 'givoly' );
+        $body    = sprintf(
+            /* translators: %s: secure magic link. */
+            __( "Bonjour,\n\nCliquez sur ce lien pour accéder à votre espace donateur :\n%s\n\nCe lien expire dans 15 minutes. Si vous n’êtes pas à l’origine de cette demande, ignorez cet email.", 'givoly' ),
+            $url
+        );
+
+        if ( ! wp_mail( $recipient, $subject, EmailRenderer::render( $body, $subject ), EmailRenderer::headers() ) ) {
+            throw new \RuntimeException( 'wp_mail() a refusé le lien d’accès donateur.' );
         }
     }
 

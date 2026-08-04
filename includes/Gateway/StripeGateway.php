@@ -88,6 +88,32 @@ final class StripeGateway {
     }
 
     /**
+     * Retourne les données d'un abonnement Stripe, notamment ses métadonnées.
+     *
+     * @return array<string,mixed>
+     */
+    public function get_subscription( string $subscription_id ): array {
+        return $this->get( '/subscriptions/' . rawurlencode( $subscription_id ) );
+    }
+
+    /** Crée une session du portail client Stripe. */
+    public function create_billing_portal_session( string $customer_id, string $return_url ): string {
+        $response = $this->post( '/billing_portal/sessions', [
+            'customer'   => $customer_id,
+            'return_url' => $return_url,
+        ] );
+
+        return (string) ( $response['url'] ?? '' );
+    }
+
+    /** Programme la fin de l'abonnement à la fin de la période payée. */
+    public function cancel_subscription_at_period_end( string $subscription_id ): bool {
+        $response = $this->post( '/subscriptions/' . rawurlencode( $subscription_id ), [ 'cancel_at_period_end' => 'true' ] );
+
+        return ! empty( $response['cancel_at_period_end'] );
+    }
+
+    /**
      * Vérifie la signature d'un webhook Stripe.
      * Retourne l'événement décodé ou lève une exception si invalide.
      *
@@ -140,6 +166,33 @@ final class StripeGateway {
 
         if ( $code >= 400 ) {
             $message = $body['error']['message'] ?? 'Erreur Stripe inconnue.';
+            throw new \RuntimeException( $message ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+        }
+
+        return $body;
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    private function get( string $endpoint ): array {
+        $response = wp_remote_get(
+            self::API_BASE . $endpoint,
+            [
+                'headers' => [ 'Authorization' => 'Bearer ' . $this->secret_key ],
+                'timeout' => 20,
+            ]
+        );
+
+        if ( is_wp_error( $response ) ) {
+            throw new \RuntimeException( 'Erreur réseau Stripe : ' . $response->get_error_message() ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+        }
+
+        $body = json_decode( wp_remote_retrieve_body( $response ), true );
+        $code = wp_remote_retrieve_response_code( $response );
+
+        if ( $code >= 400 || ! is_array( $body ) ) {
+            $message = is_array( $body ) ? (string) ( $body['error']['message'] ?? 'Erreur Stripe inconnue.' ) : 'Réponse Stripe invalide.';
             throw new \RuntimeException( $message ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
 

@@ -389,6 +389,8 @@ final class AjaxHandler {
         $amount_cents   = (int) ( $session['amount_total'] ?? 0 );
         $transaction_id = sanitize_text_field( $session['id'] ?? '' );
         $post_payment_token = $this->sanitize_post_payment_token( $meta['post_payment_token'] ?? '' );
+        $stripe_customer_id = sanitize_text_field( (string) ( $session['customer'] ?? '' ) );
+        $stripe_subscription_id = sanitize_text_field( (string) ( $session['subscription'] ?? '' ) );
 
         $campaign_id = $campaign
             ? ( ( new CampaignRepository() )->find_by_slug( $campaign )?->get_id() ?? 0 )
@@ -404,7 +406,9 @@ final class AjaxHandler {
             last_name:      $last_name,
             campaign:       $campaign,
             campaign_id:    $campaign_id,
-            post_payment_token: $post_payment_token
+            post_payment_token: $post_payment_token,
+            stripe_customer_id: $stripe_customer_id,
+            stripe_subscription_id: $stripe_subscription_id
         );
 
         // Stocker la référence de remboursement gateway (Stripe: payment_intent_id)
@@ -440,6 +444,8 @@ final class AjaxHandler {
         $lines                = is_array( $invoice['lines']['data'] ?? null ) ? $invoice['lines']['data'] : [];
         $first_line           = is_array( $lines[0] ?? null ) ? $lines[0] : [];
         $meta                 = $invoice['metadata'] ?? [];
+        $subscription_id      = sanitize_text_field( (string) ( $invoice['subscription'] ?? '' ) );
+        $customer_id          = sanitize_text_field( (string) ( $invoice['customer'] ?? '' ) );
 
         if ( ! $meta && is_array( $subscription_details['metadata'] ?? null ) ) {
             $meta = $subscription_details['metadata'];
@@ -447,6 +453,12 @@ final class AjaxHandler {
 
         if ( ! $meta && is_array( $first_line['metadata'] ?? null ) ) {
             $meta = $first_line['metadata'];
+        }
+
+        if ( ! $meta && $subscription_id && Settings::get_stripe_secret_key() !== '' ) {
+            $subscription = ( new StripeGateway( Settings::get_stripe_secret_key() ) )->get_subscription( $subscription_id );
+            $meta         = is_array( $subscription['metadata'] ?? null ) ? $subscription['metadata'] : [];
+            $customer_id  = $customer_id ?: sanitize_text_field( (string) ( $subscription['customer'] ?? '' ) );
         }
 
         $email          = sanitize_email( (string) ( $meta['donor_email'] ?? $invoice['customer_email'] ?? '' ) );
@@ -474,7 +486,9 @@ final class AjaxHandler {
             first_name:     $first_name,
             last_name:      $last_name,
             campaign:       $campaign,
-            campaign_id:    $campaign_id
+            campaign_id:    $campaign_id,
+            stripe_customer_id: $customer_id,
+            stripe_subscription_id: $subscription_id
         );
     }
 

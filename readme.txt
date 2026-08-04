@@ -4,7 +4,7 @@ Tags: donation, nonprofit, stripe, helloasso, fundraising
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 8.1
-Stable tag: 1.3.0
+Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -19,6 +19,9 @@ The plugin is maintained by **PLAID·ACT and its members**, with contributions f
 = Main features =
 
 * **Donation forms with shortcodes**, including 5 visual themes (Givoly, Classic, Ocean, Sunset, Minimal) and 3 layouts (Card, Inline, Flat).
+* **Donor space shortcode**: add `[givoly_donor_space]` to let donors receive a passwordless magic link, review completed donations, download receipt PDFs, and manage Stripe subscriptions.
+* **Manual donations**: record bank transfers, cheques, and cash donations from the Givoly admin menu.
+* **Payment synchronization**: HelloAsso v5 payments are reconciled by WP-Cron, while Stripe recurring invoices are recorded idempotently through the webhook.
 * **Stripe payments** through Checkout Sessions.
 * **HelloAsso payments** with a dedicated payment button using the plugin's bundled HelloAsso logo asset.
 * **Donor management** with donation history, total donated, and latest donation details.
@@ -110,6 +113,10 @@ Go to **Givoly > Settings > Email > Logo URL**. If no URL is provided, the organ
 
 Yes. The annual sending tool can attach a text-based PDF summary to each email. Its title, content, footer, and email template are configurable in **Givoly > Settings > Email**. This summary does not replace an official tax receipt where one is legally required.
 
+= How can donors access their history? =
+
+Add `[givoly_donor_space]` to a page. Donors receive a one-time link by email, without creating a WordPress account or password. Stripe subscribers can use the secure Stripe portal to update or cancel their subscription.
+
 = Are there paid features or upsells? =
 
 No. This package is provided as a free plugin, with no upsell screens and no intentionally locked premium features.
@@ -147,6 +154,12 @@ Givoly relies on third-party payment services only when a site administrator con
 * Added non-destructive migration of legacy Givasso options, donors, campaigns, and donations.
 * Added compatibility aliases for Givasso constants and shortcodes.
 * Kept Givasso data intact after migration and added a read fallback during the transition.
+
+= 1.4.0 =
+* Added HelloAsso v5 payment synchronization through WP-Cron in addition to webhooks.
+* Added recurring Stripe invoice processing with customer and subscription identifiers stored on donors.
+* Added the passwordless `[givoly_donor_space]` donor area with donation history, PDF downloads, Stripe portal access, and two-step cancellation flow.
+* Added manual donation entry for bank transfers, cheques, and cash with optional fiscal receipt queueing.
 
 = 1.2.0 =
 * Added an associative support block with links to Givoly and PLAID·ACT on every Givoly admin page.

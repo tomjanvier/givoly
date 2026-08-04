@@ -42,6 +42,8 @@ final class DonorsPage {
         $batch_id       = sanitize_text_field( wp_unslash( $_GET['givoly_tax_receipts_batch'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
         $batch_stats    = MailQueue::get_batch_stats( $batch_id );
         $batch_jobs     = MailQueue::get_batch_jobs( $batch_id );
+        $edit_donor_id  = absint( wp_unslash( $_GET['edit_donor'] ?? 0 ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+        $edit_donor     = $edit_donor_id ? $this->get_donor( $edit_donor_id ) : null;
         ?>
         <div class="wrap">
             <h1><?php esc_html_e( 'Givoly — Donateurs', 'givoly' ); ?></h1>
@@ -55,6 +57,18 @@ final class DonorsPage {
             <?php endif; ?>
             <?php if ( isset( $_GET['givoly_tax_receipts_error'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
                 <div class="notice notice-error is-dismissible"><p><?php esc_html_e( 'Impossible de mettre les reçus fiscaux en file : année invalide ou aucun destinataire sélectionné.', 'givoly' ); ?></p></div>
+            <?php endif; ?>
+            <?php if ( isset( $_GET['givoly_donor_updated'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
+                <div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'La fiche donateur a été mise à jour.', 'givoly' ); ?></p></div>
+            <?php endif; ?>
+            <?php if ( isset( $_GET['givoly_donor_update_error'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
+                <div class="notice notice-error is-dismissible"><p><?php esc_html_e( 'La fiche n’a pas pu être mise à jour. Vérifiez l’email et les champs saisis.', 'givoly' ); ?></p></div>
+            <?php endif; ?>
+
+            <?php if ( $edit_donor_id && ! $edit_donor ) : ?>
+                <div class="notice notice-error"><p><?php esc_html_e( 'Fiche donateur introuvable.', 'givoly' ); ?></p></div>
+            <?php elseif ( $edit_donor ) : ?>
+                <?php $this->render_edit_form( $edit_donor ); ?>
             <?php endif; ?>
 
             <div class="card" style="max-width: 1100px;">
@@ -143,6 +157,7 @@ final class DonorsPage {
                             <th><?php esc_html_e( 'Total donné', 'givoly' ); ?></th>
                             <th><?php esc_html_e( 'Nb de dons', 'givoly' ); ?></th>
                             <th><?php esc_html_e( 'Dernier don', 'givoly' ); ?></th>
+                            <th><?php esc_html_e( 'Action', 'givoly' ); ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -173,6 +188,7 @@ final class DonorsPage {
                                         : '—';
                                     ?>
                                 </td>
+                                <td><a class="button button-small" href="<?php echo esc_url( add_query_arg( [ 'page' => 'givoly-donors', 'edit_donor' => (int) $donor->id ], admin_url( 'admin.php' ) ) ); ?>"><?php esc_html_e( 'Modifier', 'givoly' ); ?></a></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -209,6 +225,44 @@ final class DonorsPage {
         return (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             "SELECT COUNT(*) FROM {$wpdb->prefix}givoly_donors" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
         );
+    }
+
+    private function get_donor( int $donor_id ): ?object {
+        global $wpdb;
+
+        $table = esc_sql( $wpdb->prefix . 'givoly_donors' );
+        return $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->prepare( "SELECT id, email, first_name, last_name, company, address_line1, address_line2, postal_code, city, country, phone, stripe_customer_id, stripe_subscription_id FROM {$table} WHERE id = %d LIMIT 1", $donor_id ), // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
+            OBJECT
+        );
+    }
+
+    private function render_edit_form( object $donor ): void {
+        ?>
+        <div class="card" style="max-width: 900px;">
+            <h2><?php esc_html_e( 'Modifier la fiche donateur', 'givoly' ); ?> <span class="description">#<?php echo esc_html( (string) $donor->id ); ?></span></h2>
+            <p class="description"><?php esc_html_e( 'Le numéro donateur et les identifiants Stripe sont conservés. Modifier l’email ne supprime aucun don historique.', 'givoly' ); ?></p>
+            <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+                <?php wp_nonce_field( 'givoly_update_donor_' . (int) $donor->id, 'givoly_update_donor_nonce' ); ?>
+                <input type="hidden" name="action" value="givoly_update_donor">
+                <input type="hidden" name="donor_id" value="<?php echo esc_attr( (string) $donor->id ); ?>">
+                <table class="form-table" role="presentation">
+                    <tr><th><label for="givoly-donor-first-name"><?php esc_html_e( 'Prénom', 'givoly' ); ?></label></th><td><input class="regular-text" id="givoly-donor-first-name" name="first_name" type="text" value="<?php echo esc_attr( $donor->first_name ); ?>" required></td></tr>
+                    <tr><th><label for="givoly-donor-last-name"><?php esc_html_e( 'Nom', 'givoly' ); ?></label></th><td><input class="regular-text" id="givoly-donor-last-name" name="last_name" type="text" value="<?php echo esc_attr( $donor->last_name ); ?>" required></td></tr>
+                    <tr><th><label for="givoly-donor-email"><?php esc_html_e( 'Email', 'givoly' ); ?></label></th><td><input class="regular-text" id="givoly-donor-email" name="email" type="email" value="<?php echo esc_attr( $donor->email ); ?>" required></td></tr>
+                    <tr><th><label for="givoly-donor-company"><?php esc_html_e( 'Organisation / société', 'givoly' ); ?></label></th><td><input class="regular-text" id="givoly-donor-company" name="company" type="text" value="<?php echo esc_attr( $donor->company ); ?>"></td></tr>
+                    <tr><th><label for="givoly-donor-address1"><?php esc_html_e( 'Adresse', 'givoly' ); ?></label></th><td><input class="regular-text" id="givoly-donor-address1" name="address_line1" type="text" value="<?php echo esc_attr( $donor->address_line1 ); ?>"></td></tr>
+                    <tr><th><label for="givoly-donor-address2"><?php esc_html_e( 'Complément d’adresse', 'givoly' ); ?></label></th><td><input class="regular-text" id="givoly-donor-address2" name="address_line2" type="text" value="<?php echo esc_attr( $donor->address_line2 ); ?>"></td></tr>
+                    <tr><th><label for="givoly-donor-postal-code"><?php esc_html_e( 'Code postal', 'givoly' ); ?></label></th><td><input class="regular-text" id="givoly-donor-postal-code" name="postal_code" type="text" value="<?php echo esc_attr( $donor->postal_code ); ?>"></td></tr>
+                    <tr><th><label for="givoly-donor-city"><?php esc_html_e( 'Ville', 'givoly' ); ?></label></th><td><input class="regular-text" id="givoly-donor-city" name="city" type="text" value="<?php echo esc_attr( $donor->city ); ?>"></td></tr>
+                    <tr><th><label for="givoly-donor-country"><?php esc_html_e( 'Pays', 'givoly' ); ?></label></th><td><input class="small-text" id="givoly-donor-country" name="country" type="text" maxlength="2" value="<?php echo esc_attr( $donor->country ); ?>"></td></tr>
+                    <tr><th><label for="givoly-donor-phone"><?php esc_html_e( 'Téléphone', 'givoly' ); ?></label></th><td><input class="regular-text" id="givoly-donor-phone" name="phone" type="tel" value="<?php echo esc_attr( $donor->phone ); ?>"></td></tr>
+                </table>
+                <?php submit_button( __( 'Enregistrer la fiche', 'givoly' ), 'primary', 'submit', false ); ?>
+                <a class="button" href="<?php echo esc_url( admin_url( 'admin.php?page=givoly-donors' ) ); ?>"><?php esc_html_e( 'Annuler', 'givoly' ); ?></a>
+            </form>
+        </div>
+        <?php
     }
 
     private function render_pagination( int $total_pages, int $current_page ): void {

@@ -52,6 +52,10 @@ final class AdminMenu {
             'manage_options', 'givoly-donors', [ $this, 'render_donors' ]
         );
 
+        add_submenu_page( 'givoly-dashboard',
+            __( 'Ajouter un don manuel', 'givoly' ), __( 'Ajouter un don manuel', 'givoly' ),
+            'manage_options', 'givoly-manual-donation', [ $this, 'render_manual_donation' ]
+        );
 
         add_submenu_page( 'givoly-dashboard',
             __( 'Réglages', 'givoly' ), __( 'Réglages', 'givoly' ),
@@ -147,6 +151,10 @@ final class AdminMenu {
 
     public function render_donors(): void {
         ( new \Givoly\Admin\Pages\DonorsPage() )->render();
+    }
+
+    public function render_manual_donation(): void {
+        ( new \Givoly\Admin\Pages\ManualDonationPage() )->render();
     }
 
     public function render_settings(): void {

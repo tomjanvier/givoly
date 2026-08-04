@@ -3,7 +3,7 @@
  * Plugin Name: Givoly
  * Plugin URI:       https://givoly.org
  * Description:      Givoly is a completely free donation form extension designed by and for nonprofit organizations, featuring payments via Stripe and HelloAsso, donor management, and campaign progress tracking.
- * Version:          1.3.0
+ * Version:          1.4.0
  * Requires at least: 6.0
  * Requires PHP:     8.1
  * Author:           PLAID·ACT
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'GIVOLY_VERSION', '1.3.0' );
+define( 'GIVOLY_VERSION', '1.4.0' );
 define( 'GIVOLY_PLUGIN_FILE', __FILE__ );
 define( 'GIVOLY_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'GIVOLY_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
