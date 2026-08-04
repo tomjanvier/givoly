@@ -87,6 +87,7 @@ foreach ( [
     'givoly_ha_refresh_token',
     'givoly_ha_expires_at',
     'givoly_helloasso_last_sync_at',
+    'givoly_stripe_last_invoice_sync_at',
 ] as $givoly_option ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
     delete_option( $givoly_option );
 
@@ -115,3 +116,4 @@ foreach ( [ 'givoly_checkout_profile_%', 'givoly_donor_session_%', 'givoly_rl_%'
 // Retirer tout WP-Cron planifié pour la file d'emails Givoly.
 wp_clear_scheduled_hook( 'givoly_process_mail_queue' );
 wp_clear_scheduled_hook( 'givoly_sync_helloasso_payments' );
+wp_clear_scheduled_hook( 'givoly_sync_stripe_paid_invoices' );
