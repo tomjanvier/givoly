@@ -83,8 +83,9 @@ final class StripeGateway {
         return $response['url'];
     }
 
-    public function refund( string $payment_intent_id ): void {
-        $this->post( '/refunds', [ 'payment_intent' => $payment_intent_id ] );
+    public function refund( string $payment_reference ): void {
+        $parameter = str_starts_with( $payment_reference, 'ch_' ) ? 'charge' : 'payment_intent';
+        $this->post( '/refunds', [ $parameter => $payment_reference ] );
     }
 
     /**
@@ -103,6 +104,28 @@ final class StripeGateway {
      */
     public function get_customer( string $customer_id ): array {
         return $this->get( '/customers/' . rawurlencode( $customer_id ) );
+    }
+
+    /**
+     * Récupère les factures Stripe payées pour réconcilier les webhooks manqués.
+     *
+     * @return array<string,mixed>
+     */
+    public function get_paid_invoices( int $limit = 100, string $starting_after = '', int $created_gte = 0 ): array {
+        $query = [
+            'status' => 'paid',
+            'limit'  => max( 1, min( 100, $limit ) ),
+        ];
+
+        if ( $starting_after !== '' ) {
+            $query['starting_after'] = $starting_after;
+        }
+
+        if ( $created_gte > 0 ) {
+            $query['created[gte]'] = $created_gte;
+        }
+
+        return $this->get( '/invoices?' . http_build_query( $query ) );
     }
 
     /** Crée une session du portail client Stripe. */

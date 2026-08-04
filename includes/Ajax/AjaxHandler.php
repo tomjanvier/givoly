@@ -365,7 +365,7 @@ final class AjaxHandler {
             if ( $event_type === 'checkout.session.completed' ) {
                 $this->handle_checkout_session_completed( $event['data']['object'] ?? [] );
             } elseif ( $event_type === 'invoice.payment_succeeded' ) {
-                $this->handle_invoice_payment_succeeded( $event['data']['object'] ?? [] );
+                $this->process_stripe_invoice( $event['data']['object'] ?? [] );
             } elseif ( $event_type === 'charge.refunded' ) {
                 $this->handle_charge_refunded( $event['data']['object'] ?? [] );
             }
@@ -434,7 +434,7 @@ final class AjaxHandler {
      * les échéances suivantes. L'ID de facture identifie chaque échéance et le
      * payment intent évite le doublon avec checkout.session.completed.
      */
-    private function handle_invoice_payment_succeeded( array $invoice ): void {
+    public function process_stripe_invoice( array $invoice ): void {
         $billing_reason = (string) ( $invoice['billing_reason'] ?? '' );
 
         if ( ! in_array( $billing_reason, [ 'subscription_create', 'subscription_cycle', 'subscription_update', 'subscription_threshold' ], true ) ) {
@@ -481,6 +481,8 @@ final class AjaxHandler {
         $amount_cents   = (int) ( $invoice['amount_paid'] ?? 0 );
         $transaction_id = sanitize_text_field( (string) ( $invoice['id'] ?? '' ) );
         $payment_intent_id = $this->sanitize_gateway_identifier( $invoice['payment_intent'] ?? '' );
+        $charge_id = $this->sanitize_gateway_identifier( $invoice['charge'] ?? '' );
+        $refund_reference = $payment_intent_id ?: $charge_id;
 
         if ( $amount_cents <= 0 || ! $transaction_id || ! $email ) {
             return;
@@ -502,7 +504,7 @@ final class AjaxHandler {
             campaign_id:    $campaign_id,
             stripe_customer_id: $customer_id,
             stripe_subscription_id: $subscription_id,
-            gateway_refund_ref: $payment_intent_id
+            gateway_refund_ref: $refund_reference
         );
     }
 
@@ -515,7 +517,7 @@ final class AjaxHandler {
     private function handle_charge_refunded( array $charge ): void {
         global $wpdb;
 
-        $payment_intent_id = $this->sanitize_gateway_identifier( $charge['payment_intent'] ?? '' );
+        $payment_intent_id = $this->sanitize_gateway_identifier( $charge['payment_intent'] ?? $charge['id'] ?? '' );
 
         if ( ! $payment_intent_id ) {
             return;

@@ -26,6 +26,7 @@ final class Installer {
         update_option( self::DB_VERSION_OPTION, self::DB_VERSION, false );
         add_option( \Givoly\Admin\Settings::OPT_PUBLIC_BRANDING_ENABLED, '0', '', false );
         \Givoly\Mail\MailQueue::schedule();
+        \Givoly\Integration\StripeSync::schedule();
         \Givoly\Integration\HelloAssoSync::schedule();
         flush_rewrite_rules();
     }
@@ -46,6 +47,7 @@ final class Installer {
         // La suppression se fait dans uninstall.php.
         flush_rewrite_rules();
         \Givoly\Mail\MailQueue::unschedule();
+        \Givoly\Integration\StripeSync::unschedule();
         \Givoly\Integration\HelloAssoSync::unschedule();
     }
 

@@ -36,6 +36,16 @@ final class DonationsPage {
                 . esc_html__( 'Erreur lors du remboursement. Vérifiez vos clés Stripe ou effectuez le remboursement depuis le dashboard Stripe.', 'givoly' )
                 . '</p></div>';
         }
+        if ( isset( $_GET['givoly_subscription_cancelled'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            echo '<div class="notice notice-success is-dismissible"><p>'
+                . esc_html__( 'La résiliation du don récurrent est programmée à la fin de la période déjà payée.', 'givoly' )
+                . '</p></div>';
+        }
+        if ( isset( $_GET['givoly_subscription_cancel_error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            echo '<div class="notice notice-error is-dismissible"><p>'
+                . esc_html__( 'Impossible de programmer la résiliation du don récurrent. Vérifiez vos clés Stripe et l’abonnement concerné.', 'givoly' )
+                . '</p></div>';
+        }
 
         $valid_statuses = [ '', 'completed', 'pending', 'failed', 'refunded', 'cancelled' ];
         $status         = sanitize_text_field( wp_unslash( $_GET['status'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -108,6 +118,7 @@ final class DonationsPage {
                                 </td>
                                 <td><?php echo esc_html( date_i18n( 'd/m/Y H:i', strtotime( $row->created_at ) ) ); ?></td>
                                 <td>
+                                    <?php $has_action = false; ?>
                                     <?php if (
                                         $row->status === 'completed'
                                         && $row->gateway === 'stripe'
@@ -124,6 +135,7 @@ final class DonationsPage {
                                                 <?php esc_html_e( 'Rembourser', 'givoly' ); ?>
                                             </button>
                                         </form>
+                                        <?php $has_action = true; ?>
                                     <?php elseif (
                                         $row->status === 'completed'
                                         && $row->gateway === 'helloasso'
@@ -140,9 +152,27 @@ final class DonationsPage {
                                            rel="noopener"
                                            class="button button-small"
                                            title="<?php esc_attr_e( 'Rembourser depuis le dashboard HelloAsso', 'givoly' ); ?>">
-                                            <?php esc_html_e( 'Rembourser ↗', 'givoly' ); ?>
+                                           <?php esc_html_e( 'Rembourser ↗', 'givoly' ); ?>
                                         </a>
-                                    <?php else : ?>
+                                        <?php $has_action = true; ?>
+                                    <?php endif; ?>
+
+                                    <?php if ( $row->gateway === 'stripe' && ! empty( $row->stripe_subscription_id ) ) : ?>
+                                        <form method="post"
+                                              action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>"
+                                              style="display:inline;"
+                                              onsubmit='return confirm(<?php echo wp_json_encode( __( 'Confirmer l’arrêt des prochains prélèvements ? Le donateur conservera l’accès jusqu’à la fin de la période déjà payée.', 'givoly' ) ); ?>)'>
+                                            <?php wp_nonce_field( 'givoly_cancel_subscription_' . $row->id ); ?>
+                                            <input type="hidden" name="action"      value="givoly_cancel_subscription">
+                                            <input type="hidden" name="donation_id" value="<?php echo esc_attr( $row->id ); ?>">
+                                            <button type="submit" class="button button-small">
+                                                <?php esc_html_e( 'Annuler le récurrent', 'givoly' ); ?>
+                                            </button>
+                                        </form>
+                                        <?php $has_action = true; ?>
+                                    <?php endif; ?>
+
+                                    <?php if ( ! $has_action ) : ?>
                                         —
                                     <?php endif; ?>
                                 </td>
@@ -168,6 +198,7 @@ final class DonationsPage {
 
         $select = "SELECT d.id, d.amount, d.currency, d.status, d.created_at,
                           d.gateway, d.gateway_refund_ref,
+                          dn.stripe_subscription_id,
                           dn.first_name, dn.last_name, dn.email
                    FROM {$table_d} d
                    LEFT JOIN {$table_dn} dn ON d.donor_id = dn.id";
@@ -227,4 +258,3 @@ final class DonationsPage {
         echo '</div></div>';
     }
 }
-
