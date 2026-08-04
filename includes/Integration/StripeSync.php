@@ -24,7 +24,7 @@ final class StripeSync {
     private const LAST_SYNC_OPTION = 'givoly_stripe_last_invoice_sync_at';
     private const PAGE_SIZE        = 100;
     private const MAX_PAGES        = 20;
-    private const FIRST_LOOKBACK   = 30 * DAY_IN_SECONDS;
+    private const FIRST_LOOKBACK_MONTHS = 6;
 
     public function register(): void {
         add_action( self::HOOK, [ $this, 'run' ] );
@@ -49,7 +49,7 @@ final class StripeSync {
 
         $last_sync = (string) get_option( self::LAST_SYNC_OPTION, '' );
         $from      = '' === $last_sync
-            ? time() - self::FIRST_LOOKBACK
+            ? strtotime( '-' . self::FIRST_LOOKBACK_MONTHS . ' months' )
             : max( 0, (int) strtotime( $last_sync ) - 10 * MINUTE_IN_SECONDS );
 
         try {

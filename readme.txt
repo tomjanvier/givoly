@@ -21,7 +21,7 @@ The plugin is maintained by **PLAID·ACT and its members**, with contributions f
 * **Donation forms with shortcodes**, including 5 visual themes (Givoly, Classic, Ocean, Sunset, Minimal) and 3 layouts (Card, Inline, Flat).
 * **Donor space shortcode**: add `[givoly_donor_space]` to let donors receive a passwordless magic link, review completed donations, download receipt PDFs, and manage Stripe subscriptions.
 * **Manual donations**: record bank transfers, cheques, and cash donations from the Givoly admin menu.
-* **Payment synchronization**: HelloAsso v5 payments and paid Stripe recurring invoices are reconciled by WP-Cron in addition to webhooks, with idempotent imports.
+* **Payment synchronization**: HelloAsso v5 payments and paid Stripe recurring invoices are reconciled by WP-Cron in addition to webhooks, with idempotent imports. The first Stripe reconciliation covers the previous six months.
 * **Recurring payment administration**: refund individual Stripe instalments and schedule subscription cancellation from the donations back office.
 * **Stripe payments** through Checkout Sessions.
 * **HelloAsso payments** with a dedicated payment button using the plugin's bundled HelloAsso logo asset.
@@ -158,7 +158,7 @@ Givoly relies on third-party payment services only when a site administrator con
 
 = 1.4.0 =
 * Added HelloAsso v5 payment synchronization through WP-Cron in addition to webhooks.
-* Added recurring Stripe invoice processing with customer and subscription identifiers stored on donors, including a WP-Cron reconciliation fallback for missed webhooks.
+* Added recurring Stripe invoice processing with customer and subscription identifiers stored on donors, including a WP-Cron reconciliation fallback for missed webhooks over the previous six months on first run.
 * Added back-office actions to refund a Stripe instalment and schedule the end of a recurring subscription.
 * Added the passwordless `[givoly_donor_space]` donor area with donation history, PDF downloads, Stripe portal access, and two-step cancellation flow.
 * Added manual donation entry for bank transfers, cheques, and cash with optional fiscal receipt queueing.
