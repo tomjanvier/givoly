@@ -86,7 +86,7 @@ final class AssetsLoader {
     }
 
     public function enqueue_admin_assets( string $hook ): void {
-        $page             = sanitize_key( $_GET['page'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $page             = sanitize_key( wp_unslash( $_GET['page'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         $is_givoly_page   = str_contains( $hook, 'givoly' );
         $is_dashboard     = 'index.php' === $hook;
 

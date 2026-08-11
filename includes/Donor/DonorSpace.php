@@ -1,6 +1,6 @@
 <?php
 /**
- * Espace donateur sans compte WordPress ni mot de passe.
+ * Passwordless donor space with no WordPress account required.
  *
  * @package Givoly\Donor
  */
@@ -47,9 +47,9 @@ final class DonorSpace {
                 'ajaxUrl' => admin_url( 'admin-ajax.php' ),
                 'nonce'   => wp_create_nonce( 'givoly_donor_space' ),
                 'i18n'    => [
-                    'genericError' => __( 'Une erreur est survenue. Veuillez réessayer.', 'givoly' ),
-                    'sent'         => __( 'Si une fiche donateur existe pour cette adresse, un lien sécurisé vient d’être envoyé.', 'givoly' ),
-                    'cancelled'    => __( 'Votre résiliation est programmée à la fin de la période déjà payée.', 'givoly' ),
+                    'genericError' => __( 'An error occurred. Please try again.', 'givoly' ),
+                    'sent'         => __( 'If a donor record exists for this address, a secure link has just been sent.', 'givoly' ),
+                    'cancelled'    => __( 'Your cancellation is scheduled for the end of the current paid period.', 'givoly' ),
                 ],
             ]
         );
@@ -76,13 +76,13 @@ final class DonorSpace {
         check_ajax_referer( 'givoly_donor_space', 'nonce' );
 
         if ( ! RateLimiter::is_allowed( 'donor_access' ) ) {
-            wp_send_json_error( [ 'message' => __( 'Trop de demandes. Veuillez patienter avant de réessayer.', 'givoly' ) ], 429 );
+            wp_send_json_error( [ 'message' => __( 'Too many requests. Please wait before trying again.', 'givoly' ) ], 429 );
         }
 
         $email      = sanitize_email( wp_unslash( $_POST['email'] ?? '' ) );
         $return_url = wp_validate_redirect( esc_url_raw( wp_unslash( $_POST['return_url'] ?? '' ) ), home_url( '/' ) );
         if ( ! is_email( $email ) ) {
-            wp_send_json_error( [ 'message' => __( 'Adresse email invalide.', 'givoly' ) ], 422 );
+            wp_send_json_error( [ 'message' => __( 'Invalid email address.', 'givoly' ) ], 422 );
         }
 
         $donor = $this->get_donor_by_email( $email );
@@ -110,25 +110,25 @@ final class DonorSpace {
             \Givoly\Mail\MailQueue::enqueue( 'donor_magic_login', [ 'email' => $email, 'url' => $url ], $email );
         }
 
-        wp_send_json_success( [ 'message' => __( 'Si une fiche donateur existe pour cette adresse, un lien sécurisé vient d’être envoyé.', 'givoly' ) ] );
+        wp_send_json_success( [ 'message' => __( 'If a donor record exists for this address, a secure link has just been sent.', 'givoly' ) ] );
     }
 
     public function open_stripe_portal(): void {
         check_ajax_referer( 'givoly_donor_space', 'nonce' );
         $donor = $this->get_authenticated_donor();
         if ( ! $donor || ! $donor->stripe_customer_id ) {
-            wp_send_json_error( [ 'message' => __( 'Aucun abonnement Stripe gérable n’est associé à votre fiche.', 'givoly' ) ], 404 );
+            wp_send_json_error( [ 'message' => __( 'No manageable Stripe subscription is associated with your record.', 'givoly' ) ], 404 );
         }
 
         try {
             $return_url = wp_validate_redirect( esc_url_raw( wp_unslash( $_POST['return_url'] ?? '' ) ), home_url( '/' ) );
             $url = ( new StripeGateway( Settings::get_stripe_secret_key() ) )->create_billing_portal_session( (string) $donor->stripe_customer_id, $return_url );
             if ( ! wp_http_validate_url( $url ) ) {
-                throw new \RuntimeException( 'Portail Stripe indisponible.' );
+                throw new \RuntimeException( 'Stripe portal unavailable.' );
             }
             wp_send_json_success( [ 'url' => $url ] );
         } catch ( \Throwable $exception ) {
-            wp_send_json_error( [ 'message' => __( 'Le portail Stripe est momentanément indisponible.', 'givoly' ) ], 503 );
+            wp_send_json_error( [ 'message' => __( 'The Stripe portal is temporarily unavailable.', 'givoly' ) ], 503 );
         }
     }
 
@@ -136,14 +136,14 @@ final class DonorSpace {
         check_ajax_referer( 'givoly_donor_space', 'nonce' );
         $donor = $this->get_authenticated_donor();
         if ( ! $donor || ! $donor->stripe_subscription_id ) {
-            wp_send_json_error( [ 'message' => __( 'Aucun abonnement Stripe actif n’est associé à votre fiche.', 'givoly' ) ], 404 );
+            wp_send_json_error( [ 'message' => __( 'No active Stripe subscription is associated with your record.', 'givoly' ) ], 404 );
         }
 
         try {
             ( new StripeGateway( Settings::get_stripe_secret_key() ) )->cancel_subscription_at_period_end( (string) $donor->stripe_subscription_id );
-            wp_send_json_success( [ 'message' => __( 'Votre résiliation est programmée à la fin de la période déjà payée.', 'givoly' ) ] );
+            wp_send_json_success( [ 'message' => __( 'Your cancellation is scheduled for the end of the current paid period.', 'givoly' ) ] );
         } catch ( \Throwable $exception ) {
-            wp_send_json_error( [ 'message' => __( 'La résiliation est momentanément indisponible.', 'givoly' ) ], 503 );
+            wp_send_json_error( [ 'message' => __( 'Cancellation is temporarily unavailable.', 'givoly' ) ], 503 );
         }
     }
 
@@ -157,7 +157,7 @@ final class DonorSpace {
         $donor = $this->get_authenticated_donor();
         $donation_id = absint( wp_unslash( $_GET['donation_id'] ?? 0 ) );
         if ( ! $donor || ! $donation_id || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ?? '' ) ), 'givoly_donor_receipt_' . $donation_id ) ) {
-            wp_die( esc_html__( 'Lien de reçu invalide ou expiré.', 'givoly' ), '', [ 'response' => 403 ] );
+            wp_die( esc_html__( 'The receipt link is invalid or has expired.', 'givoly' ), '', [ 'response' => 403 ] );
         }
 
         global $wpdb;
@@ -175,12 +175,12 @@ final class DonorSpace {
             ARRAY_A
         );
         if ( ! $row ) {
-            wp_die( esc_html__( 'Reçu introuvable.', 'givoly' ), '', [ 'response' => 404 ] );
+            wp_die( esc_html__( 'Receipt not found.', 'givoly' ), '', [ 'response' => 404 ] );
         }
 
         $name = trim( (string) $row['first_name'] . ' ' . (string) $row['last_name'] );
         $vars = [
-            '{donor_name}' => $name ?: __( 'Donateur', 'givoly' ),
+            '{donor_name}' => $name ?: __( 'Donor', 'givoly' ),
             '{first_name}' => (string) $row['first_name'],
             '{last_name}'  => (string) $row['last_name'],
             '{year}'       => gmdate( 'Y', strtotime( (string) $row['created_at'] ) ),
@@ -209,13 +209,13 @@ final class DonorSpace {
     private function render_login(): void {
         ?>
         <section class="givoly-donor-space" aria-labelledby="givoly-donor-space-title">
-            <h2 id="givoly-donor-space-title"><?php esc_html_e( 'Votre espace donateur', 'givoly' ); ?></h2>
-            <p><?php esc_html_e( 'Saisissez l’adresse utilisée pour vos dons. Nous vous enverrons un lien sécurisé, sans mot de passe.', 'givoly' ); ?></p>
+            <h2 id="givoly-donor-space-title"><?php esc_html_e( 'Your donor space', 'givoly' ); ?></h2>
+            <p><?php esc_html_e( 'Enter the email address used for your donations. We will send you a secure passwordless link.', 'givoly' ); ?></p>
             <form class="givoly-donor-space__login" data-givoly-donor-login>
-                <label for="givoly-donor-email"><?php esc_html_e( 'Adresse email', 'givoly' ); ?></label>
+                <label for="givoly-donor-email"><?php esc_html_e( 'Email address', 'givoly' ); ?></label>
                 <input id="givoly-donor-email" name="email" type="email" autocomplete="email" required>
                 <input type="hidden" name="return_url" value="<?php echo esc_attr( get_permalink() ?: home_url( '/' ) ); ?>">
-                <button type="submit"><?php esc_html_e( 'Recevoir mon lien d’accès', 'givoly' ); ?></button>
+                <button type="submit"><?php esc_html_e( 'Receive my access link', 'givoly' ); ?></button>
                 <p class="givoly-donor-space__message" data-givoly-message role="status"></p>
             </form>
         </section>
@@ -228,42 +228,42 @@ final class DonorSpace {
         <section class="givoly-donor-space" aria-labelledby="givoly-donor-space-title">
             <div class="givoly-donor-space__header">
                 <div>
-                    <p class="givoly-donor-space__eyebrow"><?php esc_html_e( 'Numéro donateur', 'givoly' ); ?> <?php echo esc_html( $donor->donor_reference ?: '#' . (string) $donor->id ); ?></p>
-                    <h2 id="givoly-donor-space-title"><?php echo esc_html( trim( $donor->first_name . ' ' . $donor->last_name ) ?: __( 'Votre espace donateur', 'givoly' ) ); ?></h2>
+                    <p class="givoly-donor-space__eyebrow"><?php esc_html_e( 'Donor number', 'givoly' ); ?> <?php echo esc_html( $donor->donor_reference ?: '#' . (string) $donor->id ); ?></p>
+                    <h2 id="givoly-donor-space-title"><?php echo esc_html( trim( $donor->first_name . ' ' . $donor->last_name ) ?: __( 'Your donor space', 'givoly' ) ); ?></h2>
                     <p><?php echo esc_html( $donor->email ); ?></p>
                 </div>
-                <button type="button" class="givoly-donor-space__logout" data-givoly-logout><?php esc_html_e( 'Se déconnecter', 'givoly' ); ?></button>
+                <button type="button" class="givoly-donor-space__logout" data-givoly-logout><?php esc_html_e( 'Log out', 'givoly' ); ?></button>
             </div>
 
             <?php if ( $donor->stripe_customer_id && $donor->stripe_subscription_id ) : ?>
                 <div class="givoly-donor-space__subscription">
-                    <h3><?php esc_html_e( 'Mon don mensuel', 'givoly' ); ?></h3>
-                    <p><?php esc_html_e( 'Vous pouvez modifier le montant ou les moyens de paiement depuis le portail sécurisé Stripe.', 'givoly' ); ?></p>
-                    <button type="button" data-givoly-portal><?php esc_html_e( 'Modifier mon abonnement', 'givoly' ); ?></button>
-                    <button type="button" class="is-secondary" data-givoly-cancel-start><?php esc_html_e( 'Je souhaite résilier', 'givoly' ); ?></button>
+                    <h3><?php esc_html_e( 'My monthly donation', 'givoly' ); ?></h3>
+                    <p><?php esc_html_e( 'You can change the amount or payment method in the secure Stripe portal.', 'givoly' ); ?></p>
+                    <button type="button" data-givoly-portal><?php esc_html_e( 'Manage my subscription', 'givoly' ); ?></button>
+                    <button type="button" class="is-secondary" data-givoly-cancel-start><?php esc_html_e( 'I want to cancel', 'givoly' ); ?></button>
                     <div class="givoly-donor-space__retention" data-givoly-retention hidden>
-                        <p><?php esc_html_e( 'Avant de partir, vous pouvez simplement réduire le montant depuis le portail Stripe. Chaque contribution aide directement l’association à poursuivre ses actions.', 'givoly' ); ?></p>
-                        <button type="button" data-givoly-portal><?php esc_html_e( 'Réduire plutôt que résilier', 'givoly' ); ?></button>
-                        <button type="button" class="is-danger" data-givoly-cancel-confirm><?php esc_html_e( 'Confirmer la résiliation', 'givoly' ); ?></button>
+                        <p><?php esc_html_e( 'Before you go, you can simply reduce the amount in the Stripe portal. Every contribution directly helps the organization continue its work.', 'givoly' ); ?></p>
+                        <button type="button" data-givoly-portal><?php esc_html_e( 'Reduce instead of cancelling', 'givoly' ); ?></button>
+                        <button type="button" class="is-danger" data-givoly-cancel-confirm><?php esc_html_e( 'Confirm cancellation', 'givoly' ); ?></button>
                     </div>
                     <p class="givoly-donor-space__message" data-givoly-message role="status"></p>
                 </div>
             <?php endif; ?>
 
             <div class="givoly-donor-space__history">
-                <h3><?php esc_html_e( 'Historique de mes dons', 'givoly' ); ?></h3>
+                <h3><?php esc_html_e( 'My donation history', 'givoly' ); ?></h3>
                 <?php if ( ! $donations ) : ?>
-                    <p><?php esc_html_e( 'Aucun don complété trouvé.', 'givoly' ); ?></p>
+                    <p><?php esc_html_e( 'No completed donations found.', 'givoly' ); ?></p>
                 <?php else : ?>
                     <div class="givoly-donor-space__table-wrap"><table>
-                        <thead><tr><th><?php esc_html_e( 'Date', 'givoly' ); ?></th><th><?php esc_html_e( 'Montant', 'givoly' ); ?></th><th><?php esc_html_e( 'Moyen', 'givoly' ); ?></th><th><?php esc_html_e( 'Reçu', 'givoly' ); ?></th></tr></thead>
+                        <thead><tr><th><?php esc_html_e( 'Date', 'givoly' ); ?></th><th><?php esc_html_e( 'Amount', 'givoly' ); ?></th><th><?php esc_html_e( 'Method', 'givoly' ); ?></th><th><?php esc_html_e( 'Receipt', 'givoly' ); ?></th></tr></thead>
                         <tbody>
                         <?php foreach ( $donations as $donation ) : ?>
                             <tr>
                                 <td><?php echo esc_html( wp_date( 'd/m/Y', strtotime( $donation->created_at ) ) ); ?></td>
                                 <td><?php echo esc_html( number_format_i18n( (float) $donation->amount, 2 ) . ' ' . $donation->currency ); ?></td>
                                 <td><?php echo esc_html( ucfirst( str_replace( '_', ' ', (string) $donation->gateway ) ) ); ?></td>
-                                <td><a href="<?php echo esc_url( $this->receipt_url( (int) $donation->id ) ); ?>"><?php esc_html_e( 'Télécharger le PDF', 'givoly' ); ?></a></td>
+                                <td><a href="<?php echo esc_url( $this->receipt_url( (int) $donation->id ) ); ?>"><?php esc_html_e( 'Download PDF', 'givoly' ); ?></a></td>
                             </tr>
                         <?php endforeach; ?>
                         </tbody>

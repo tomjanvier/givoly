@@ -32,12 +32,12 @@ final class AdminActions {
     }
 
     public function handle_refund_donation(): void {
-        $donation_id = (int) ( isset( $_POST['donation_id'] ) ? wp_unslash( $_POST['donation_id'] ) : 0 ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+        $donation_id = absint( wp_unslash( $_POST['donation_id'] ?? 0 ) );
 
         check_admin_referer( 'givoly_refund_donation_' . $donation_id );
 
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( esc_html__( 'Accès refusé.', 'givoly' ) );
+            wp_die( esc_html__( 'Access denied.', 'givoly' ) );
         }
 
         $redirect_base = admin_url( 'admin.php?page=givoly-donations' );
@@ -97,7 +97,7 @@ final class AdminActions {
         check_admin_referer( 'givoly_cancel_subscription_' . $donation_id );
 
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( esc_html__( 'Accès refusé.', 'givoly' ) );
+            wp_die( esc_html__( 'Access denied.', 'givoly' ) );
         }
 
         $redirect_base = admin_url( 'admin.php?page=givoly-donations' );
@@ -127,7 +127,7 @@ final class AdminActions {
         try {
             $cancelled = ( new StripeGateway( Settings::get_stripe_secret_key() ) )->cancel_subscription_at_period_end( $subscription_id );
             if ( ! $cancelled ) {
-                throw new \RuntimeException( 'Stripe n’a pas confirmé la programmation de la résiliation.' );
+                throw new \RuntimeException( 'Stripe did not confirm the scheduled cancellation.' );
             }
 
             wp_safe_redirect( add_query_arg( 'givoly_subscription_cancelled', '1', $redirect_base ) );
@@ -143,7 +143,7 @@ final class AdminActions {
         check_admin_referer( 'givoly_sync_stripe_now' );
 
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( esc_html__( 'Accès refusé.', 'givoly' ) );
+            wp_die( esc_html__( 'Access denied.', 'givoly' ) );
         }
 
         $redirect_base = admin_url( 'admin.php?page=givoly-donations' );
@@ -158,7 +158,7 @@ final class AdminActions {
         check_admin_referer( 'givoly_export_donations' );
 
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( esc_html__( 'Accès refusé.', 'givoly' ) );
+            wp_die( esc_html__( 'Access denied.', 'givoly' ) );
         }
 
         $valid_statuses = [ '', 'completed', 'pending', 'failed', 'refunded', 'cancelled' ];
@@ -216,7 +216,7 @@ final class AdminActions {
             exit;
         }
 
-        fputcsv( $output, [ 'id', 'date', 'numero_donateur', 'donateur', 'email', 'montant', 'devise', 'statut', 'passerelle' ], ';' );
+        fputcsv( $output, [ 'id', 'date', 'numero_donateur', 'donor', 'email', 'montant', 'devise', 'statut', 'passerelle' ], ';' );
         foreach ( $rows as $row ) {
             fputcsv( $output, [
                 $this->sanitize_csv_value( $row->id ),
@@ -259,7 +259,7 @@ final class AdminActions {
     public function handle_add_manual_donation(): void {
         check_admin_referer( 'givoly_add_manual_donation', 'givoly_manual_nonce' );
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( esc_html__( 'Accès refusé.', 'givoly' ) );
+            wp_die( esc_html__( 'Access denied.', 'givoly' ) );
         }
 
         $email          = sanitize_email( wp_unslash( $_POST['email'] ?? '' ) );
@@ -301,7 +301,7 @@ final class AdminActions {
         check_admin_referer( 'givoly_update_donor_' . $donor_id, 'givoly_update_donor_nonce' );
 
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( esc_html__( 'Accès refusé.', 'givoly' ) );
+            wp_die( esc_html__( 'Access denied.', 'givoly' ) );
         }
 
         $redirect = admin_url( 'admin.php?page=givoly-donors' );
@@ -358,7 +358,7 @@ final class AdminActions {
         check_admin_referer( $legacy_action ? 'givoly_send_yearly_tax_receipts' : 'givoly_queue_tax_receipts' );
 
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( esc_html__( 'Accès refusé.', 'givoly' ) );
+            wp_die( esc_html__( 'Access denied.', 'givoly' ) );
         }
 
         $year = absint( wp_unslash( $_POST['receipt_year'] ?? 0 ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
@@ -368,8 +368,8 @@ final class AdminActions {
         }
 
         $single_donor_id = absint( wp_unslash( $_POST['single_donor_id'] ?? 0 ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-        $donor_ids       = array_values( array_filter( array_map( 'absint', (array) ( $_POST['donor_ids'] ?? [] ) ) ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-        $mode            = sanitize_key( $_POST['mode'] ?? '' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+        $donor_ids       = array_values( array_filter( array_map( 'absint', (array) wp_unslash( $_POST['donor_ids'] ?? [] ) ) ) );
+        $mode            = sanitize_key( wp_unslash( $_POST['mode'] ?? '' ) );
         if ( $single_donor_id ) {
             $donor_ids = [ $single_donor_id ];
         } elseif ( ! $legacy_action && 'all' !== $mode && empty( $donor_ids ) ) {

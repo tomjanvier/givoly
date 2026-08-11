@@ -66,7 +66,7 @@ final class AjaxHandler {
         wp_enqueue_style( 'givoly-frontend', GIVOLY_PLUGIN_URL . 'assets/css/givoly-frontend.css', [], GIVOLY_VERSION );
         wp_add_inline_style( 'givoly-frontend', 'body{margin:0;padding:24px;background:#f0f0f1;font-family:system-ui,sans-serif;}' );
 
-        echo '<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">';
+        echo '<!DOCTYPE html><html ' . get_language_attributes() . '><head><meta charset="' . esc_attr( get_bloginfo( 'charset' ) ) . '">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- WordPress core generates the language attributes.
         wp_print_styles( 'givoly-frontend' );
         echo '</head><body>';
         ( new \Givoly\Form\DonationForm( $preview_config ) )->output();

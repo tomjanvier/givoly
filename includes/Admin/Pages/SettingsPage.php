@@ -125,7 +125,7 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
         $this->maybe_save();
 
         // ── Onglet actif ──────────────────────────────────────────────────
-        $active = sanitize_key( $_GET['tab'] ?? 'general' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $active = sanitize_key( wp_unslash( $_GET['tab'] ?? 'general' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         if ( ! isset( self::TABS[ $active ] ) ) {
             $active = 'general';
         }

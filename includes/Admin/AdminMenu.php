@@ -68,19 +68,16 @@ final class AdminMenu {
             return;
         }
 
-        $page = sanitize_key( $_GET['page'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $page = sanitize_key( wp_unslash( $_GET['page'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         if ( ! str_starts_with( $page, 'givoly-' ) ) {
             return;
         }
 
-        $support_utm = [
-            'utm_source'   => 'givoly',
-            'utm_medium'   => 'plugin_admin',
-            'utm_campaign' => 'support',
-        ];
-        $givoly_url   = add_query_arg( $support_utm, 'https://givoly.org' );
-        $plaidact_url = add_query_arg( $support_utm, 'https://plaidact.org' );
-        $donate_url   = add_query_arg( [ 'utm_campaign' => 'support_donation' ] + $support_utm, 'https://plaidact.org/don/' );
+        // Direct links only: WordPress.org does not allow referral tracking
+        // through plugin-admin promotion.
+        $givoly_url   = 'https://givoly.org';
+        $plaidact_url = 'https://plaidact.org';
+        $donate_url   = 'https://plaidact.org/don/';
         ?>
         <section class="givoly-admin-support" aria-labelledby="givoly-support-title">
             <div class="givoly-admin-support__copy">

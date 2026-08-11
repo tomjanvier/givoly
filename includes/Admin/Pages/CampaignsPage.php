@@ -38,7 +38,7 @@ final class CampaignsPage {
             return;
         }
 
-        $action = sanitize_key( $_GET['action'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $action = sanitize_key( wp_unslash( $_GET['action'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
         if ( $action === 'archive' ) {
             $this->handle_archive();
@@ -55,7 +55,7 @@ final class CampaignsPage {
             wp_die( esc_html__( 'Access denied.', 'givoly' ) );
         }
 
-        $action = sanitize_key( $_GET['action'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $action = sanitize_key( wp_unslash( $_GET['action'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
         if ( $action === 'new' ) {
             $this->render_form( null );
@@ -95,7 +95,7 @@ final class CampaignsPage {
             wp_die( esc_html__( 'Invalid request.', 'givoly' ) );
         }
 
-        $id          = (int) wp_unslash( $_POST['campaign_id'] ?? 0 ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- intval cast is sufficient sanitization for an integer ID
+        $id          = absint( wp_unslash( $_POST['campaign_id'] ?? 0 ) );
         $title       = sanitize_text_field( wp_unslash( $_POST['title'] ?? '' ) );
         $slug        = sanitize_title( wp_unslash( $_POST['slug'] ?? '' ) );
         $description = wp_kses_post( wp_unslash( $_POST['description'] ?? '' ) );
@@ -293,7 +293,7 @@ final class CampaignsPage {
                 <div class="notice notice-error">
                     <p>
                     <?php
-                    match ( sanitize_key( $_GET['givoly_error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+                    match ( sanitize_key( wp_unslash( $_GET['givoly_error'] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
                         'slug_exists'    => esc_html_e( 'This slug is already used by another campaign.', 'givoly' ),
                         default          => esc_html_e( 'The title is required.', 'givoly' ),
                     };
