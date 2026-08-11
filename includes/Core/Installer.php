@@ -18,11 +18,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Installer {
 
     const DB_VERSION_OPTION = 'givoly_db_version';
-    const DB_VERSION        = '2.0';
+    const DB_VERSION        = '2.1';
 
     public static function activate(): void {
         self::create_tables();
         LegacyMigration::run();
+        self::migrate_donor_references();
         update_option( self::DB_VERSION_OPTION, self::DB_VERSION, false );
         add_option( \Givoly\Admin\Settings::OPT_PUBLIC_BRANDING_ENABLED, '0', '', false );
         \Givoly\Mail\MailQueue::schedule();
@@ -69,8 +70,11 @@ final class Installer {
         $table = esc_sql( $wpdb->prefix . 'givoly_donations' );
 
         if ( ! self::table_exists( $table ) ) {
+            self::migrate_donor_references();
             return;
         }
+
+        self::migrate_donor_references();
 
         // v1.3 → v1.4 : renommer stripe_payment_intent_id → gateway_refund_ref
         $old_col = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -232,6 +236,7 @@ final class Installer {
         // ── Donateurs ────────────────────────────────────────────────────────
         dbDelta( "CREATE TABLE {$wpdb->prefix}givoly_donors (
             id              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            donor_reference VARCHAR(32)              DEFAULT NULL,
             email           VARCHAR(254)    NOT NULL,
             first_name      VARCHAR(100)    NOT NULL DEFAULT '',
             last_name       VARCHAR(100)    NOT NULL DEFAULT '',
@@ -250,6 +255,7 @@ final class Installer {
             created_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY     (id),
+            UNIQUE KEY      uq_donor_reference (donor_reference),
             UNIQUE KEY      uq_email (email),
             KEY             idx_wp_user (wp_user_id),
             KEY             idx_stripe_customer (stripe_customer_id),
@@ -321,6 +327,61 @@ final class Installer {
             KEY          idx_batch_status (batch_id, status)
         ) $charset;" );
 
+    }
+
+    private static function migrate_donor_references(): void {
+        global $wpdb;
+
+        $table = esc_sql( $wpdb->prefix . 'givoly_donors' );
+        if ( ! self::table_exists( $table ) ) {
+            return;
+        }
+
+        $column_exists = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+                 WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s AND COLUMN_NAME = 'donor_reference'",
+                DB_NAME,
+                $table
+            )
+        );
+
+        if ( ! $column_exists ) {
+            // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange,PluginCheck.Security.DirectDB.UnescapedDBParameter -- DDL migration, table name escaped from the trusted WordPress prefix.
+            $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `donor_reference` VARCHAR(32) DEFAULT NULL AFTER `id`" );
+            // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange,PluginCheck.Security.DirectDB.UnescapedDBParameter
+        }
+
+        $index_exists = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS
+                 WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s AND INDEX_NAME = 'uq_donor_reference'",
+                DB_NAME,
+                $table
+            )
+        );
+
+        if ( ! $index_exists ) {
+            // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange,PluginCheck.Security.DirectDB.UnescapedDBParameter -- DDL migration, table name escaped from the trusted WordPress prefix.
+            $wpdb->query( "ALTER TABLE `{$table}` ADD UNIQUE KEY `uq_donor_reference` (`donor_reference`)" );
+            // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange,PluginCheck.Security.DirectDB.UnescapedDBParameter
+        }
+
+        $missing = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+            "SELECT id, first_name, created_at FROM {$table} WHERE donor_reference IS NULL OR donor_reference = ''", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
+            ARRAY_A
+        );
+
+        foreach ( $missing as $donor ) {
+            $reference = \Givoly\Donor\DonorReference::generate( (string) $donor['first_name'], (string) $donor['created_at'] );
+            $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+                $table,
+                [ 'donor_reference' => $reference ],
+                [ 'id' => (int) $donor['id'] ],
+                [ '%s' ],
+                [ '%d' ]
+            );
+        }
     }
 
     private static function table_exists( string $table ): bool {

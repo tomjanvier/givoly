@@ -152,6 +152,7 @@ final class DonorsPage {
                 <table class="wp-list-table widefat fixed striped givoly-table">
                     <thead>
                         <tr>
+                            <th><?php esc_html_e( 'Numéro', 'givoly' ); ?></th>
                             <th><?php esc_html_e( 'Donateur', 'givoly' ); ?></th>
                             <th><?php esc_html_e( 'Email', 'givoly' ); ?></th>
                             <th><?php esc_html_e( 'Total donné', 'givoly' ); ?></th>
@@ -163,6 +164,7 @@ final class DonorsPage {
                     <tbody>
                         <?php foreach ( $donors as $donor ) : ?>
                             <tr>
+                                <td><code><?php echo esc_html( $donor->donor_reference ?: '—' ); ?></code></td>
                                 <td>
                                     <strong>
                                         <?php
@@ -211,7 +213,7 @@ final class DonorsPage {
         // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table names from $wpdb->prefix (trusted)
         return $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prepare(
-                "SELECT dn.id, dn.first_name, dn.last_name, dn.email, dn.company, COALESCE( SUM( CASE WHEN d.status = 'completed' THEN d.amount ELSE 0 END ), 0 ) AS total_donated, COUNT( CASE WHEN d.status = 'completed' THEN 1 END ) AS donation_count, MAX( CASE WHEN d.status = 'completed' THEN d.created_at END ) AS last_donation FROM {$table_dn} dn LEFT JOIN {$table_d} d ON d.donor_id = dn.id GROUP BY dn.id ORDER BY total_donated DESC, dn.id DESC LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
+                "SELECT dn.id, dn.donor_reference, dn.first_name, dn.last_name, dn.email, dn.company, COALESCE( SUM( CASE WHEN d.status = 'completed' THEN d.amount ELSE 0 END ), 0 ) AS total_donated, COUNT( CASE WHEN d.status = 'completed' THEN 1 END ) AS donation_count, MAX( CASE WHEN d.status = 'completed' THEN d.created_at END ) AS last_donation FROM {$table_dn} dn LEFT JOIN {$table_d} d ON d.donor_id = dn.id GROUP BY dn.id ORDER BY total_donated DESC, dn.id DESC LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
                 self::PER_PAGE,
                 $offset
             )
@@ -232,7 +234,7 @@ final class DonorsPage {
 
         $table = esc_sql( $wpdb->prefix . 'givoly_donors' );
         return $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-            $wpdb->prepare( "SELECT id, email, first_name, last_name, company, address_line1, address_line2, postal_code, city, country, phone, stripe_customer_id, stripe_subscription_id FROM {$table} WHERE id = %d LIMIT 1", $donor_id ), // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
+            $wpdb->prepare( "SELECT id, donor_reference, email, first_name, last_name, company, address_line1, address_line2, postal_code, city, country, phone, stripe_customer_id, stripe_subscription_id FROM {$table} WHERE id = %d LIMIT 1", $donor_id ), // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
             OBJECT
         );
     }
@@ -240,7 +242,7 @@ final class DonorsPage {
     private function render_edit_form( object $donor ): void {
         ?>
         <div class="card" style="max-width: 900px;">
-            <h2><?php esc_html_e( 'Modifier la fiche donateur', 'givoly' ); ?> <span class="description">#<?php echo esc_html( (string) $donor->id ); ?></span></h2>
+            <h2><?php esc_html_e( 'Modifier la fiche donateur', 'givoly' ); ?> <span class="description"><?php echo esc_html( $donor->donor_reference ?: '#' . (string) $donor->id ); ?></span></h2>
             <p class="description"><?php esc_html_e( 'Le numéro donateur et les identifiants Stripe sont conservés. Modifier l’email ne supprime aucun don historique.', 'givoly' ); ?></p>
             <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
                 <?php wp_nonce_field( 'givoly_update_donor_' . (int) $donor->id, 'givoly_update_donor_nonce' ); ?>

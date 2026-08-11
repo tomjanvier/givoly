@@ -10,6 +10,7 @@
 
 namespace Givoly\Ajax;
 
+use Givoly\Donor\DonorReference;
 use Givoly\Mail\MailQueue;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -214,33 +215,49 @@ final class PaymentProcessor {
 
         $table = $wpdb->prefix . 'givoly_donors';
 
-        $existing = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name from $wpdb->prefix
-            $wpdb->prepare( "SELECT id FROM {$table} WHERE email = %s", $email ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $existing = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name from $wpdb->prefix
+            $wpdb->prepare( "SELECT id, donor_reference, created_at FROM {$table} WHERE email = %s", $email ), // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            ARRAY_A
         );
 
         if ( $existing ) {
-            return (int) $existing;
+            $this->ensure_donor_reference(
+                (int) $existing['id'],
+                $first_name,
+                (string) ( $existing['created_at'] ?? '' ),
+                (string) ( $existing['donor_reference'] ?? '' )
+            );
+            return (int) $existing['id'];
         }
 
+        $created_at = current_time( 'mysql', true );
         $inserted = $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
             $table,
             [
-                'email'      => $email,
-                'first_name' => $first_name,
-                'last_name'  => $last_name,
-                'created_at' => current_time( 'mysql', true ),
-                'updated_at' => current_time( 'mysql', true ),
+                'email'           => $email,
+                'donor_reference' => DonorReference::generate( $first_name, $created_at ),
+                'first_name'      => $first_name,
+                'last_name'       => $last_name,
+                'created_at'      => $created_at,
+                'updated_at'      => $created_at,
             ],
-            [ '%s', '%s', '%s', '%s', '%s' ]
+            [ '%s', '%s', '%s', '%s', '%s', '%s' ]
         );
 
         if ( false === $inserted && $this->is_duplicate_entry_error( $wpdb->last_error ) ) {
-            $existing = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name from $wpdb->prefix
-                $wpdb->prepare( "SELECT id FROM {$table} WHERE email = %s", $email ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            $existing = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name from $wpdb->prefix
+                $wpdb->prepare( "SELECT id, donor_reference, created_at FROM {$table} WHERE email = %s", $email ), // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                ARRAY_A
             );
 
             if ( $existing ) {
-                return (int) $existing;
+                $this->ensure_donor_reference(
+                    (int) $existing['id'],
+                    $first_name,
+                    (string) ( $existing['created_at'] ?? '' ),
+                    (string) ( $existing['donor_reference'] ?? '' )
+                );
+                return (int) $existing['id'];
             }
 
             throw new \RuntimeException( 'Entrée donateur dupliquée détectée, mais impossible de retrouver le donateur existant.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
@@ -251,6 +268,21 @@ final class PaymentProcessor {
         }
 
         return $wpdb->insert_id ?: false;
+    }
+
+    private function ensure_donor_reference( int $donor_id, string $first_name, string $created_at, string $reference ): void {
+        if ( $reference !== '' ) {
+            return;
+        }
+
+        global $wpdb;
+        $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->prefix . 'givoly_donors',
+            [ 'donor_reference' => DonorReference::generate( $first_name, $created_at ) ],
+            [ 'id' => $donor_id ],
+            [ '%s' ],
+            [ '%d' ]
+        );
     }
 
     private function is_duplicate_entry_error( string $error ): bool {

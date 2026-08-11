@@ -46,6 +46,16 @@ final class DonationsPage {
                 . esc_html__( 'Impossible de programmer la résiliation du don récurrent. Vérifiez vos clés Stripe et l’abonnement concerné.', 'givoly' )
                 . '</p></div>';
         }
+        if ( isset( $_GET['givoly_stripe_sync_done'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            echo '<div class="notice notice-success is-dismissible"><p>'
+                . esc_html__( 'La récupération Stripe des six derniers mois est terminée.', 'givoly' )
+                . '</p></div>';
+        }
+        if ( isset( $_GET['givoly_stripe_sync_error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            echo '<div class="notice notice-error is-dismissible"><p>'
+                . esc_html__( 'La récupération Stripe n’a pas pu aller jusqu’au bout. Vérifiez la clé secrète Stripe et les journaux du site.', 'givoly' )
+                . '</p></div>';
+        }
 
         $valid_statuses = [ '', 'completed', 'pending', 'failed', 'refunded', 'cancelled' ];
         $status         = sanitize_text_field( wp_unslash( $_GET['status'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -60,11 +70,16 @@ final class DonationsPage {
         ?>
         <div class="wrap">
             <h1><?php esc_html_e( 'Givoly — Dons', 'givoly' ); ?></h1>
-            <p>
+            <div class="givoly-donations-actions">
                 <a class="button button-primary" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=givoly_export_donations' . ( $status ? '&status=' . rawurlencode( $status ) : '' ) ), 'givoly_export_donations' ) ); ?>">
                     <?php esc_html_e( 'Exporter les dons (CSV)', 'givoly' ); ?>
                 </a>
-            </p>
+                <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline-block;margin-left:8px;margin-bottom:0;">
+                    <?php wp_nonce_field( 'givoly_sync_stripe_now' ); ?>
+                    <input type="hidden" name="action" value="givoly_sync_stripe_now">
+                    <button type="submit" class="button"><?php esc_html_e( 'Récupérer les dons Stripe (6 mois)', 'givoly' ); ?></button>
+                </form>
+            </div>
 
             <!-- ── Filtre par statut ───────────────────────────────────── -->
             <ul class="subsubsub">
@@ -104,7 +119,12 @@ final class DonationsPage {
                     <tbody>
                         <?php foreach ( $donations as $row ) : ?>
                             <tr>
-                                <td><?php echo esc_html( trim( $row->first_name . ' ' . $row->last_name ) ?: '—' ); ?></td>
+                                <td>
+                                    <?php echo esc_html( trim( $row->first_name . ' ' . $row->last_name ) ?: '—' ); ?>
+                                    <?php if ( ! empty( $row->donor_reference ) ) : ?>
+                                        <br><small><code><?php echo esc_html( $row->donor_reference ); ?></code></small>
+                                    <?php endif; ?>
+                                </td>
                                 <td><?php echo esc_html( $row->email ?: '—' ); ?></td>
                                 <td>
                                     <strong>
@@ -199,7 +219,7 @@ final class DonationsPage {
         $select = "SELECT d.id, d.amount, d.currency, d.status, d.created_at,
                           d.gateway, d.gateway_refund_ref,
                           dn.stripe_subscription_id,
-                          dn.first_name, dn.last_name, dn.email
+                          dn.donor_reference, dn.first_name, dn.last_name, dn.email
                    FROM {$table_d} d
                    LEFT JOIN {$table_dn} dn ON d.donor_id = dn.id";
 
