@@ -24,8 +24,14 @@ final class DashboardPage {
         $stats            = DonationStats::summary();
         $monthly          = DonationStats::monthly_totals();
         $recent_donations = DonationStats::recent_donations();
-        // Use a direct support link: no referral tracking or telemetry.
-        $support_donation_url = 'https://plaidact.org/don/';
+        $support_donation_url = add_query_arg(
+            [
+                'utm_source'   => 'givoly',
+                'utm_medium'   => 'plugin_admin',
+                'utm_campaign' => 'dashboard_donation',
+            ],
+            'https://plaidact.org/don/'
+        );
         ?>
         <div class="wrap givoly-dashboard">
             <header class="givoly-dashboard__header">

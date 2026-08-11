@@ -25,7 +25,7 @@ Givoly is a free, nonprofit WordPress donation plugin maintained by [PLAID·ACT]
 | What you need | What Givoly provides |
 | --- | --- |
 | Receive donations | Stripe Checkout and HelloAsso payment flows |
-| Build trust | Secure webhooks, no plugin tracking, no remote marketing assets |
+| Build trust | Secure webhooks, no donor tracking, no remote marketing assets |
 | Know your supporters | Donor records, donation history, recurring-payment references |
 | Run a campaign | Goals, dates, descriptions, progress bars, and public forms |
 | Stay organized | CSV exports, manual donations, queued emails, receipt summaries |
@@ -52,7 +52,7 @@ Givoly is a free, nonprofit WordPress donation plugin maintained by [PLAID·ACT]
 
 ### Privacy and external services
 
-Givoly stores donation data in the site's WordPress database. It does not add telemetry, analytics pixels, tracking cookies, referral parameters, or unrelated remote assets.
+Givoly stores donation data in the site's WordPress database. It does not add telemetry, analytics pixels, tracking cookies, or unrelated remote assets. UTM parameters are limited to optional Givoly and PLAID·ACT support or branding links; they are not added to donation or donor links.
 
 Payment data is sent only to the gateways enabled by the administrator and used for the donation:
 
@@ -95,7 +95,7 @@ Givoly est une extension WordPress gratuite et associative, maintenue par [PLAID
 
 ### Données et confidentialité
 
-Les données de dons sont enregistrées dans la base WordPress de l’association. Givoly n’ajoute ni pixels publicitaires, ni cookies de suivi, ni télémétrie, ni paramètres de tracking dans les liens.
+Les données de dons sont enregistrées dans la base WordPress de l’association. Givoly n’ajoute ni pixels publicitaires, ni cookies de suivi, ni télémétrie sur les parcours de dons. Des paramètres UTM sont limités aux liens facultatifs de soutien et de crédit vers Givoly et PLAID·ACT.
 
 Stripe et HelloAsso ne sont contactés que lorsqu’ils sont activés et utilisés pour un paiement, un webhook, un remboursement ou une synchronisation.
 
