@@ -14,7 +14,9 @@ French-first donation forms for nonprofits with Stripe, HelloAsso, donor managem
 
 **Givoly is primarily designed for French nonprofits.** It provides a clear, no-subscription way to collect donations in WordPress, while remaining useful to organizations that use Stripe or HelloAsso elsewhere.
 
-Built and maintained by [PLAID·ACT](https://plaidact.org), Givoly is free software: it adds no plugin commission, no premium upsell, and no tracking or telemetry.
+**More information:** visit [givoly.org](https://givoly.org/).
+
+Built and maintained by [PLAID·ACT](https://plaidact.org), Givoly is free software: it adds no plugin commission, no premium upsell, and no donor tracking or telemetry.
 
 = What Givoly includes =
 
@@ -96,7 +98,7 @@ Deactivate Givasso before activating Givoly. Givoly copies compatible settings a
 
 == Privacy ==
 
-Givoly stores donation and donor data in the site's WordPress database. It does not add analytics scripts, advertising pixels, tracking cookies, telemetry, referral parameters, or remote assets unrelated to payment processing.
+Givoly stores donation and donor data in the site's WordPress database. It does not add analytics scripts, advertising pixels, tracking cookies, telemetry, or remote assets unrelated to payment processing. UTM parameters are used only on optional Givoly and PLAID·ACT support or branding links, not on donation or donor links.
 
 Site owners are responsible for informing donors about their own privacy practices and the payment services they enable.
 
@@ -124,7 +126,7 @@ HelloAsso is used only when enabled by the administrator and chosen for a paymen
 * Added HelloAsso v5 synchronization and Stripe recurring-payment reconciliation.
 * Added donor space, manual donations, recurring donation administration, and queued PDF receipt delivery.
 * Prepared English source strings, French bundled translations, and the GlotPress translation template.
-* Removed referral tracking parameters from plugin links.
+* Added UTM attribution to optional Givoly and PLAID·ACT support and branding links.
 
 = 1.3.0 =
 * Added non-destructive Givasso migration and compatibility aliases.

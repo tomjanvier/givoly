@@ -73,11 +73,14 @@ final class AdminMenu {
             return;
         }
 
-        // Direct links only: WordPress.org does not allow referral tracking
-        // through plugin-admin promotion.
-        $givoly_url   = 'https://givoly.org';
-        $plaidact_url = 'https://plaidact.org';
-        $donate_url   = 'https://plaidact.org/don/';
+        $support_utm = [
+            'utm_source'   => 'givoly',
+            'utm_medium'   => 'plugin_admin',
+            'utm_campaign' => 'support',
+        ];
+        $givoly_url   = add_query_arg( $support_utm, 'https://givoly.org' );
+        $plaidact_url = add_query_arg( $support_utm, 'https://plaidact.org' );
+        $donate_url   = add_query_arg( [ 'utm_campaign' => 'support_donation' ] + $support_utm, 'https://plaidact.org/don/' );
         ?>
         <section class="givoly-admin-support" aria-labelledby="givoly-support-title">
             <div class="givoly-admin-support__copy">
@@ -100,8 +103,8 @@ final class AdminMenu {
                 </p>
             </div>
             <div class="givoly-admin-support__actions">
-                <a class="givoly-admin-support__link" href="<?php echo esc_url( $givoly_url ); ?>" target="_blank" rel="noopener noreferrer">
-                    <?php esc_html_e( 'Discover Givoly', 'givoly' ); ?>
+                <a class="givoly-admin-support__link givoly-admin-support__link--website" href="<?php echo esc_url( $givoly_url ); ?>" target="_blank" rel="noopener noreferrer">
+                    <span aria-hidden="true">↗</span> givoly.org
                 </a>
                 <a class="givoly-admin-support__link" href="<?php echo esc_url( $plaidact_url ); ?>" target="_blank" rel="noopener noreferrer">
                     <?php esc_html_e( 'PLAID·ACT', 'givoly' ); ?>
