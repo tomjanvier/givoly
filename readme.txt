@@ -14,6 +14,8 @@ French-first donation forms for nonprofits with Stripe, HelloAsso, donor managem
 
 **Givoly is primarily designed for French nonprofits.** It provides a clear, no-subscription way to collect donations in WordPress, while remaining useful to organizations that use Stripe or HelloAsso elsewhere.
 
+**More information:** visit [givoly.org](https://givoly.org/).
+
 Built and maintained by [PLAID·ACT](https://plaidact.org), Givoly is free software: it adds no plugin commission, no premium upsell, and no donor tracking or telemetry.
 
 = What Givoly includes =

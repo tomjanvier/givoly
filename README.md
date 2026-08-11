@@ -11,7 +11,7 @@
 <p align="center">
   Stripe · HelloAsso · Donors · Campaigns · Receipt emails
   <br>
-  <a href="#english">English</a> · <a href="#français">Français</a> · <a href="https://givoly.org/">givoly.org</a> · <a href="https://plaidact.org/">PLAID·ACT</a>
+  <a href="#english">English</a> · <a href="#français">Français</a> · <a href="https://givoly.org/">Explore givoly.org</a> · <a href="https://plaidact.org/">PLAID·ACT</a>
 </p>
 
 > **Givoly is primarily designed for French nonprofits.** It includes French nonprofit fields such as SIRET and RNA, while remaining suitable for organizations using Stripe or HelloAsso anywhere.
@@ -21,6 +21,8 @@
 ## English
 
 Givoly is a free, nonprofit WordPress donation plugin maintained by [PLAID·ACT](https://plaidact.org). It helps organizations collect donations without a plugin subscription or plugin commission.
+
+**More information:** [givoly.org](https://givoly.org/)
 
 | What you need | What Givoly provides |
 | --- | --- |
@@ -66,6 +68,8 @@ For form-specific styling, use WordPress's native **Additional CSS** editor. Giv
 ## Français
 
 Givoly est une extension WordPress gratuite et associative, maintenue par [PLAID·ACT](https://plaidact.org). Elle permet aux associations de recevoir des dons en ligne, sans abonnement imposé ni commission ajoutée par l’extension.
+
+**En savoir plus :** [givoly.org](https://givoly.org/)
 
 | Votre besoin | Ce que fait Givoly |
 | --- | --- |

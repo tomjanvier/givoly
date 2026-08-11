@@ -103,8 +103,8 @@ final class AdminMenu {
                 </p>
             </div>
             <div class="givoly-admin-support__actions">
-                <a class="givoly-admin-support__link" href="<?php echo esc_url( $givoly_url ); ?>" target="_blank" rel="noopener noreferrer">
-                    <?php esc_html_e( 'Discover Givoly', 'givoly' ); ?>
+                <a class="givoly-admin-support__link givoly-admin-support__link--website" href="<?php echo esc_url( $givoly_url ); ?>" target="_blank" rel="noopener noreferrer">
+                    <span aria-hidden="true">↗</span> givoly.org
                 </a>
                 <a class="givoly-admin-support__link" href="<?php echo esc_url( $plaidact_url ); ?>" target="_blank" rel="noopener noreferrer">
                     <?php esc_html_e( 'PLAID·ACT', 'givoly' ); ?>

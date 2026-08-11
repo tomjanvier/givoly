@@ -12,11 +12,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: includes/Form/DonationForm.php:52
+#: includes/Form/DonationForm.php:58
 msgid "Powered by Givoly"
 msgstr "Propulsé par Givoly"
 
-#: includes/Form/DonationForm.php:53 includes/Admin/AdminMenu.php:104
+#: includes/Form/DonationForm.php:59
 msgid "Discover Givoly"
 msgstr "Découvrir Givoly"
 
@@ -195,7 +195,7 @@ msgstr "Campagnes"
 msgid "Donations"
 msgstr "Dons"
 
-#: includes/Admin/AdminMenu.php:51 includes/Admin/Pages/DashboardPage.php:173
+#: includes/Admin/AdminMenu.php:51 includes/Admin/Pages/DashboardPage.php:179
 msgid "Donors"
 msgstr "Donateurs"
 
@@ -208,11 +208,11 @@ msgstr "Ajouter un don manuel"
 msgid "Settings"
 msgstr "Réglages"
 
-#: includes/Admin/AdminMenu.php:86 templates/admin/settings/tab-general.php:23
+#: includes/Admin/AdminMenu.php:89 templates/admin/settings/tab-general.php:23
 msgid "Free, nonprofit, no surprises."
 msgstr "Gratuit, associatif, sans mauvaise surprise."
 
-#: includes/Admin/AdminMenu.php:93
+#: includes/Admin/AdminMenu.php:96
 #, php-format
 msgid ""
 "%2$s is maintained by %1$s, a nonprofit organization defending human rights. "
@@ -221,15 +221,15 @@ msgid ""
 "plugin."
 msgstr "%2$s est maintenu par %1$s, une association à but non lucratif de défense des Droits humains. L’objectif est simple : proposer aux associations un outil clair pour recevoir des dons en ligne depuis WordPress, sans abonnement imposé et sans commission ajoutée par le plugin."
 
-#: includes/Admin/AdminMenu.php:107
+#: includes/Admin/AdminMenu.php:110
 msgid "PLAID·ACT"
 msgstr "PLAID·ACT"
 
-#: includes/Admin/AdminMenu.php:111
+#: includes/Admin/AdminMenu.php:114
 msgid "Make a donation to help"
 msgstr "Faire un don pour aider"
 
-#: includes/Admin/AdminMenu.php:128
+#: includes/Admin/AdminMenu.php:131
 msgid "Givoly — Donations received"
 msgstr "Givoly — Dons reçus"
 
@@ -296,12 +296,12 @@ msgid "All"
 msgstr "Tous"
 
 #: includes/Admin/Pages/DonationsPage.php:106
-#: includes/Admin/Pages/DashboardPage.php:120
+#: includes/Admin/Pages/DashboardPage.php:126
 msgid "No donations have been recorded yet."
 msgstr "Aucun don enregistré pour l’instant."
 
 #: includes/Admin/Pages/DonationsPage.php:111
-#: includes/Admin/Pages/DashboardPage.php:128
+#: includes/Admin/Pages/DashboardPage.php:134
 #: includes/Admin/Pages/DonorsPage.php:99
 #: includes/Admin/Pages/DonorsPage.php:156 includes/Donor/DonorSpace.php:183
 msgid "Donor"
@@ -309,7 +309,7 @@ msgstr "Donateur"
 
 #: includes/Admin/Pages/DonationsPage.php:112
 #: includes/Admin/Pages/ManualDonationPage.php:35
-#: includes/Admin/Pages/DashboardPage.php:129
+#: includes/Admin/Pages/DashboardPage.php:135
 #: includes/Admin/Pages/DonorsPage.php:100
 #: includes/Admin/Pages/DonorsPage.php:157
 #: includes/Admin/Pages/DonorsPage.php:254 templates/form/card.php:174
@@ -318,7 +318,7 @@ msgid "Email"
 msgstr "E-mail"
 
 #: includes/Admin/Pages/DonationsPage.php:113
-#: includes/Admin/Pages/DashboardPage.php:130
+#: includes/Admin/Pages/DashboardPage.php:136
 #: includes/Admin/Pages/DonorsPage.php:101 includes/Donor/DonorSpace.php:259
 #: templates/form/inline.php:110
 msgid "Amount"
@@ -332,7 +332,7 @@ msgid "Status"
 msgstr "Statut"
 
 #: includes/Admin/Pages/DonationsPage.php:115
-#: includes/Admin/Pages/DashboardPage.php:132 includes/Donor/DonorSpace.php:259
+#: includes/Admin/Pages/DashboardPage.php:138 includes/Donor/DonorSpace.php:259
 msgid "Date"
 msgstr "Date"
 
@@ -624,142 +624,142 @@ msgstr "Mettre immédiatement le reçu fiscal en file d’envoi"
 msgid "Save manual donation"
 msgstr "Enregistrer le don manuel"
 
-#: includes/Admin/Pages/DashboardPage.php:33
+#: includes/Admin/Pages/DashboardPage.php:39
 msgid "Givoly — Dashboard"
 msgstr "Givoly — Tableau de bord"
 
-#: includes/Admin/Pages/DashboardPage.php:34
+#: includes/Admin/Pages/DashboardPage.php:40
 msgid "A clear view of donations received and the next useful actions."
 msgstr "Une vue claire des dons reçus et des prochaines actions utiles."
 
-#: includes/Admin/Pages/DashboardPage.php:37
+#: includes/Admin/Pages/DashboardPage.php:43
 msgid "View all donations"
 msgstr "Voir tous les dons"
 
-#: includes/Admin/Pages/DashboardPage.php:44
+#: includes/Admin/Pages/DashboardPage.php:50
 msgid "Stripe is not configured yet."
 msgstr "Stripe n'est pas encore configuré."
 
-#: includes/Admin/Pages/DashboardPage.php:46
+#: includes/Admin/Pages/DashboardPage.php:52
 msgid "Configure now →"
 msgstr "Configurer maintenant →"
 
-#: includes/Admin/Pages/DashboardPage.php:52
+#: includes/Admin/Pages/DashboardPage.php:58
 msgid "Donation metrics"
 msgstr "Indicateurs des dons"
 
-#: includes/Admin/Pages/DashboardPage.php:53
-#: includes/Admin/Pages/DashboardPage.php:165
+#: includes/Admin/Pages/DashboardPage.php:59
+#: includes/Admin/Pages/DashboardPage.php:171
 msgid "Total collected"
 msgstr "Total collecté"
 
-#: includes/Admin/Pages/DashboardPage.php:54
-#: includes/Admin/Pages/DashboardPage.php:66
-#: includes/Admin/Pages/DashboardPage.php:169
+#: includes/Admin/Pages/DashboardPage.php:60
+#: includes/Admin/Pages/DashboardPage.php:72
+#: includes/Admin/Pages/DashboardPage.php:175
 msgid "Completed donations"
 msgstr "Dons complétés"
 
-#: includes/Admin/Pages/DashboardPage.php:55
+#: includes/Admin/Pages/DashboardPage.php:61
 msgid "Active donors"
 msgstr "Donateurs actifs"
 
-#: includes/Admin/Pages/DashboardPage.php:56
+#: includes/Admin/Pages/DashboardPage.php:62
 msgid "Average donation"
 msgstr "Don moyen"
 
-#: includes/Admin/Pages/DashboardPage.php:63
+#: includes/Admin/Pages/DashboardPage.php:69
 msgid "Donation trends"
 msgstr "Évolution des dons"
 
-#: includes/Admin/Pages/DashboardPage.php:64
+#: includes/Admin/Pages/DashboardPage.php:70
 msgid "Completed amounts over the last six months."
 msgstr "Montants complétés sur les six derniers mois."
 
-#: includes/Admin/Pages/DashboardPage.php:72
+#: includes/Admin/Pages/DashboardPage.php:78
 msgid "Next steps"
 msgstr "À faire ensuite"
 
-#: includes/Admin/Pages/DashboardPage.php:73
+#: includes/Admin/Pages/DashboardPage.php:79
 msgid "Keep your donation space ready for your next campaign."
 msgstr "Gardez votre espace de dons prêt pour votre prochaine campagne."
 
-#: includes/Admin/Pages/DashboardPage.php:75
+#: includes/Admin/Pages/DashboardPage.php:81
 msgid "Check settings"
 msgstr "Vérifier les réglages"
 
-#: includes/Admin/Pages/DashboardPage.php:76
+#: includes/Admin/Pages/DashboardPage.php:82
 msgid "Customize emails"
 msgstr "Personnaliser les emails"
 
-#: includes/Admin/Pages/DashboardPage.php:77
+#: includes/Admin/Pages/DashboardPage.php:83
 msgid "Create a campaign"
 msgstr "Créer une campagne"
 
-#: includes/Admin/Pages/DashboardPage.php:85
+#: includes/Admin/Pages/DashboardPage.php:91
 msgid "Add a donation form"
 msgstr "Ajouter un formulaire de don"
 
-#: includes/Admin/Pages/DashboardPage.php:86
+#: includes/Admin/Pages/DashboardPage.php:92
 msgid "Copy this shortcode into a WordPress page or post to display your form."
 msgstr "Copiez ce shortcode dans une page ou un article WordPress pour afficher votre formulaire."
 
-#: includes/Admin/Pages/DashboardPage.php:94
+#: includes/Admin/Pages/DashboardPage.php:100
 msgid "Copy shortcode"
 msgstr "Copier le shortcode"
 
-#: includes/Admin/Pages/DashboardPage.php:98
+#: includes/Admin/Pages/DashboardPage.php:104
 msgid "The form automatically uses your payment and appearance settings."
 msgstr "Le formulaire reprend automatiquement vos réglages de paiement et d’apparence."
 
-#: includes/Admin/Pages/DashboardPage.php:101
+#: includes/Admin/Pages/DashboardPage.php:107
 msgid "Support PLAID·ACT"
 msgstr "Soutenir PLAID·ACT"
 
-#: includes/Admin/Pages/DashboardPage.php:109
-#: includes/Admin/Pages/DashboardPage.php:181
+#: includes/Admin/Pages/DashboardPage.php:115
+#: includes/Admin/Pages/DashboardPage.php:187
 msgid "Recent donors"
 msgstr "Derniers donateurs"
 
-#: includes/Admin/Pages/DashboardPage.php:110
+#: includes/Admin/Pages/DashboardPage.php:116
 msgid "The latest confirmed donations appear here automatically."
 msgstr "Les derniers dons confirmés apparaissent ici automatiquement."
 
-#: includes/Admin/Pages/DashboardPage.php:113
+#: includes/Admin/Pages/DashboardPage.php:119
 msgid "Open the full list"
 msgstr "Ouvrir la liste complète"
 
-#: includes/Admin/Pages/DashboardPage.php:121
+#: includes/Admin/Pages/DashboardPage.php:127
 msgid "Confirmed donations will appear in this table."
 msgstr "Les dons confirmés apparaîtront dans ce tableau."
 
-#: includes/Admin/Pages/DashboardPage.php:131
+#: includes/Admin/Pages/DashboardPage.php:137
 msgid "Campaign"
 msgstr "Campagne"
 
-#: includes/Admin/Pages/DashboardPage.php:178
+#: includes/Admin/Pages/DashboardPage.php:184
 msgid "Six-month trend"
 msgstr "Évolution sur six mois"
 
-#: includes/Admin/Pages/DashboardPage.php:183
+#: includes/Admin/Pages/DashboardPage.php:189
 msgid "No completed donations yet."
 msgstr "Aucun don complété pour l’instant."
 
-#: includes/Admin/Pages/DashboardPage.php:199
+#: includes/Admin/Pages/DashboardPage.php:205
 msgid "Open the Givoly dashboard"
 msgstr "Ouvrir le tableau de bord Givoly"
 
-#: includes/Admin/Pages/DashboardPage.php:226
+#: includes/Admin/Pages/DashboardPage.php:232
 msgid "Chart of completed donation amounts over the last six months"
 msgstr "Graphique des montants de dons complétés sur les six derniers mois"
 
-#: includes/Admin/Pages/DashboardPage.php:235
+#: includes/Admin/Pages/DashboardPage.php:241
 #, php-format
 msgid "%1$s: €%2$s, %3$d donation"
 msgid_plural "%1$s: €%2$s, %3$d donations"
 msgstr[0] "%1$s : %2$s €, %3$d don"
 msgstr[1] "%1$s : %2$s €, %3$d dons"
 
-#: includes/Admin/Pages/DashboardPage.php:249
+#: includes/Admin/Pages/DashboardPage.php:255
 msgid "Amounts will appear after your first completed donations."
 msgstr "Les montants apparaîtront après vos premiers dons complétés."
 
