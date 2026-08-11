@@ -52,7 +52,7 @@ final class CampaignsPage {
 
     public function render(): void {
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( esc_html__( 'Accès refusé.', 'givoly' ) );
+            wp_die( esc_html__( 'Access denied.', 'givoly' ) );
         }
 
         $action = sanitize_key( $_GET['action'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -63,7 +63,7 @@ final class CampaignsPage {
             $id       = absint( wp_unslash( $_GET['id'] ?? 0 ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
             $campaign = $id ? $this->repo->find_by_id( $id ) : null;
             if ( ! $campaign ) {
-                wp_die( esc_html__( 'Campagne introuvable.', 'givoly' ) );
+                wp_die( esc_html__( 'Campaign not found.', 'givoly' ) );
             }
             $this->render_form( $campaign );
         } else {
@@ -77,11 +77,11 @@ final class CampaignsPage {
         $id = absint( wp_unslash( $_GET['id'] ?? 0 ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- nonce verified by check_admin_referer below
 
         if ( ! $id || ! check_admin_referer( 'givoly_archive_campaign_' . $id ) ) {
-            wp_die( esc_html__( 'Action invalide.', 'givoly' ) );
+            wp_die( esc_html__( 'Invalid action.', 'givoly' ) );
         }
 
         if ( ! $this->repo->find_by_id( $id ) ) {
-            wp_die( esc_html__( 'Campagne introuvable.', 'givoly' ) );
+            wp_die( esc_html__( 'Campaign not found.', 'givoly' ) );
         }
 
         $this->repo->archive( $id );
@@ -92,7 +92,7 @@ final class CampaignsPage {
 
     private function handle_save(): void {
         if ( ! check_admin_referer( 'givoly_save_campaign', 'givoly_campaign_nonce' ) ) {
-            wp_die( esc_html__( 'Requête invalide.', 'givoly' ) );
+            wp_die( esc_html__( 'Invalid request.', 'givoly' ) );
         }
 
         $id          = (int) wp_unslash( $_POST['campaign_id'] ?? 0 ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- intval cast is sufficient sanitization for an integer ID
@@ -170,40 +170,40 @@ final class CampaignsPage {
         $stats_map  = $this->repo->get_stats_batch( $ids );
         ?>
         <div class="wrap">
-            <h1 class="wp-heading-inline"><?php esc_html_e( 'Campagnes', 'givoly' ); ?></h1>
+            <h1 class="wp-heading-inline"><?php esc_html_e( 'Campaigns', 'givoly' ); ?></h1>
             <a href="<?php echo esc_url( add_query_arg( [ 'page' => 'givoly-campaigns', 'action' => 'new' ], admin_url( 'admin.php' ) ) ); ?>"
-               class="page-title-action"><?php esc_html_e( 'Ajouter', 'givoly' ); ?></a>
+               class="page-title-action"><?php esc_html_e( 'Add', 'givoly' ); ?></a>
             <hr class="wp-header-end">
 
             <?php if ( isset( $_GET['givoly_saved'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
                 <div class="notice notice-success is-dismissible">
-                    <p><?php esc_html_e( 'Campagne enregistrée.', 'givoly' ); ?></p>
+                    <p><?php esc_html_e( 'Campaign saved.', 'givoly' ); ?></p>
                 </div>
             <?php endif; ?>
 
             <?php if ( isset( $_GET['givoly_archived'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
                 <div class="notice notice-success is-dismissible">
-                    <p><?php esc_html_e( 'Campagne archivée.', 'givoly' ); ?></p>
+                    <p><?php esc_html_e( 'Campaign archived.', 'givoly' ); ?></p>
                 </div>
             <?php endif; ?>
 
             <table class="wp-list-table widefat fixed striped">
                 <thead>
                     <tr>
-                        <th><?php esc_html_e( 'Titre', 'givoly' ); ?></th>
+                        <th><?php esc_html_e( 'Title', 'givoly' ); ?></th>
                         <th><?php esc_html_e( 'Slug', 'givoly' ); ?></th>
-                        <th><?php esc_html_e( 'Objectif', 'givoly' ); ?></th>
-                        <th><?php esc_html_e( 'Collecté', 'givoly' ); ?></th>
-                        <th><?php esc_html_e( 'Progression', 'givoly' ); ?></th>
-                        <th><?php esc_html_e( 'Statut', 'givoly' ); ?></th>
-                        <th><?php esc_html_e( 'Fin', 'givoly' ); ?></th>
+                        <th><?php esc_html_e( 'Goal', 'givoly' ); ?></th>
+                        <th><?php esc_html_e( 'Collected', 'givoly' ); ?></th>
+                        <th><?php esc_html_e( 'Progress', 'givoly' ); ?></th>
+                        <th><?php esc_html_e( 'Status', 'givoly' ); ?></th>
+                        <th><?php esc_html_e( 'End date', 'givoly' ); ?></th>
                         <th><?php esc_html_e( 'Actions', 'givoly' ); ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if ( empty( $campaigns ) ) : ?>
                         <tr>
-                            <td colspan="8"><?php esc_html_e( 'Aucune campagne.', 'givoly' ); ?></td>
+                            <td colspan="8"><?php esc_html_e( 'No campaigns found.', 'givoly' ); ?></td>
                         </tr>
                     <?php else : ?>
                         <?php foreach ( $campaigns as $c ) :
@@ -240,15 +240,15 @@ final class CampaignsPage {
                                 $now = new \DateTimeImmutable();
                                 if ( $c->is_ended( $now ) && $c->get_status() === Campaign::STATUS_ACTIVE ) {
                                     // Date dépassée mais statut DB encore "active" — afficher l'état réel
-                                    echo '<span class="givoly-status--overdue" title="' . esc_attr__( 'Date de fin dépassée', 'givoly' ) . '">'
-                                        . esc_html__( 'Terminée', 'givoly' )
+                                    echo '<span class="givoly-status--overdue" title="' . esc_attr__( 'End date has passed', 'givoly' ) . '">'
+                                        . esc_html__( 'Completed', 'givoly' )
                                         . '</span>';
                                 } else {
                                     $labels = [
-                                        Campaign::STATUS_DRAFT    => __( 'Brouillon', 'givoly' ),
+                                        Campaign::STATUS_DRAFT    => __( 'Draft', 'givoly' ),
                                         Campaign::STATUS_ACTIVE   => __( 'Active', 'givoly' ),
-                                        Campaign::STATUS_ENDED    => __( 'Terminée', 'givoly' ),
-                                        Campaign::STATUS_ARCHIVED => __( 'Archivée', 'givoly' ),
+                                        Campaign::STATUS_ENDED    => __( 'Completed', 'givoly' ),
+                                        Campaign::STATUS_ARCHIVED => __( 'Archived', 'givoly' ),
                                     ];
                                     echo esc_html( $labels[ $c->get_status() ] ?? $c->get_status() );
                                 }
@@ -256,12 +256,12 @@ final class CampaignsPage {
                             </td>
                             <td><?php echo $c->get_end_date() ? esc_html( $c->get_end_date()->format( 'd/m/Y' ) ) : '—'; ?></td>
                             <td>
-                                <a href="<?php echo esc_url( $edit_url ); ?>"><?php esc_html_e( 'Modifier', 'givoly' ); ?></a>
+                                <a href="<?php echo esc_url( $edit_url ); ?>"><?php esc_html_e( 'Edit', 'givoly' ); ?></a>
                                 <?php if ( $c->get_status() !== Campaign::STATUS_ARCHIVED ) : ?>
                                     &nbsp;|&nbsp;
                                     <a href="<?php echo esc_url( $archive_url ); ?>"
-                                       onclick="return confirm('<?php esc_attr_e( 'Archiver cette campagne ?', 'givoly' ); ?>')">
-                                        <?php esc_html_e( 'Archiver', 'givoly' ); ?>
+                                       onclick="return confirm('<?php esc_attr_e( 'Archive this campaign?', 'givoly' ); ?>')">
+                                        <?php esc_html_e( 'Archive', 'givoly' ); ?>
                                     </a>
                                 <?php endif; ?>
                             </td>
@@ -276,16 +276,16 @@ final class CampaignsPage {
 
     private function render_form( ?Campaign $campaign ): void {
         $is_edit = $campaign !== null;
-        $title   = __( 'Nouvelle campagne', 'givoly' );
+        $title   = __( 'New campaign', 'givoly' );
         if ( $is_edit ) {
             /* translators: %s: campaign title */
-            $title = sprintf( __( 'Modifier : %s', 'givoly' ), $campaign->get_title() );
+            $title = sprintf( __( 'Edit: %s', 'givoly' ), $campaign->get_title() );
         }
         ?>
         <div class="wrap">
             <h1><?php echo esc_html( $title ); ?></h1>
             <a href="<?php echo esc_url( add_query_arg( 'page', 'givoly-campaigns', admin_url( 'admin.php' ) ) ); ?>">
-                &larr; <?php esc_html_e( 'Retour à la liste', 'givoly' ); ?>
+                &larr; <?php esc_html_e( 'Back to list', 'givoly' ); ?>
             </a>
             <hr class="wp-header-end">
 
@@ -294,8 +294,8 @@ final class CampaignsPage {
                     <p>
                     <?php
                     match ( sanitize_key( $_GET['givoly_error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-                        'slug_exists'    => esc_html_e( 'Ce slug est déjà utilisé par une autre campagne.', 'givoly' ),
-                        default          => esc_html_e( 'Le titre est obligatoire.', 'givoly' ),
+                        'slug_exists'    => esc_html_e( 'This slug is already used by another campaign.', 'givoly' ),
+                        default          => esc_html_e( 'The title is required.', 'givoly' ),
                     };
                     ?>
                     </p>
@@ -308,7 +308,7 @@ final class CampaignsPage {
 
                 <table class="form-table" role="presentation">
                     <tr>
-                        <th scope="row"><label for="givoly-title"><?php esc_html_e( 'Titre *', 'givoly' ); ?></label></th>
+                        <th scope="row"><label for="givoly-title"><?php esc_html_e( 'Title *', 'givoly' ); ?></label></th>
                         <td>
                             <input type="text" id="givoly-title" name="title" class="regular-text"
                                    value="<?php echo esc_attr( $is_edit ? $campaign->get_title() : '' ); ?>" required>
@@ -319,8 +319,8 @@ final class CampaignsPage {
                         <td>
                             <input type="text" id="givoly-slug" name="slug" class="regular-text"
                                    value="<?php echo esc_attr( $is_edit ? $campaign->get_slug() : '' ); ?>"
-                                   pattern="[a-z0-9\-]+" title="<?php esc_attr_e( 'Minuscules, chiffres et tirets uniquement.', 'givoly' ); ?>">
-                            <p class="description"><?php esc_html_e( 'Identifiant utilisé dans le shortcode [givoly_campaign campaign="slug"]. Auto-généré depuis le titre si vide.', 'givoly' ); ?></p>
+                                   pattern="[a-z0-9\-]+" title="<?php esc_attr_e( 'Lowercase letters, numbers, and hyphens only.', 'givoly' ); ?>">
+                            <p class="description"><?php esc_html_e( 'Identifier used in the [givoly_campaign campaign="slug"] shortcode. Automatically generated from the title if empty.', 'givoly' ); ?></p>
                         </td>
                     </tr>
                     <tr>
@@ -332,16 +332,16 @@ final class CampaignsPage {
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row"><label for="givoly-goal"><?php esc_html_e( 'Objectif de collecte', 'givoly' ); ?></label></th>
+                        <th scope="row"><label for="givoly-goal"><?php esc_html_e( 'Fundraising goal', 'givoly' ); ?></label></th>
                         <td>
                             <input type="number" id="givoly-goal" name="goal_amount" class="small-text"
                                    min="0" step="0.01"
                                    value="<?php echo esc_attr( $is_edit && $campaign->get_goal_amount() !== null ? $campaign->get_goal_amount() : '' ); ?>">
-                            <p class="description"><?php esc_html_e( 'Laisser vide pour une collecte sans objectif.', 'givoly' ); ?></p>
+                            <p class="description"><?php esc_html_e( 'Leave blank for a fundraiser with no goal.', 'givoly' ); ?></p>
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row"><label for="givoly-currency"><?php esc_html_e( 'Devise', 'givoly' ); ?></label></th>
+                        <th scope="row"><label for="givoly-currency"><?php esc_html_e( 'Currency', 'givoly' ); ?></label></th>
                         <td>
                             <select id="givoly-currency" name="currency">
                                 <?php foreach ( \Givoly\Form\FormConfig::SUPPORTED_CURRENCIES as $cur ) : ?>
@@ -357,28 +357,28 @@ final class CampaignsPage {
                         <th scope="row"><?php esc_html_e( 'Dates', 'givoly' ); ?></th>
                         <td>
                             <label>
-                                <?php esc_html_e( 'Début :', 'givoly' ); ?>
+                                <?php esc_html_e( 'Start:', 'givoly' ); ?>
                                 <input type="date" name="start_date"
                                        value="<?php echo esc_attr( $is_edit && $campaign->get_start_date() ? $campaign->get_start_date()->format( 'Y-m-d' ) : '' ); ?>">
                             </label>
                             &nbsp;&nbsp;
                             <label>
-                                <?php esc_html_e( 'Fin :', 'givoly' ); ?>
+                                <?php esc_html_e( 'End:', 'givoly' ); ?>
                                 <input type="date" name="end_date"
                                        value="<?php echo esc_attr( $is_edit && $campaign->get_end_date() ? $campaign->get_end_date()->format( 'Y-m-d' ) : '' ); ?>">
                             </label>
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row"><label for="givoly-status"><?php esc_html_e( 'Statut', 'givoly' ); ?></label></th>
+                        <th scope="row"><label for="givoly-status"><?php esc_html_e( 'Status', 'givoly' ); ?></label></th>
                         <td>
                             <select id="givoly-status" name="status">
                                 <?php
                                 $statuses = [
-                                    Campaign::STATUS_DRAFT    => __( 'Brouillon', 'givoly' ),
+                                    Campaign::STATUS_DRAFT    => __( 'Draft', 'givoly' ),
                                     Campaign::STATUS_ACTIVE   => __( 'Active', 'givoly' ),
-                                    Campaign::STATUS_ENDED    => __( 'Terminée', 'givoly' ),
-                                    Campaign::STATUS_ARCHIVED => __( 'Archivée', 'givoly' ),
+                                    Campaign::STATUS_ENDED    => __( 'Completed', 'givoly' ),
+                                    Campaign::STATUS_ARCHIVED => __( 'Archived', 'givoly' ),
                                 ];
                                 foreach ( $statuses as $val => $label ) :
                                 ?>
@@ -394,7 +394,7 @@ final class CampaignsPage {
 
                 <p class="submit">
                     <button type="submit" class="button button-primary">
-                        <?php echo $is_edit ? esc_html__( 'Mettre à jour', 'givoly' ) : esc_html__( 'Créer la campagne', 'givoly' ); ?>
+                        <?php echo $is_edit ? esc_html__( 'Update', 'givoly' ) : esc_html__( 'Create campaign', 'givoly' ); ?>
                     </button>
                 </p>
             </form>

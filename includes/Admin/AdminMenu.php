@@ -31,34 +31,34 @@ final class AdminMenu {
         );
 
         add_submenu_page( 'givoly-dashboard',
-            __( 'Tableau de bord', 'givoly' ), __( 'Tableau de bord', 'givoly' ),
+            __( 'Dashboard', 'givoly' ), __( 'Dashboard', 'givoly' ),
             'manage_options', 'givoly-dashboard', [ $this, 'render_dashboard' ]
         );
 
         // load-{hook} se déclenche avant tout output — idéal pour POST + redirect
         $campaigns_hook = add_submenu_page( 'givoly-dashboard',
-            __( 'Campagnes', 'givoly' ), __( 'Campagnes', 'givoly' ),
+            __( 'Campaigns', 'givoly' ), __( 'Campaigns', 'givoly' ),
             'manage_options', 'givoly-campaigns', [ $this, 'render_campaigns' ]
         );
         add_action( 'load-' . $campaigns_hook, [ $this, 'handle_campaigns_early' ] );
 
         add_submenu_page( 'givoly-dashboard',
-            __( 'Dons', 'givoly' ), __( 'Dons', 'givoly' ),
+            __( 'Donations', 'givoly' ), __( 'Donations', 'givoly' ),
             'manage_options', 'givoly-donations', [ $this, 'render_donations' ]
         );
 
         add_submenu_page( 'givoly-dashboard',
-            __( 'Donateurs', 'givoly' ), __( 'Donateurs', 'givoly' ),
+            __( 'Donors', 'givoly' ), __( 'Donors', 'givoly' ),
             'manage_options', 'givoly-donors', [ $this, 'render_donors' ]
         );
 
         add_submenu_page( 'givoly-dashboard',
-            __( 'Ajouter un don manuel', 'givoly' ), __( 'Ajouter un don manuel', 'givoly' ),
+            __( 'Add a manual donation', 'givoly' ), __( 'Add a manual donation', 'givoly' ),
             'manage_options', 'givoly-manual-donation', [ $this, 'render_manual_donation' ]
         );
 
         add_submenu_page( 'givoly-dashboard',
-            __( 'Réglages', 'givoly' ), __( 'Réglages', 'givoly' ),
+            __( 'Settings', 'givoly' ), __( 'Settings', 'givoly' ),
             'manage_options', 'givoly-settings', [ $this, 'render_settings' ]
         );
     }
@@ -86,14 +86,14 @@ final class AdminMenu {
             <div class="givoly-admin-support__copy">
                 <p class="givoly-admin-support__title" id="givoly-support-title">
                     <span class="givoly-admin-support__heart" aria-hidden="true">♥</span>
-                    <?php esc_html_e( 'Gratuit, associatif, sans mauvaise surprise.', 'givoly' ); ?>
+                    <?php esc_html_e( 'Free, nonprofit, no surprises.', 'givoly' ); ?>
                 </p>
                 <p class="givoly-admin-support__text">
                     <?php
                     echo wp_kses(
                         sprintf(
                             /* translators: 1: PLAID·ACT link, 2: Givoly link. */
-                            __( '%2$s est maintenu par %1$s, une association à but non lucratif de défense des Droits humains. L’objectif est simple : proposer aux associations un outil clair pour recevoir des dons en ligne depuis WordPress, sans abonnement imposé et sans commission ajoutée par le plugin.', 'givoly' ),
+                            __( '%2$s is maintained by %1$s, a nonprofit organization defending human rights. The goal is simple: give nonprofits a clear way to accept donations through WordPress, with no required subscription and no commission added by the plugin.', 'givoly' ),
                             '<a href="' . esc_url( $plaidact_url ) . '" target="_blank" rel="noopener noreferrer">PLAID·ACT</a>',
                             '<a href="' . esc_url( $givoly_url ) . '" target="_blank" rel="noopener noreferrer">Givoly</a>'
                         ),
@@ -104,14 +104,14 @@ final class AdminMenu {
             </div>
             <div class="givoly-admin-support__actions">
                 <a class="givoly-admin-support__link" href="<?php echo esc_url( $givoly_url ); ?>" target="_blank" rel="noopener noreferrer">
-                    <?php esc_html_e( 'Découvrir Givoly', 'givoly' ); ?>
+                    <?php esc_html_e( 'Discover Givoly', 'givoly' ); ?>
                 </a>
                 <a class="givoly-admin-support__link" href="<?php echo esc_url( $plaidact_url ); ?>" target="_blank" rel="noopener noreferrer">
                     <?php esc_html_e( 'PLAID·ACT', 'givoly' ); ?>
                 </a>
                 <a class="button button-primary givoly-admin-support__button" href="<?php echo esc_url( $donate_url ); ?>" target="_blank" rel="noopener noreferrer">
                     <span aria-hidden="true">♥</span>
-                    <?php esc_html_e( 'Faire un don pour aider', 'givoly' ); ?>
+                    <?php esc_html_e( 'Make a donation to help', 'givoly' ); ?>
                 </a>
             </div>
         </section>
@@ -128,7 +128,7 @@ final class AdminMenu {
 
         wp_add_dashboard_widget(
             'givoly_dashboard_widget',
-            __( 'Givoly — Dons reçus', 'givoly' ),
+            __( 'Givoly — Donations received', 'givoly' ),
             [ \Givoly\Admin\Pages\DashboardPage::class, 'render_wordpress_widget' ]
         );
     }

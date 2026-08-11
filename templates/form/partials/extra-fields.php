@@ -15,12 +15,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 foreach ( $extra_fields as $field ) {
     if ( $field === 'phone' ) { ?>
         <div class="givoly-field">
-            <label for="<?php echo esc_attr( $form_id ); ?>-phone" class="givoly-label"><?php esc_html_e( 'Téléphone', 'givoly' ); ?></label>
+            <label for="<?php echo esc_attr( $form_id ); ?>-phone" class="givoly-label"><?php esc_html_e( 'Phone', 'givoly' ); ?></label>
             <input type="tel" id="<?php echo esc_attr( $form_id ); ?>-phone" name="phone" class="givoly-input" maxlength="40" autocomplete="tel">
         </div>
     <?php } elseif ( $field === 'company' ) { ?>
         <div class="givoly-field">
-            <label for="<?php echo esc_attr( $form_id ); ?>-company" class="givoly-label"><?php esc_html_e( 'Organisation', 'givoly' ); ?></label>
+            <label for="<?php echo esc_attr( $form_id ); ?>-company" class="givoly-label"><?php esc_html_e( 'Organization', 'givoly' ); ?></label>
             <input type="text" id="<?php echo esc_attr( $form_id ); ?>-company" name="company" class="givoly-input" maxlength="120" autocomplete="organization">
         </div>
     <?php } elseif ( $field === 'message' ) { ?>

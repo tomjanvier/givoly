@@ -27,13 +27,13 @@ final class Plugin {
 
     private function __clone() {}
     public function __wakeup(): void {
-        throw new \RuntimeException( 'Le singleton Plugin ne peut pas être désérialisé.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+        throw new \RuntimeException( 'The Plugin singleton cannot be unserialized.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
     }
     private function __construct() {}
 
     /**
      * Démarre tous les modules du plugin.
-     * Ajouter un nouveau module = ajouter une ligne ici.
+     * Add un nouveau module = ajouter une ligne ici.
      */
     public function boot(): void {
         Installer::maybe_upgrade();

@@ -2,7 +2,7 @@
 /**
  * Traitement d'un paiement complété — logique partagée entre passerelles.
  *
- * Crée le donateur, enregistre le don.
+ * Crée le donor, enregistre le don.
  * Utilisé par le webhook Stripe et le webhook HelloAsso.
  *
  * @package Givoly\Ajax
@@ -26,7 +26,7 @@ final class PaymentProcessor {
      *
      * @param int $campaign_id  ID de la campagne en DB (0 si aucune / ancienne campagne sans table).
      * @param string $campaign  Slug de campagne — conservé dans donor_message pour rétrocompat.
-     *                          Le message réellement saisi par le donateur est lu depuis la
+     *                          Le message réellement saisi par le donor est lu depuis la
      *                          transient de profil (post_payment_token) et stocké dans donor_notes.
      */
     public function process(
@@ -73,13 +73,13 @@ final class PaymentProcessor {
             return;
         }
 
-        // Créer ou retrouver le donateur
+        // Créer ou retrouver le donor
         $donor_id = $this->get_or_create_donor( $email, $first_name, $last_name );
 
         if ( ! $donor_id ) {
             throw new \RuntimeException(
                 sprintf(
-                    'Impossible de créer ou retrouver le donateur. Gateway : %s | Transaction : %s | Email : %s',
+                    'Impossible de créer ou retrouver le donor. Gateway : %s | Transaction : %s | Email : %s',
                     esc_html( $gateway ),
                     esc_html( $transaction_id ),
                     esc_html( $email )
@@ -89,13 +89,13 @@ final class PaymentProcessor {
 
         $this->update_stripe_identifiers( $donor_id, $stripe_customer_id, $stripe_subscription_id );
 
-        // Le message du donateur est transporté dans la transient de profil
+        // Le message du donor est transporté dans la transient de profil
         // (liée au post_payment_token) : on le lit avant que le profil ne soit consommé.
         $donor_notes = $this->get_pending_donor_message( $post_payment_token );
 
         $this->apply_pending_donor_profile( $donor_id, $post_payment_token );
 
-        // Enregistrer le don
+        // Save le don
         $amount = $amount_cents / 100;
 
         $inserted = $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
@@ -123,7 +123,7 @@ final class PaymentProcessor {
         }
 
         if ( false === $inserted ) {
-            throw new \RuntimeException( 'Impossible d’enregistrer le don en base de données : ' . $wpdb->last_error ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+            throw new \RuntimeException( 'Unable to save the donation in the database: ' . $wpdb->last_error ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
 
         $donation_id = (int) $wpdb->insert_id;
@@ -161,7 +161,7 @@ final class PaymentProcessor {
 
         $donor_id = $this->get_or_create_donor( $email, $first_name, $last_name );
         if ( ! $donor_id ) {
-            throw new \RuntimeException( 'Impossible de créer le donateur manuel.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+            throw new \RuntimeException( 'Unable to create the manual donor.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
 
         $this->update_donor_name( (int) $donor_id, $first_name, $last_name );
@@ -185,7 +185,7 @@ final class PaymentProcessor {
         );
 
         if ( false === $inserted ) {
-            throw new \RuntimeException( 'Impossible d’enregistrer le don manuel.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+            throw new \RuntimeException( 'Unable to save the manual donation.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
 
         $donation_id = (int) $wpdb->insert_id;
@@ -260,11 +260,11 @@ final class PaymentProcessor {
                 return (int) $existing['id'];
             }
 
-            throw new \RuntimeException( 'Entrée donateur dupliquée détectée, mais impossible de retrouver le donateur existant.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+            throw new \RuntimeException( 'A duplicate donor entry was detected, but the existing donor could not be found.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
 
         if ( false === $inserted ) {
-            throw new \RuntimeException( 'Impossible d’enregistrer le donateur en base de données : ' . $wpdb->last_error ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+            throw new \RuntimeException( 'Unable to save the donor in the database: ' . $wpdb->last_error ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
 
         return $wpdb->insert_id ?: false;
@@ -330,7 +330,7 @@ final class PaymentProcessor {
     }
 
     /**
-     * Lit le message saisi par le donateur depuis le profil en attente.
+     * Lit le message saisi par le donor depuis le profil en attente.
      * Ne supprime pas la transient (elle est consommée par apply_pending_donor_profile()).
      */
     private function get_pending_donor_message( string $post_payment_token ): string {
@@ -383,7 +383,7 @@ final class PaymentProcessor {
         );
 
         if ( false === $updated ) {
-            throw new \RuntimeException( 'Impossible de mettre à jour le profil donateur : ' . $wpdb->last_error ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+            throw new \RuntimeException( 'Unable to update the donor profile: ' . $wpdb->last_error ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
 
         delete_transient( 'givoly_checkout_profile_' . $post_payment_token );

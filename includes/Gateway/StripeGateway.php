@@ -44,9 +44,9 @@ final class StripeGateway {
     ): string {
         if ( $campaign ) {
             // translators: %s is the campaign name.
-            $product_name = sprintf( __( 'Don — %s', 'givoly' ), $campaign );
+            $product_name = sprintf( __( 'Donation — %s', 'givoly' ), $campaign );
         } else {
-            $product_name = __( 'Don', 'givoly' );
+            $product_name = __( 'Donation', 'givoly' );
         }
 
         $params = [
@@ -159,19 +159,19 @@ final class StripeGateway {
 
         // Rejeter les webhooks de plus de 5 minutes (protection replay)
         if ( abs( time() - (int) $timestamp ) > 300 ) {
-            throw new \RuntimeException( 'Webhook expiré.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+            throw new \RuntimeException( 'Webhook expired.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
 
         $expected = hash_hmac( 'sha256', $timestamp . '.' . $payload, $webhook_secret );
 
         if ( ! hash_equals( $expected, $received ) ) {
-            throw new \RuntimeException( 'Signature webhook invalide.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+            throw new \RuntimeException( 'Invalid webhook signature.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
 
         $event = json_decode( $payload, true );
 
         if ( json_last_error() !== JSON_ERROR_NONE ) {
-            throw new \RuntimeException( 'Payload webhook invalide.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+            throw new \RuntimeException( 'Invalid webhook payload.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
 
         return $event;
@@ -190,14 +190,14 @@ final class StripeGateway {
         ] );
 
         if ( is_wp_error( $response ) ) {
-            throw new \RuntimeException( 'Erreur réseau Stripe : ' . $response->get_error_message() ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+            throw new \RuntimeException( 'Stripe network error: ' . $response->get_error_message() ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
 
         $body = json_decode( wp_remote_retrieve_body( $response ), true );
         $code = wp_remote_retrieve_response_code( $response );
 
         if ( $code >= 400 ) {
-            $message = $body['error']['message'] ?? 'Erreur Stripe inconnue.';
+            $message = $body['error']['message'] ?? 'Unknown Stripe error.';
             throw new \RuntimeException( $message ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
 
@@ -217,14 +217,14 @@ final class StripeGateway {
         );
 
         if ( is_wp_error( $response ) ) {
-            throw new \RuntimeException( 'Erreur réseau Stripe : ' . $response->get_error_message() ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+            throw new \RuntimeException( 'Stripe network error: ' . $response->get_error_message() ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
 
         $body = json_decode( wp_remote_retrieve_body( $response ), true );
         $code = wp_remote_retrieve_response_code( $response );
 
         if ( $code >= 400 || ! is_array( $body ) ) {
-            $message = is_array( $body ) ? (string) ( $body['error']['message'] ?? 'Erreur Stripe inconnue.' ) : 'Réponse Stripe invalide.';
+            $message = is_array( $body ) ? (string) ( $body['error']['message'] ?? 'Unknown Stripe error.' ) : 'Invalid Stripe response.';
             throw new \RuntimeException( $message ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
 

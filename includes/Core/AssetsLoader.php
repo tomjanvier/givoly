@@ -75,11 +75,11 @@ final class AssetsLoader {
                 'success'  => (bool) $is_success_return,
                 'branding' => \Givoly\Form\DonationForm::get_branding_html(),
                 'i18n'     => [
-                    'error'           => __( 'Une erreur est survenue. Veuillez réessayer.', 'givoly' ),
-                    'invalid_amount'  => __( 'Veuillez sélectionner ou saisir un montant valide (min. 1 €).', 'givoly' ),
-                    'invalid_email'   => __( 'Veuillez saisir une adresse email valide.', 'givoly' ),
-                    'invalid_name'    => __( 'Veuillez saisir votre prénom et votre nom.', 'givoly' ),
-                    'success_message' => __( 'Merci pour votre don ! Votre générosité fait la différence.', 'givoly' ),
+                    'error'           => __( 'An error occurred. Please try again.', 'givoly' ),
+                    'invalid_amount'  => __( 'Please select or enter a valid amount (minimum €1).', 'givoly' ),
+                    'invalid_email'   => __( 'Please enter a valid email address.', 'givoly' ),
+                    'invalid_name'    => __( 'Please enter your first and last name.', 'givoly' ),
+                    'success_message' => __( 'Thank you for your donation! Your generosity makes a difference.', 'givoly' ),
                 ],
             ]
         );

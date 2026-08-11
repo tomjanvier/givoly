@@ -57,5 +57,11 @@ register_activation_hook( __FILE__, [ 'Givoly\\Core\\Installer', 'activate' ] );
 register_deactivation_hook( __FILE__, [ 'Givoly\\Core\\Installer', 'deactivate' ] );
 
 add_action( 'plugins_loaded', function (): void {
+    load_plugin_textdomain(
+        'givoly',
+        false,
+        dirname( GIVOLY_PLUGIN_BASENAME ) . '/languages'
+    );
+
     \Givoly\Core\Plugin::get_instance()->boot();
 } );

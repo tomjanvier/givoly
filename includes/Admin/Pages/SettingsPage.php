@@ -119,7 +119,7 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
 
     public function render(): void {
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( esc_html__( 'Accès refusé.', 'givoly' ) );
+            wp_die( esc_html__( 'Access denied.', 'givoly' ) );
         }
 
         $this->maybe_save();
@@ -211,7 +211,7 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
             <div class="givoly-header">
                 <h1 class="givoly-header__title">
                     <span class="givoly-header__logo">💜</span>
-                    Givoly <span class="givoly-header__sub">Réglages</span>
+                    Givoly <span class="givoly-header__sub"><?php esc_html_e( 'Settings', 'givoly' ); ?></span>
                 </h1>
             </div>
 
@@ -232,9 +232,9 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                         <span class="dashicons <?php echo esc_attr( $tab['icon'] ); ?> givoly-tab__icon"></span>
                         <?php echo esc_html( $tab['label'] ); ?>
                         <?php if ( $status === true ) : ?>
-                            <span class="givoly-tab__dot givoly-tab__dot--ok" title="Configuré"></span>
+                            <span class="givoly-tab__dot givoly-tab__dot--ok" title="<?php esc_attr_e( 'Configured', 'givoly' ); ?>"></span>
                         <?php elseif ( $status === false ) : ?>
-                            <span class="givoly-tab__dot givoly-tab__dot--warn" title="Non configuré"></span>
+                            <span class="givoly-tab__dot givoly-tab__dot--warn" title="<?php esc_attr_e( 'Not configured', 'givoly' ); ?>"></span>
                         <?php endif; ?>
                     </a>
                 <?php endforeach; ?>
@@ -266,7 +266,7 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
 
     private function secret_field( string $name, bool $has_value, string $empty_placeholder ): void {
         $placeholder = $has_value
-            ? __( '(déjà configuré — laisser vide pour conserver)', 'givoly' )
+            ? __( '(already configured — leave blank to keep)', 'givoly' )
             : $empty_placeholder;
         ?>
         <div class="givoly-secret-wrap">
@@ -277,7 +277,7 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                    placeholder="<?php echo esc_attr( $placeholder ); ?>"
                    autocomplete="new-password">
             <?php if ( $has_value ) : ?>
-                <span class="givoly-badge givoly-badge--ok">✓ <?php esc_html_e( 'Configuré', 'givoly' ); ?></span>
+                <span class="givoly-badge givoly-badge--ok">✓ <?php esc_html_e( 'Configured', 'givoly' ); ?></span>
             <?php endif; ?>
         </div>
         <?php
@@ -293,18 +293,18 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                     class="button givoly-copy-btn"
                     data-target="<?php echo esc_attr( 'dwurl-' . md5( $url ) ); ?>">
                 <span class="dashicons dashicons-clipboard"></span>
-                <?php esc_html_e( 'Copier', 'givoly' ); ?>
+                <?php esc_html_e( 'Copy', 'givoly' ); ?>
             </button>
         </div>
         <p class="description">
             <?php
             printf(
                 // translators: %s is the name of the destination service (e.g. "Stripe" or "HelloAsso").
-                esc_html__( 'À renseigner dans : %s.', 'givoly' ),
+                esc_html__( 'Enter this in: %s.', 'givoly' ),
                 '<strong>' . esc_html( $destination ) . '</strong>'
             ); ?>
             <?php if ( $event ) : ?>
-                <?php esc_html_e( 'Événement à activer :', 'givoly' ); ?>
+                <?php esc_html_e( 'Event to enable:', 'givoly' ); ?>
                 <code><?php echo esc_html( $event ); ?></code>
             <?php endif; ?>
         </p>
@@ -321,7 +321,7 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
         check_admin_referer( self::NONCE_ACTION, self::NONCE_FIELD );
 
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( esc_html__( 'Accès refusé.', 'givoly' ) );
+            wp_die( esc_html__( 'Access denied.', 'givoly' ) );
         }
 
         Settings::save_from_post( wp_unslash( $_POST ) );
@@ -329,7 +329,7 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
         add_settings_error(
             'givoly_settings',
             'givoly_saved',
-            __( 'Réglages enregistrés.', 'givoly' ),
+            __( 'Settings saved.', 'givoly' ),
             'updated'
         );
     }

@@ -18,11 +18,11 @@ final class Format {
      */
     public static function status( string $status ): string {
         $labels = [
-            'completed' => __( 'Complété', 'givoly' ),
-            'pending'   => __( 'En attente', 'givoly' ),
-            'failed'    => __( 'Échoué', 'givoly' ),
-            'refunded'  => __( 'Remboursé', 'givoly' ),
-            'cancelled' => __( 'Annulé', 'givoly' ),
+            'completed' => __( 'Completed', 'givoly' ),
+            'pending'   => __( 'Pending', 'givoly' ),
+            'failed'    => __( 'Failed', 'givoly' ),
+            'refunded'  => __( 'Refunded', 'givoly' ),
+            'cancelled' => __( 'Cancelled', 'givoly' ),
         ];
 
         return $labels[ $status ] ?? $status;

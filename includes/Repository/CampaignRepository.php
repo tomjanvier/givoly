@@ -88,7 +88,7 @@ final class CampaignRepository {
     }
 
     /**
-     * Montant total collecté + nombre de donateurs uniques pour une campagne.
+     * Amount total collecté + nombre de donateurs uniques pour une campagne.
      * Une seule requête pour éviter le double aller-retour DB.
      *
      * @return array{amount: float, donors: int}
@@ -114,7 +114,7 @@ final class CampaignRepository {
     }
 
     /**
-     * Montant total collecté pour une campagne (dons complétés uniquement).
+     * Amount total collecté pour une campagne (dons complétés uniquement).
      * Préférer get_stats() quand on a aussi besoin du nombre de donateurs.
      */
     public function get_collected_amount( int $campaign_id ): float {

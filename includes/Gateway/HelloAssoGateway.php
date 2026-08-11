@@ -11,7 +11,7 @@
  * refresh_token est valide 30 jours et les transients peuvent être purgés.
  *
  * Note : l'API HelloAsso (Cloudflare/Azure) bloque le user-agent WordPress
- * par défaut. Tous les appels HTTP utilisent un user-agent neutre.
+ * par défaut. All les appels HTTP utilisent un user-agent neutre.
  *
  * @package Givoly\Gateway
  */
@@ -220,7 +220,7 @@ final class HelloAssoGateway {
             $expected = hash_hmac( 'sha256', $payload, $signature_key );
 
             if ( ! hash_equals( $expected, $signature_header ) ) {
-                throw new \RuntimeException( 'HelloAsso webhook: signature invalide.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+                throw new \RuntimeException( 'HelloAsso webhook: invalid signature.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
             }
         } else {
             $allowed_ips = $this->sandbox
@@ -228,14 +228,14 @@ final class HelloAssoGateway {
                 : [ '51.138.206.200' ];
 
             if ( ! in_array( $remote_ip, $allowed_ips, true ) ) {
-                throw new \RuntimeException( 'HelloAsso webhook: IP non autorisée : ' . $remote_ip ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+                throw new \RuntimeException( 'HelloAsso webhook: Unauthorized IP: ' . $remote_ip ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
             }
         }
 
         $data = json_decode( $payload, true );
 
         if ( ! is_array( $data ) ) {
-            throw new \RuntimeException( 'HelloAsso webhook: payload JSON invalide.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+            throw new \RuntimeException( 'HelloAsso webhook: invalid JSON payload.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
 
         return $data;

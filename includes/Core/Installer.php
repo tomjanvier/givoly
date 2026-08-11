@@ -137,7 +137,7 @@ final class Installer {
 
         self::deduplicate_gateway_transactions( $table );
 
-        // v1.7 → v1.8 : persister le message saisi par le donateur.
+        // v1.7 → v1.8 : persister le message saisi par le donor.
         // donor_message est historiquement réservé au slug de campagne (rétrocompat) :
         // le message réel doit donc vivre dans une colonne dédiée.
         $notes_col = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -233,7 +233,7 @@ final class Installer {
 
         $charset = $wpdb->get_charset_collate();
 
-        // ── Donateurs ────────────────────────────────────────────────────────
+        // ── Donors ────────────────────────────────────────────────────────
         dbDelta( "CREATE TABLE {$wpdb->prefix}givoly_donors (
             id              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             donor_reference VARCHAR(32)              DEFAULT NULL,
@@ -263,7 +263,7 @@ final class Installer {
             KEY             idx_magic_token (magic_token_hash)
         ) $charset;" );
 
-        // ── Dons ─────────────────────────────────────────────────────────────
+        // ── Donations ─────────────────────────────────────────────────────────────
         dbDelta( "CREATE TABLE {$wpdb->prefix}givoly_donations (
             id                      BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             donor_id                BIGINT UNSIGNED NOT NULL,
@@ -289,7 +289,7 @@ final class Installer {
             UNIQUE KEY              uq_post_payment_token (post_payment_token)
         ) $charset;" );
 
-        // ── Campagnes ─────────────────────────────────────────────────────────
+        // ── Campaigns ─────────────────────────────────────────────────────────
         dbDelta( "CREATE TABLE {$wpdb->prefix}givoly_campaigns (
             id              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             title           VARCHAR(255)    NOT NULL,
