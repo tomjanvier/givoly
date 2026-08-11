@@ -19,7 +19,7 @@ final class TaxReceiptPdf {
     /**
      * Génère un PDF simple, lisible par les lecteurs PDF courants.
      *
-     * @param string $title  Titre du document.
+     * @param string $title  Title du document.
      * @param string $body   Corps du document.
      * @param string $footer Pied de page.
      */

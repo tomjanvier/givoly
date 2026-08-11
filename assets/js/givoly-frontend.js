@@ -40,7 +40,7 @@
                 }
             } );
 
-            // Montant libre saisi
+            // Custom amount saisi
             this.customInput?.addEventListener( 'input', () => {
                 if ( this.amountField ) {
                     this.amountField.value = this.customInput.value;
@@ -241,7 +241,7 @@
                         messages.hidden = false;
                         if ( response.success ) {
                             messages.className = 'givoly-form__messages givoly-form__messages--success';
-                            messages.textContent = response.data?.message || 'Informations enregistrées.';
+                            messages.textContent = response.data?.message || givolyData.i18n.success_message;
                             form.reset();
                         } else {
                             messages.className = 'givoly-form__messages givoly-form__messages--error';

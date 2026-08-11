@@ -188,7 +188,7 @@ final class MailQueue {
     private function send_job( array $job ): void {
         $payload = json_decode( (string) $job['payload'], true );
         if ( ! is_array( $payload ) ) {
-            throw new \RuntimeException( 'Contenu de job email invalide.' );
+            throw new \RuntimeException( 'Invalid email job payload.' );
         }
 
         if ( 'tax_receipt' === $job['job_type'] ) {
@@ -206,17 +206,17 @@ final class MailQueue {
             return;
         }
 
-        throw new \RuntimeException( 'Type de job email inconnu.' );
+        throw new \RuntimeException( 'Unknown email job type.' );
     }
 
     private function send_donation_email( string $type, array $payload ): void {
         $site_name = wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
         $amount    = number_format_i18n( (float) ( $payload['amount'] ?? 0 ), 2 ) . ' ' . (string) ( $payload['currency'] ?? 'EUR' );
-        $campaign  = (string) ( $payload['campaign'] ?? '' ) ?: __( 'Générale', 'givoly' );
+        $campaign  = (string) ( $payload['campaign'] ?? '' ) ?: __( 'General', 'givoly' );
         $variables = [
             '{site_name}'  => $site_name,
             '{amount}'     => $amount,
-            '{first_name}' => (string) ( $payload['first_name'] ?? '' ) ?: __( 'donateur', 'givoly' ),
+            '{first_name}' => (string) ( $payload['first_name'] ?? '' ) ?: __( 'donor', 'givoly' ),
             '{last_name}'  => (string) ( $payload['last_name'] ?? '' ),
             '{campaign}'   => $campaign,
             '{donation_id}'=> (string) (int) ( $payload['donation_id'] ?? 0 ),
@@ -234,7 +234,7 @@ final class MailQueue {
         }
 
         if ( ! is_email( $recipient ) || ! wp_mail( $recipient, $subject, EmailRenderer::render( $body, $subject ), EmailRenderer::headers() ) ) {
-            throw new \RuntimeException( 'wp_mail() a refusé l’email de don.' );
+            throw new \RuntimeException( 'wp_mail() rejected the donation email.' );
         }
     }
 
@@ -242,42 +242,42 @@ final class MailQueue {
         $recipient = sanitize_email( $payload['email'] ?? '' );
         $url       = esc_url_raw( $payload['url'] ?? '' );
         if ( ! is_email( $recipient ) || ! wp_http_validate_url( $url ) ) {
-            throw new \RuntimeException( 'Lien d’accès donateur invalide.' );
+            throw new \RuntimeException( 'Invalid donor access link.' );
         }
 
-        $subject = __( 'Votre accès à l’espace donateur', 'givoly' );
+        $subject = __( 'Your donor space access', 'givoly' );
         $body    = sprintf(
             /* translators: %s: secure magic link. */
-            __( "Bonjour,\n\nCliquez sur ce lien pour accéder à votre espace donateur :\n%s\n\nCe lien expire dans 15 minutes. Si vous n’êtes pas à l’origine de cette demande, ignorez cet email.", 'givoly' ),
+            __( "Hello,\n\nClick this link to access your donor space:\n%s\n\nThis link expires in 15 minutes. If you did not request it, ignore this email.", 'givoly' ),
             $url
         );
 
         if ( ! wp_mail( $recipient, $subject, EmailRenderer::render( $body, $subject ), EmailRenderer::headers() ) ) {
-            throw new \RuntimeException( 'wp_mail() a refusé le lien d’accès donateur.' );
+            throw new \RuntimeException( 'wp_mail() rejected the donor access link.' );
         }
     }
 
     private function send_tax_receipt( array $donor ): void {
         $email = sanitize_email( $donor['email'] ?? '' );
         if ( ! is_email( $email ) ) {
-            throw new \RuntimeException( 'Adresse email de donateur invalide.' );
+            throw new \RuntimeException( 'Invalid donor email address.' );
         }
 
         $association = (string) ( $donor['association'] ?? get_bloginfo( 'name' ) );
         $name        = trim( (string) ( $donor['first_name'] ?? '' ) . ' ' . (string) ( $donor['last_name'] ?? '' ) );
         $amount      = number_format_i18n( (float) ( $donor['total_amount'] ?? 0 ), 2 ) . ' ' . (string) ( $donor['currency'] ?? 'EUR' );
         $variables   = [
-            '{donor_name}'          => $name ?: __( 'cher donateur', 'givoly' ),
+            '{donor_name}'          => $name ?: __( 'dear donor', 'givoly' ),
             '{first_name}'          => (string) ( $donor['first_name'] ?? '' ),
             '{last_name}'           => (string) ( $donor['last_name'] ?? '' ),
             '{year}'                => (string) (int) ( $donor['year'] ?? 0 ),
             '{amount}'              => $amount,
             '{donation_count}'      => (string) (int) ( $donor['donation_count'] ?? 0 ),
             '{association}'         => $association,
-            '{association_address}' => (string) ( $donor['association_address'] ?? '' ) ?: __( 'non renseignée', 'givoly' ),
-            '{siret}'               => (string) ( $donor['siret'] ?? '' ) ?: __( 'non renseigné', 'givoly' ),
-            '{rna}'                 => (string) ( $donor['rna'] ?? '' ) ?: __( 'non renseigné', 'givoly' ),
-            '{fiscal_id}'           => (string) ( $donor['fiscal_id'] ?? '' ) ?: __( 'non renseigné', 'givoly' ),
+            '{association_address}' => (string) ( $donor['association_address'] ?? '' ) ?: __( 'not provided', 'givoly' ),
+            '{siret}'               => (string) ( $donor['siret'] ?? '' ) ?: __( 'not provided', 'givoly' ),
+            '{rna}'                 => (string) ( $donor['rna'] ?? '' ) ?: __( 'not provided', 'givoly' ),
+            '{fiscal_id}'           => (string) ( $donor['fiscal_id'] ?? '' ) ?: __( 'not provided', 'givoly' ),
         ];
 
         $subject = strtr( Settings::get_email_tax_receipt_subject(), $variables );
@@ -293,11 +293,11 @@ final class MailQueue {
                 strtr( Settings::get_tax_receipt_pdf_body(), $variables ),
                 strtr( Settings::get_tax_receipt_pdf_footer(), $variables )
             );
-            $filename = sanitize_file_name( 'recu-fiscal-' . (int) ( $donor['year'] ?? 0 ) . '-' . ( $name ?: 'donateur' ) . '.pdf' );
+            $filename = sanitize_file_name( 'recu-fiscal-' . (int) ( $donor['year'] ?? 0 ) . '-' . ( $name ?: 'donor' ) . '.pdf' );
             $temp_file = wp_tempnam( $filename );
 
             if ( ! $temp_file || false === file_put_contents( $temp_file, $pdf ) ) {
-                throw new \RuntimeException( 'Impossible de préparer le PDF du reçu fiscal.' );
+                throw new \RuntimeException( 'Unable to prepare the tax receipt PDF.' );
             }
 
             $attachments[] = $temp_file;
@@ -305,7 +305,7 @@ final class MailQueue {
 
         try {
             if ( ! wp_mail( $email, $subject, EmailRenderer::render( $body, $subject ), $headers, $attachments ) ) {
-                throw new \RuntimeException( 'wp_mail() a refusé le reçu fiscal.' );
+                throw new \RuntimeException( 'wp_mail() rejected the tax receipt email.' );
             }
         } finally {
             if ( $temp_file && file_exists( $temp_file ) ) {

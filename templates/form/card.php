@@ -1,6 +1,6 @@
 <?php
 /**
- * Template : Formulaire de don — Layout "card"
+ * Template : Donation form — Layout "card"
  *
  * Variables disponibles (injectées par DonationForm::load_template) :
  *
@@ -28,7 +28,7 @@ $wrap_style = $config->get_inline_css_vars();
 <div class="givoly-wrap givoly-layout-<?php echo esc_attr( $config->layout ); ?> <?php echo esc_attr( $config->get_wrap_classes() ); ?>"
      style="<?php echo esc_attr( $wrap_style ); ?>"
      role="region"
-     aria-label="<?php esc_attr_e( 'Formulaire de don', 'givoly' ); ?>">
+     aria-label="<?php esc_attr_e( 'Donation form', 'givoly' ); ?>">
 
     <form id="<?php echo esc_attr( $form_id ); ?>"
           class="givoly-form"
@@ -53,21 +53,21 @@ $wrap_style = $config->get_inline_css_vars();
         <?php endif; ?>
 
 
-        <!-- ── Fréquence du don ─────────────────────────────────────── -->
+        <!-- ── Frequency du don ─────────────────────────────────────── -->
         <fieldset class="givoly-form__fieldset givoly-frequency">
             <legend class="givoly-form__legend">
-                <?php esc_html_e( 'Fréquence', 'givoly' ); ?>
+                <?php esc_html_e( 'Frequency', 'givoly' ); ?>
             </legend>
             <div class="givoly-frequency-toggle" role="group">
                 <?php if ( $show_stripe_gateway ) : ?>
                 <label class="givoly-frequency-option">
                     <input type="radio" name="frequency" value="monthly" class="givoly-frequency__input" checked>
-                    <span class="givoly-frequency-option__label"><?php esc_html_e( 'Don récurrent', 'givoly' ); ?></span>
+                    <span class="givoly-frequency-option__label"><?php esc_html_e( 'Recurring donation', 'givoly' ); ?></span>
                 </label>
                 <?php endif; ?>
                 <label class="givoly-frequency-option">
                     <input type="radio" name="frequency" value="once" class="givoly-frequency__input" <?php checked( ! $show_stripe_gateway ); ?>>
-                    <span class="givoly-frequency-option__label"><?php esc_html_e( 'Don unique', 'givoly' ); ?></span>
+                    <span class="givoly-frequency-option__label"><?php esc_html_e( 'One-time donation', 'givoly' ); ?></span>
                 </label>
             </div>
         </fieldset>
@@ -75,7 +75,7 @@ $wrap_style = $config->get_inline_css_vars();
         <!-- ── Sélection du montant ───────────────────────────────────── -->
         <fieldset class="givoly-form__fieldset">
             <legend class="givoly-form__legend">
-                <?php esc_html_e( 'Choisissez votre montant', 'givoly' ); ?>
+                <?php esc_html_e( 'Choose your amount', 'givoly' ); ?>
             </legend>
 
             <div class="givoly-amount-grid" role="group">
@@ -92,22 +92,22 @@ $wrap_style = $config->get_inline_css_vars();
                     </label>
                 <?php endforeach; ?>
 
-                <!-- Montant libre -->
+                <!-- Custom amount -->
                 <label class="givoly-amount-btn">
                     <input type="radio"
                            name="preset_amount"
                            value="custom"
                            class="givoly-amount-btn__input">
                     <span class="givoly-amount-btn__label">
-                        <?php esc_html_e( 'Autre', 'givoly' ); ?>
+                        <?php esc_html_e( 'Other', 'givoly' ); ?>
                     </span>
                 </label>
             </div>
 
-            <!-- Champ montant libre (affiché uniquement si "Autre" sélectionné) -->
+            <!-- Champ montant libre (affiché uniquement si "Other" sélectionné) -->
             <div class="givoly-custom-amount" hidden aria-live="polite">
                 <label for="<?php echo esc_attr( $form_id ); ?>-custom" class="givoly-label">
-                    <?php esc_html_e( 'Montant libre', 'givoly' ); ?>
+                    <?php esc_html_e( 'Custom amount', 'givoly' ); ?>
                 </label>
                 <div class="givoly-input-group">
                     <span class="givoly-input-group__prefix" aria-hidden="true">
@@ -121,11 +121,11 @@ $wrap_style = $config->get_inline_css_vars();
                            min="1"
                            max="100000"
                            step="1"
-                           placeholder="<?php esc_attr_e( 'Ex : 75', 'givoly' ); ?>"
+                           placeholder="<?php esc_attr_e( 'e.g. 75', 'givoly' ); ?>"
                            aria-describedby="<?php echo esc_attr( $form_id ); ?>-amount-hint">
                 </div>
                 <p id="<?php echo esc_attr( $form_id ); ?>-amount-hint" class="givoly-hint">
-                    <?php esc_html_e( 'Minimum 1 €, maximum 100 000 €', 'givoly' ); ?>
+                    <?php esc_html_e( 'Minimum €1, maximum €100,000', 'givoly' ); ?>
                 </p>
             </div>
 
@@ -133,16 +133,16 @@ $wrap_style = $config->get_inline_css_vars();
             <input type="hidden" name="amount" class="givoly-final-amount">
         </fieldset>
 
-        <!-- ── Informations du donateur ───────────────────────────────── -->
+        <!-- ── Informations du donor ───────────────────────────────── -->
         <fieldset class="givoly-form__fieldset">
             <legend class="givoly-form__legend">
-                <?php esc_html_e( 'Vos informations', 'givoly' ); ?>
+                <?php esc_html_e( 'Your information', 'givoly' ); ?>
             </legend>
 
             <div class="givoly-row">
                 <div class="givoly-field">
                     <label for="<?php echo esc_attr( $form_id ); ?>-first-name" class="givoly-label">
-                        <?php esc_html_e( 'Prénom', 'givoly' ); ?>
+                        <?php esc_html_e( 'First name', 'givoly' ); ?>
                         <span class="givoly-required" aria-hidden="true">*</span>
                     </label>
                     <input type="text"
@@ -156,7 +156,7 @@ $wrap_style = $config->get_inline_css_vars();
 
                 <div class="givoly-field">
                     <label for="<?php echo esc_attr( $form_id ); ?>-last-name" class="givoly-label">
-                        <?php esc_html_e( 'Nom', 'givoly' ); ?>
+                        <?php esc_html_e( 'Name', 'givoly' ); ?>
                         <span class="givoly-required" aria-hidden="true">*</span>
                     </label>
                     <input type="text"
@@ -206,7 +206,7 @@ $wrap_style = $config->get_inline_css_vars();
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                 <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
             </svg>
-            <?php esc_html_e( 'Paiement 100% sécurisé par', 'givoly' ); ?>
+            <?php esc_html_e( '100% secure payment powered by', 'givoly' ); ?>
             <span class="givoly-form__trust-badge givoly-form__trust-badge--stripe">
                 <?php echo esc_html( $gateway_label ); ?>
             </span>
@@ -222,44 +222,44 @@ $givoly_success     = isset( $_GET['givoly_success'] ) ? sanitize_key( wp_unslas
 ?>
 <?php if ( '1' === $givoly_success && $post_payment_token !== '' ) : ?>
         <section class="givoly-post-payment" aria-live="polite">
-            <h3 class="givoly-post-payment__title"><?php esc_html_e( 'Complétez votre profil donateur', 'givoly' ); ?></h3>
-            <p class="givoly-hint"><?php esc_html_e( 'Merci ! Pour mieux vous accompagner, merci de compléter ces informations.', 'givoly' ); ?></p>
+            <h3 class="givoly-post-payment__title"><?php esc_html_e( 'Complete your donor profile', 'givoly' ); ?></h3>
+            <p class="givoly-hint"><?php esc_html_e( 'Thank you! To help us support you better, please complete this information.', 'givoly' ); ?></p>
             <form class="givoly-post-payment-form" novalidate>
                 <?php wp_nonce_field( 'givoly_submit_donation', 'givoly_nonce' ); ?>
                 <input type="hidden" name="post_payment_token" value="<?php echo esc_attr( $post_payment_token ); ?>">
                 <div class="givoly-row">
                     <div class="givoly-field">
-                        <label class="givoly-label" for="<?php echo esc_attr( $form_id ); ?>-pp-email"><?php esc_html_e( 'Email utilisé pour le paiement', 'givoly' ); ?> *</label>
+                        <label class="givoly-label" for="<?php echo esc_attr( $form_id ); ?>-pp-email"><?php esc_html_e( 'Email address used for payment', 'givoly' ); ?> *</label>
                         <input class="givoly-input" type="email" required name="email" id="<?php echo esc_attr( $form_id ); ?>-pp-email" maxlength="254">
                     </div>
                     <?php if ( $show_post_payment_phone ) : ?>
                         <div class="givoly-field">
-                            <label class="givoly-label" for="<?php echo esc_attr( $form_id ); ?>-pp-phone"><?php esc_html_e( 'Téléphone', 'givoly' ); ?></label>
+                            <label class="givoly-label" for="<?php echo esc_attr( $form_id ); ?>-pp-phone"><?php esc_html_e( 'Phone', 'givoly' ); ?></label>
                             <input class="givoly-input" type="tel" name="phone" id="<?php echo esc_attr( $form_id ); ?>-pp-phone" maxlength="40">
                         </div>
                     <?php endif; ?>
                 </div>
                 <div class="givoly-field">
-                    <label class="givoly-label" for="<?php echo esc_attr( $form_id ); ?>-pp-company"><?php esc_html_e( 'Organisation', 'givoly' ); ?></label>
+                    <label class="givoly-label" for="<?php echo esc_attr( $form_id ); ?>-pp-company"><?php esc_html_e( 'Organization', 'givoly' ); ?></label>
                     <input class="givoly-input" type="text" name="company" id="<?php echo esc_attr( $form_id ); ?>-pp-company" maxlength="150">
                 </div>
                 <?php if ( $show_post_payment_address ) : ?>
                     <div class="givoly-field">
-                        <label class="givoly-label" for="<?php echo esc_attr( $form_id ); ?>-pp-address"><?php esc_html_e( 'Adresse', 'givoly' ); ?></label>
+                        <label class="givoly-label" for="<?php echo esc_attr( $form_id ); ?>-pp-address"><?php esc_html_e( 'Address', 'givoly' ); ?></label>
                         <input class="givoly-input" type="text" name="address_line1" id="<?php echo esc_attr( $form_id ); ?>-pp-address" maxlength="255">
                     </div>
                     <div class="givoly-row">
                         <div class="givoly-field">
-                            <label class="givoly-label" for="<?php echo esc_attr( $form_id ); ?>-pp-postal"><?php esc_html_e( 'Code postal', 'givoly' ); ?></label>
+                            <label class="givoly-label" for="<?php echo esc_attr( $form_id ); ?>-pp-postal"><?php esc_html_e( 'Postal code', 'givoly' ); ?></label>
                             <input class="givoly-input" type="text" name="postal_code" id="<?php echo esc_attr( $form_id ); ?>-pp-postal" maxlength="10">
                         </div>
                         <div class="givoly-field">
-                            <label class="givoly-label" for="<?php echo esc_attr( $form_id ); ?>-pp-city"><?php esc_html_e( 'Ville', 'givoly' ); ?></label>
+                            <label class="givoly-label" for="<?php echo esc_attr( $form_id ); ?>-pp-city"><?php esc_html_e( 'City', 'givoly' ); ?></label>
                             <input class="givoly-input" type="text" name="city" id="<?php echo esc_attr( $form_id ); ?>-pp-city" maxlength="100">
                         </div>
                     </div>
                 <?php endif; ?>
-                <button type="submit" class="givoly-btn givoly-btn--primary"><?php esc_html_e( 'Enregistrer mes informations', 'givoly' ); ?></button>
+                <button type="submit" class="givoly-btn givoly-btn--primary"><?php esc_html_e( 'Save my information', 'givoly' ); ?></button>
                 <div class="givoly-form__messages" hidden></div>
             </form>
         </section>

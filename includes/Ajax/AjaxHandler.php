@@ -60,13 +60,13 @@ final class AjaxHandler {
             'theme'      => 'givoly',
             'layout'     => 'card',
             'show_title' => 'yes',
-            'title'      => esc_html__( 'Soutenez-nous', 'givoly' ),
+            'title'      => esc_html__( 'Support us', 'givoly' ),
         ] );
 
         wp_enqueue_style( 'givoly-frontend', GIVOLY_PLUGIN_URL . 'assets/css/givoly-frontend.css', [], GIVOLY_VERSION );
         wp_add_inline_style( 'givoly-frontend', 'body{margin:0;padding:24px;background:#f0f0f1;font-family:system-ui,sans-serif;}' );
 
-        echo '<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">';
+        echo '<!DOCTYPE html><html ' . get_language_attributes() . '><head><meta charset="' . esc_attr( get_bloginfo( 'charset' ) ) . '">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- WordPress core generates the language attributes.
         wp_print_styles( 'givoly-frontend' );
         echo '</head><body>';
         ( new \Givoly\Form\DonationForm( $preview_config ) )->output();
@@ -78,12 +78,12 @@ final class AjaxHandler {
 
     public function handle_checkout(): void {
         if ( ! check_ajax_referer( 'givoly_submit_donation', 'givoly_nonce', false ) ) {
-            wp_send_json_error( [ 'message' => __( 'Requête invalide.', 'givoly' ) ], 403 );
+            wp_send_json_error( [ 'message' => __( 'Invalid request.', 'givoly' ) ], 403 );
         }
 
         if ( ! RateLimiter::is_allowed( 'checkout' ) ) {
             wp_send_json_error(
-                [ 'message' => __( 'Trop de tentatives. Veuillez patienter une minute avant de réessayer.', 'givoly' ) ],
+                [ 'message' => __( 'Too many attempts. Please wait one minute before trying again.', 'givoly' ) ],
                 429
             );
         }
@@ -103,18 +103,18 @@ final class AjaxHandler {
         $amount_cents = $this->parse_amount_to_cents( $amount_raw );
 
         if ( $amount_cents < 100 || $amount_cents > 100_000 * 100 ) {
-            wp_send_json_error( [ 'message' => __( 'Montant invalide.', 'givoly' ) ], 422 );
+            wp_send_json_error( [ 'message' => __( 'Invalid amount.', 'givoly' ) ], 422 );
         }
 
         if ( ! is_email( $email ) ) {
-            wp_send_json_error( [ 'message' => __( 'Email invalide.', 'givoly' ) ], 422 );
+            wp_send_json_error( [ 'message' => __( 'Invalid email address.', 'givoly' ) ], 422 );
         }
 
         $post_payment_token = $this->generate_post_payment_token();
 
         try {
             if ( ! in_array( $gateway_key, Settings::get_enabled_gateways(), true ) ) {
-                throw new \RuntimeException( 'Passerelle désactivée.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+                throw new \RuntimeException( 'Gateway disabled.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
             }
 
             $profile_fields = [
@@ -140,7 +140,7 @@ final class AjaxHandler {
 
         } catch ( \RuntimeException $e ) {
             error_log( '[Givoly] Checkout error: ' . \Givoly\Core\Format::redact_secrets( $e->getMessage() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-            wp_send_json_error( [ 'message' => __( 'Erreur lors de la création du paiement. Veuillez réessayer.', 'givoly' ) ], 500 );
+            wp_send_json_error( [ 'message' => __( 'There was an error creating the payment. Please try again.', 'givoly' ) ], 500 );
         }
     }
 
@@ -148,7 +148,7 @@ final class AjaxHandler {
         global $wpdb;
 
         if ( ! check_ajax_referer( 'givoly_submit_donation', 'givoly_nonce', false ) ) {
-            wp_send_json_error( [ 'message' => __( 'Requête invalide.', 'givoly' ) ], 403 );
+            wp_send_json_error( [ 'message' => __( 'Invalid request.', 'givoly' ) ], 403 );
         }
 
         $email       = sanitize_email( wp_unslash( $_POST['email'] ?? '' ) );
@@ -156,7 +156,7 @@ final class AjaxHandler {
         $token       = $this->sanitize_post_payment_token( $raw_token );
 
         if ( ! is_email( $email ) || $token === '' ) {
-            wp_send_json_error( [ 'message' => __( 'Email invalide.', 'givoly' ) ], 422 );
+            wp_send_json_error( [ 'message' => __( 'Invalid email address.', 'givoly' ) ], 422 );
         }
 
         $record = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -191,14 +191,14 @@ final class AjaxHandler {
                 );
 
                 set_transient( $transient_key, $updated_profile, DAY_IN_SECONDS );
-                wp_send_json_success( [ 'message' => __( 'Merci, vos informations ont bien été enregistrées.', 'givoly' ) ] );
+                wp_send_json_success( [ 'message' => __( 'Thank you, your information was saved successfully.', 'givoly' ) ] );
             }
 
-            wp_send_json_error( [ 'message' => __( 'Session post-paiement invalide ou expirée.', 'givoly' ) ], 403 );
+            wp_send_json_error( [ 'message' => __( 'The post-payment session is invalid or has expired.', 'givoly' ) ], 403 );
         }
 
         if ( strtolower( $email ) !== strtolower( (string) $record['email'] ) ) {
-            wp_send_json_error( [ 'message' => __( 'L’email saisi ne correspond pas au paiement.', 'givoly' ) ], 422 );
+            wp_send_json_error( [ 'message' => __( 'The email address does not match the payment.', 'givoly' ) ], 422 );
         }
 
         $updated = $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -216,7 +216,7 @@ final class AjaxHandler {
         );
 
         if ( $updated === false ) {
-            wp_send_json_error( [ 'message' => __( 'Impossible d’enregistrer les informations.', 'givoly' ) ], 500 );
+            wp_send_json_error( [ 'message' => __( 'Unable to save the information.', 'givoly' ) ], 500 );
         }
 
         $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -227,7 +227,7 @@ final class AjaxHandler {
             [ '%d' ]
         );
 
-        wp_send_json_success( [ 'message' => __( 'Merci, vos informations ont bien été enregistrées.', 'givoly' ) ] );
+        wp_send_json_success( [ 'message' => __( 'Thank you, your information was saved successfully.', 'givoly' ) ] );
     }
 
 
@@ -260,7 +260,7 @@ final class AjaxHandler {
         string $post_payment_token = ''
     ): string {
         if ( ! Settings::is_configured() ) {
-            throw new \RuntimeException( 'Stripe non configuré.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+            throw new \RuntimeException( 'Stripe is not configured.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
 
         $gateway     = new StripeGateway( Settings::get_stripe_secret_key() );
@@ -300,7 +300,7 @@ final class AjaxHandler {
         string $post_payment_token = ''
     ): string {
         if ( ! Settings::is_helloasso_configured() ) {
-            throw new \RuntimeException( 'HelloAsso non configuré.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+            throw new \RuntimeException( 'HelloAsso is not configured.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
 
         $gateway = new HelloAssoGateway(
@@ -315,10 +315,10 @@ final class AjaxHandler {
             if ( $other_payments_url ) {
                 return $other_payments_url;
             }
-            throw new \RuntimeException( 'Lien HelloAsso pour dons uniques non configuré.' );
+            throw new \RuntimeException( 'HelloAsso link for one-time donations is not configured.' );
         }
 
-        $item_name = $campaign ?: __( 'Don', 'givoly' );
+        $item_name = $campaign ?: __( 'Donation', 'givoly' );
 
         return $gateway->create_checkout_intent(
             amount_cents:     $amount_cents,

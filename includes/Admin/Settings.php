@@ -44,7 +44,7 @@ final class Settings {
     const OPT_STRIPE_ENABLED   = 'givoly_stripe_enabled';
     const OPT_HELLOASSO_ENABLED = 'givoly_helloasso_enabled';
 
-    // Passerelle par défaut
+    // Default gateway
     const OPT_DEFAULT_GATEWAY  = 'givoly_default_gateway';   // 'stripe' | 'helloasso'
 
     // Email — personnalisation des emails envoyés aux donateurs
@@ -58,7 +58,7 @@ final class Settings {
     const OPT_EMAIL_TAX_RECEIPT_SUBJECT = 'givoly_email_tax_receipt_subject';
     const OPT_EMAIL_TAX_RECEIPT_BODY    = 'givoly_email_tax_receipt_body';
 
-    // Reçu fiscal PDF
+    // Receipt fiscal PDF
     const OPT_TAX_RECEIPT_PDF_ENABLED = 'givoly_tax_receipt_pdf_enabled';
     const OPT_TAX_RECEIPT_PDF_TITLE   = 'givoly_tax_receipt_pdf_title';
     const OPT_TAX_RECEIPT_PDF_BODY    = 'givoly_tax_receipt_pdf_body';
@@ -185,7 +185,7 @@ final class Settings {
     // ── Getters email ──────────────────────────────────────────────────────
 
     /**
-     * URL du logo de l'association à afficher dans les emails.
+     * Logo URL de l'association à afficher dans les emails.
      * Vide si non configuré — le template affiche alors uniquement le nom textuel.
      */
     public static function get_email_logo_url(): string {
@@ -193,7 +193,7 @@ final class Settings {
     }
 
     /**
-     * Couleur principale des emails (hex).
+     * Primary color des emails (hex).
      * Utilisée pour l'en-tête et le montant.
      */
     public static function get_email_primary_color(): string {
@@ -203,7 +203,7 @@ final class Settings {
     }
 
     /**
-     * Nom affiché comme expéditeur des emails.
+     * Name affiché comme expéditeur des emails.
      * Défaut : nom de l'association (ou nom du blog si l'asso n'est pas configurée).
      */
     public static function get_email_sender_name(): string {
@@ -213,32 +213,32 @@ final class Settings {
 
     public static function get_email_thank_subject(): string {
         $subject = (string) self::get_compat_option( self::OPT_EMAIL_THANK_SUBJECT, '' );
-        return $subject !== '' ? $subject : __( 'Merci pour votre don — {site_name}', 'givoly' );
+        return $subject !== '' ? $subject : __( 'Thank you for your donation — {site_name}', 'givoly' );
     }
 
     public static function get_email_thank_body(): string {
         $body = (string) self::get_compat_option( self::OPT_EMAIL_THANK_BODY, '' );
-        return $body !== '' ? $body : __( "Bonjour {first_name},\n\nMerci pour votre don de {amount}. Votre soutien est précieux.", 'givoly' );
+        return $body !== '' ? $body : __( "Hello {first_name},\n\nThank you for your donation of {amount}. Your support matters.", 'givoly' );
     }
 
     public static function get_email_admin_donation_subject(): string {
         $subject = (string) self::get_compat_option( self::OPT_EMAIL_ADMIN_DONATION_SUBJECT, '' );
-        return $subject !== '' ? $subject : __( '[{site_name}] Nouveau don reçu — {amount}', 'givoly' );
+        return $subject !== '' ? $subject : __( '[{site_name}] New donation received — {amount}', 'givoly' );
     }
 
     public static function get_email_admin_donation_body(): string {
         $body = (string) self::get_compat_option( self::OPT_EMAIL_ADMIN_DONATION_BODY, '' );
-        return $body !== '' ? $body : __( "Un nouveau don a été reçu.\n\nID : {donation_id}\nMontant : {amount}\nDonateur : {first_name} {last_name}\nEmail : {email}\nCampagne : {campaign}", 'givoly' );
+        return $body !== '' ? $body : __( "A new donation was received.\n\nID: {donation_id}\nAmount: {amount}\nDonor: {first_name} {last_name}\nEmail: {email}\nCampaign: {campaign}", 'givoly' );
     }
 
     public static function get_email_tax_receipt_subject(): string {
         $subject = (string) self::get_compat_option( self::OPT_EMAIL_TAX_RECEIPT_SUBJECT, '' );
-        return $subject !== '' ? $subject : __( 'Votre reçu fiscal {year} — {association}', 'givoly' );
+        return $subject !== '' ? $subject : __( 'Your tax receipt for {year} — {association}', 'givoly' );
     }
 
     public static function get_email_tax_receipt_body(): string {
         $body = (string) self::get_compat_option( self::OPT_EMAIL_TAX_RECEIPT_BODY, '' );
-        return $body !== '' ? $body : __( "Bonjour {donor_name},\n\nVous trouverez ci-dessous le récapitulatif de vos dons réalisés en {year}.\n\nMontant total : {amount}\nNombre de dons : {donation_count}\nAssociation : {association}\nAdresse : {association_address}\nSIRET : {siret}\nRNA : {rna}\nAgrément / rescrit fiscal : {fiscal_id}\n\nCe message facilite l'envoi de fin d'année. Vérifiez les informations de l'association et joignez votre reçu fiscal officiel si nécessaire avant utilisation comme justificatif.\n\nMerci pour votre soutien.", 'givoly' );
+        return $body !== '' ? $body : __( "Hello {donor_name},\n\nBelow is a summary of your donations made in {year}.\n\nTotal donated: {amount}\nNumber of donations: {donation_count}\nOrganization: {association}\nAddress: {association_address}\nSIRET: {siret}\nRNA: {rna}\nTax approval / ruling: {fiscal_id}\n\nThis message helps with year-end reporting. Verify the organization's information and attach your official tax receipt if required before using it as supporting documentation.\n\nThank you for your support.", 'givoly' );
     }
 
     public static function should_attach_tax_receipt_pdf(): bool {
@@ -247,23 +247,23 @@ final class Settings {
 
     public static function get_tax_receipt_pdf_title(): string {
         $title = (string) self::get_compat_option( self::OPT_TAX_RECEIPT_PDF_TITLE, '' );
-        return $title !== '' ? $title : __( 'Récapitulatif des dons — {year}', 'givoly' );
+        return $title !== '' ? $title : __( 'Donation summary — {year}', 'givoly' );
     }
 
     public static function get_tax_receipt_pdf_body(): string {
         $body = (string) self::get_compat_option( self::OPT_TAX_RECEIPT_PDF_BODY, '' );
-        return $body !== '' ? $body : __( "Donateur : {donor_name}\n\nMontant total des dons : {amount}\nNombre de dons : {donation_count}\n\nAssociation : {association}\nAdresse : {association_address}\nSIRET : {siret}\nRNA : {rna}\nAgrément / rescrit fiscal : {fiscal_id}", 'givoly' );
+        return $body !== '' ? $body : __( "Donor: {donor_name}\n\nTotal donations: {amount}\nNumber of donations: {donation_count}\n\nOrganization: {association}\nAddress: {association_address}\nSIRET: {siret}\nRNA: {rna}\nTax approval / ruling: {fiscal_id}", 'givoly' );
     }
 
     public static function get_tax_receipt_pdf_footer(): string {
         $footer = (string) self::get_compat_option( self::OPT_TAX_RECEIPT_PDF_FOOTER, '' );
-        return $footer !== '' ? $footer : __( 'Ce récapitulatif accompagne l’email et ne remplace pas un reçu fiscal officiel lorsque celui-ci est requis.', 'givoly' );
+        return $footer !== '' ? $footer : __( 'This summary accompanies the email and does not replace an official tax receipt when one is required.', 'givoly' );
     }
 
     // ── Getters apparence ──────────────────────────────────────────────────
 
     /**
-     * Couleur principale du formulaire (hex).
+     * Primary color du formulaire (hex).
      * Retourne '' si non définie — FormConfig utilise alors la couleur du thème.
      */
     public static function get_appearance_primary_color(): string {
@@ -289,7 +289,7 @@ final class Settings {
     }
 
     /**
-     * Style du bouton : 'filled' (défaut) ou 'outline'.
+     * Button style : 'filled' (défaut) ou 'outline'.
      */
     public static function get_appearance_btn_style(): string {
         $val = (string) self::get_compat_option( self::OPT_APPEARANCE_BTN_STYLE, 'filled' );
@@ -355,7 +355,7 @@ final class Settings {
             && self::get_helloasso_org_slug() !== '';
     }
 
-    // ── Passerelle par défaut ──────────────────────────────────────────────
+    // ── Default gateway ──────────────────────────────────────────────
 
     public static function get_default_gateway(): string {
         $gw = (string) self::get_compat_option( self::OPT_DEFAULT_GATEWAY, 'stripe' );
@@ -417,7 +417,7 @@ final class Settings {
         update_option( self::OPT_HA_OTHER_PAYMENTS_URL, esc_url_raw( $post['ha_other_payments_url'] ?? '' ), false );
         update_option( self::OPT_HA_ONCE_USE_OTHER_PAYMENTS_URL, isset( $post['ha_once_use_other_payments_url'] ) ? '1' : '0', false );
 
-        // Passerelle par défaut
+        // Default gateway
         $default_gw = in_array( $post['default_gateway'] ?? '', [ 'stripe', 'helloasso' ], true )
             ? $post['default_gateway']
             : 'stripe';
@@ -443,7 +443,7 @@ final class Settings {
         }
 
         // Apparence
-        // Couleur principale : si enabled=0, effacer la valeur custom
+        // Primary color : si enabled=0, effacer la valeur custom
         if ( ( $post['appearance_primary_color_enabled'] ?? '' ) === '0' ) {
             update_option( self::OPT_APPEARANCE_PRIMARY_COLOR, '', false );
         } else {

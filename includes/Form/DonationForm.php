@@ -8,7 +8,7 @@
  *
  * Pour ajouter un nouveau layout :
  * 1. Créer templates/form/{nom}.php
- * 2. Ajouter le nom dans FormConfig::LAYOUTS
+ * 2. Add le nom dans FormConfig::LAYOUTS
  *
  * @package Givoly\Form
  */
@@ -46,17 +46,11 @@ final class DonationForm {
         if ( ! Settings::should_show_public_branding() ) {
             return;
         }
-        $branding_url = add_query_arg(
-            [
-                'utm_source'   => 'givoly',
-                'utm_medium'   => 'plugin_frontend',
-                'utm_campaign' => 'branding',
-            ],
-            self::BRANDING_URL
-        );
+        // Public branding is opt-in and uses a direct link without tracking.
+        $branding_url = self::BRANDING_URL;
         ?>
-        <div class="givoly-branding" data-givoly-branding="optional" aria-label="<?php esc_attr_e( 'Propulsé par Givoly', 'givoly' ); ?>">
-            <a class="givoly-branding__link" href="<?php echo esc_url( $branding_url ); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e( 'Découvrir Givoly', 'givoly' ); ?>">
+        <div class="givoly-branding" data-givoly-branding="optional" aria-label="<?php esc_attr_e( 'Powered by Givoly', 'givoly' ); ?>">
+            <a class="givoly-branding__link" href="<?php echo esc_url( $branding_url ); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e( 'Discover Givoly', 'givoly' ); ?>">
                 <img class="givoly-branding__logo" src="<?php echo esc_url( GIVOLY_PLUGIN_URL . self::BRANDING_LOGO_PATH ); ?>" alt="Givoly" loading="lazy" decoding="async">
             </a>
         </div>

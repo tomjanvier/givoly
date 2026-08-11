@@ -101,7 +101,7 @@ final class DonationStats {
     }
 
     /**
-     * Derniers dons complétés, avec le nom de campagne quand il existe.
+     * Recent donations complétés, avec le nom de campagne quand il existe.
      *
      * @return array<int, object>
      */

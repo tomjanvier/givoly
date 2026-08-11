@@ -1,6 +1,6 @@
 <?php
 /**
- * Onglet « Apparence » de la page Réglages Givoly.
+ * Onglet « Apparence » de la page Settings Givoly.
  *
  * Partiel inclus par SettingsPage::render() — les variables sont celles
  * définies dans render() (portée d'inclusion conservée).
@@ -16,20 +16,20 @@ if ( ! defined( 'ABSPATH' ) ) {
                 ════════════════════════════════════════════════════════ -->
                 <div class="givoly-tab-panel <?php echo esc_attr( $active === 'appearance' ? 'is-active' : '' ); ?>">
 
-                    <!-- Card Couleurs -->
+                    <!-- Card Colors -->
                     <div class="givoly-card givoly-card--appearance">
                         <h2 class="givoly-card__title">
                             <span class="dashicons dashicons-admin-appearance"></span>
-                            <?php esc_html_e( 'Couleurs', 'givoly' ); ?>
+                            <?php esc_html_e( 'Colors', 'givoly' ); ?>
                         </h2>
                         <p class="givoly-card__desc">
-                            <?php esc_html_e( 'Cette couleur s\'applique à tous vos formulaires de don, quel que soit le thème shortcode. Laissez la valeur par défaut pour utiliser la couleur du thème.', 'givoly' ); ?>
+                            <?php esc_html_e( 'This color applies to all your donation forms, regardless of the shortcode theme. Leave the default value to use the theme color.', 'givoly' ); ?>
                         </p>
                         <table class="form-table" role="presentation">
                             <tr>
                                 <th scope="row">
                                     <label for="givoly-ap-primary">
-                                        <?php esc_html_e( 'Couleur principale', 'givoly' ); ?>
+                                        <?php esc_html_e( 'Primary color', 'givoly' ); ?>
                                     </label>
                                 </th>
                                 <td>
@@ -53,12 +53,12 @@ if ( ! defined( 'ABSPATH' ) ) {
                                                     data-preview-id="givoly-ap-primary-preview"
                                                     data-hex-id="givoly-ap-primary-hex"
                                                     data-default="#2b1533">
-                                                <?php esc_html_e( 'Réinitialiser', 'givoly' ); ?>
+                                                <?php esc_html_e( 'Reset', 'givoly' ); ?>
                                             </button>
                                         <?php endif; ?>
                                     </div>
                                     <p class="description">
-                                        <?php esc_html_e( 'Boutons, bordures actives et accent du formulaire. Utilisé avec du texte blanc.', 'givoly' ); ?>
+                                        <?php esc_html_e( 'Buttons, active borders, and form accents. Used with white text.', 'givoly' ); ?>
                                     </p>
                                     <input type="hidden"
                                            name="appearance_primary_color_enabled"
@@ -71,23 +71,23 @@ if ( ! defined( 'ABSPATH' ) ) {
                         </table>
                     </div>
 
-                    <!-- Card Forme -->
+                    <!-- Card Shape -->
                     <div class="givoly-card">
                         <h2 class="givoly-card__title">
                             <span class="dashicons dashicons-editor-expand"></span>
-                            <?php esc_html_e( 'Forme', 'givoly' ); ?>
+                            <?php esc_html_e( 'Shape', 'givoly' ); ?>
                         </h2>
                         <table class="form-table" role="presentation">
                             <tr>
-                                <th scope="row"><?php esc_html_e( 'Coins', 'givoly' ); ?></th>
+                                <th scope="row"><?php esc_html_e( 'Corners', 'givoly' ); ?></th>
                                 <td>
                                     <div class="givoly-shape-group">
                                         <?php
                                         // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- local template configuration values.
                                         $radius_opts = [
-                                            'square'  => [ 'label' => 'Carré',       'preview_r' => '0px',  'desc' => '0 px'  ],
+                                            'square'  => [ 'label' => 'Square',       'preview_r' => '0px',  'desc' => '0 px'  ],
                                             'rounded' => [ 'label' => 'Arrondi',      'preview_r' => '8px',  'desc' => '12 px' ],
-                                            'pill'    => [ 'label' => 'Très arrondi', 'preview_r' => '16px', 'desc' => '20 px' ],
+                                            'pill'    => [ 'label' => 'Very rounded', 'preview_r' => '16px', 'desc' => '20 px' ],
                                         ];
                                         foreach ( $radius_opts as $val => $opt ) : ?>
                                             <label class="givoly-shape-card <?php echo esc_attr( $ap_radius === $val ? 'is-selected' : '' ); ?>">
@@ -105,24 +105,24 @@ if ( ! defined( 'ABSPATH' ) ) {
                                 </td>
                             </tr>
                             <tr>
-                                <th scope="row"><?php esc_html_e( 'Style du bouton', 'givoly' ); ?></th>
+                                <th scope="row"><?php esc_html_e( 'Button style', 'givoly' ); ?></th>
                                 <td>
                                     <div class="givoly-shape-group">
                                         <label class="givoly-shape-card <?php echo esc_attr( $ap_btn_style === 'filled' ? 'is-selected' : '' ); ?>">
                                             <input type="radio" name="appearance_btn_style" value="filled"
                                                    <?php checked( $ap_btn_style, 'filled' ); ?>>
                                             <span class="givoly-shape-card__btn givoly-shape-card__btn--filled">
-                                                <?php esc_html_e( 'Donner', 'givoly' ); ?>
+                                                <?php esc_html_e( 'Donate', 'givoly' ); ?>
                                             </span>
-                                            <span class="givoly-shape-card__label"><?php esc_html_e( 'Plein', 'givoly' ); ?></span>
+                                            <span class="givoly-shape-card__label"><?php esc_html_e( 'Filled', 'givoly' ); ?></span>
                                         </label>
                                         <label class="givoly-shape-card <?php echo esc_attr( $ap_btn_style === 'outline' ? 'is-selected' : '' ); ?>">
                                             <input type="radio" name="appearance_btn_style" value="outline"
                                                    <?php checked( $ap_btn_style, 'outline' ); ?>>
                                             <span class="givoly-shape-card__btn givoly-shape-card__btn--outline">
-                                                <?php esc_html_e( 'Donner', 'givoly' ); ?>
+                                                <?php esc_html_e( 'Donate', 'givoly' ); ?>
                                             </span>
-                                            <span class="givoly-shape-card__label"><?php esc_html_e( 'Contour', 'givoly' ); ?></span>
+                                            <span class="givoly-shape-card__label"><?php esc_html_e( 'Outline', 'givoly' ); ?></span>
                                         </label>
                                     </div>
                                 </td>
@@ -135,24 +135,24 @@ if ( ! defined( 'ABSPATH' ) ) {
                     <div class="givoly-card givoly-card--appearance">
                         <h2 class="givoly-card__title">
                             <span class="dashicons dashicons-editor-code"></span>
-                            <?php esc_html_e( 'CSS additionnel WordPress', 'givoly' ); ?>
+                            <?php esc_html_e( 'Additional CSS in WordPress', 'givoly' ); ?>
                         </h2>
                         <p class="givoly-card__desc">
-                            <?php esc_html_e( 'Pour personnaliser vos formulaires, utilisez l’éditeur CSS natif de WordPress. Givoly ne stocke ni n’exécute de CSS arbitraire.', 'givoly' ); ?>
+                            <?php esc_html_e( 'To customize your forms, use WordPress’s native CSS editor. Givoly does not store or execute arbitrary CSS.', 'givoly' ); ?>
                         </p>
                         <p>
                             <a class="button button-secondary" href="<?php echo esc_url( $wordpress_css_url ); ?>">
                                 <?php
                                 echo esc_html(
                                     wp_is_block_theme()
-                                        ? __( 'Ouvrir l’éditeur du site', 'givoly' )
-                                        : __( 'Ouvrir le CSS additionnel', 'givoly' )
+                                        ? __( 'Open Site Editor', 'givoly' )
+                                        : __( 'Open Additional CSS', 'givoly' )
                                 );
                                 ?>
                             </a>
                         </p>
                         <p class="description">
-                            <?php esc_html_e( 'Ciblez .givoly-wrap, .givoly-form, .givoly-amount-btn ou .givoly-form__submit dans cet éditeur.', 'givoly' ); ?>
+                            <?php esc_html_e( 'Target .givoly-wrap, .givoly-form, .givoly-amount-btn, or .givoly-form__submit in that editor.', 'givoly' ); ?>
                         </p>
                     </div>
 
@@ -160,10 +160,10 @@ if ( ! defined( 'ABSPATH' ) ) {
                     <div class="givoly-card">
                         <h2 class="givoly-card__title">
                             <span class="dashicons dashicons-visibility"></span>
-                            <?php esc_html_e( 'Aperçu du formulaire', 'givoly' ); ?>
+                            <?php esc_html_e( 'Form preview', 'givoly' ); ?>
                         </h2>
                         <p class="givoly-card__desc">
-                            <?php esc_html_e( 'Rendu du formulaire avec vos réglages actuels sauvegardés.', 'givoly' ); ?>
+                            <?php esc_html_e( 'Form rendered with your current saved settings.', 'givoly' ); ?>
                         </p>
                         <?php
                         // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- local template preview values.
@@ -174,12 +174,12 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <iframe id="givoly-ap-preview"
                                 src="<?php echo esc_url( $preview_url ); ?>"
                                 style="width:100%;height:540px;border:1px solid #e0e0e0;border-radius:6px;display:block;"
-                                title="<?php esc_attr_e( 'Aperçu formulaire', 'givoly' ); ?>">
+                                title="<?php esc_attr_e( 'Form preview', 'givoly' ); ?>">
                         </iframe>
                         <p class="description" style="margin-top:8px;">
-                            <?php esc_html_e( 'Enregistrez les réglages pour mettre à jour l\'aperçu.', 'givoly' ); ?>
+                            <?php esc_html_e( 'Save the settings to update the preview.', 'givoly' ); ?>
                         </p>
                     </div>
 
-                    <?php submit_button( __( 'Enregistrer', 'givoly' ) ); ?>
+                    <?php submit_button( __( 'Save', 'givoly' ) ); ?>
                 </div>

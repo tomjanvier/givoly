@@ -3,7 +3,7 @@
  * Configuration et thèmes du formulaire de don.
  *
  * ─── Comment ajouter un thème ──────────────────────────────────────────────
- * 1. Ajouter une entrée dans THEMES avec les variables CSS souhaitées.
+ * 1. Add une entrée dans THEMES avec les variables CSS souhaitées.
  * 2. C'est tout. Le CSS consomme ces variables automatiquement.
  * ──────────────────────────────────────────────────────────────────────────
  *
@@ -124,8 +124,8 @@ final class FormConfig {
         $this->amounts     = $this->parse_amounts( $raw_atts['amounts']    ?? '10,25,50,100' );
         $this->theme       = $this->parse_enum( $raw_atts['theme']  ?? '', array_keys( self::THEMES ), self::DEFAULT_THEME );
         $this->layout      = $this->parse_enum( $raw_atts['layout'] ?? '', self::LAYOUTS,              self::DEFAULT_LAYOUT );
-        $this->title       = sanitize_text_field( ! empty( $raw_atts['title'] )       ? $raw_atts['title']       : __( 'Faire un don', 'givoly' ) );
-        $this->button_text = sanitize_text_field( ! empty( $raw_atts['button_text'] ) ? $raw_atts['button_text'] : __( 'Donner maintenant', 'givoly' ) );
+        $this->title       = sanitize_text_field( ! empty( $raw_atts['title'] )       ? $raw_atts['title']       : __( 'Make a donation', 'givoly' ) );
+        $this->button_text = sanitize_text_field( ! empty( $raw_atts['button_text'] ) ? $raw_atts['button_text'] : __( 'Donate now', 'givoly' ) );
         $this->gateway     = $this->parse_gateway( $raw_atts['gateway'] ?? '' );
         $this->extra_fields = $this->parse_extra_fields( $raw_atts['extra_fields'] ?? '' );
         $this->custom_class = $this->parse_custom_class( $raw_atts['class'] ?? '' );
@@ -195,7 +195,7 @@ final class FormConfig {
     }
 
     /**
-     * Montant présélectionné par défaut (le 2e, ou le 1er s'il n'y en a qu'un).
+     * Amount présélectionné par défaut (le 2e, ou le 1er s'il n'y en a qu'un).
      */
     public function get_default_amount(): int {
         return $this->amounts[1] ?? $this->amounts[0];

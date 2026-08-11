@@ -1,6 +1,6 @@
 <?php
 /**
- * Onglet « Stripe » de la page Réglages Givoly.
+ * Onglet « Stripe » de la page Settings Givoly.
  *
  * Partiel inclus par SettingsPage::render() — les variables sont celles
  * définies dans render() (portée d'inclusion conservée).
@@ -21,9 +21,9 @@ if ( ! defined( 'ABSPATH' ) ) {
                             <span class="dashicons dashicons-cart"></span>
                             Stripe
                             <?php if ( $stripe_ok ) : ?>
-                                <span class="givoly-badge givoly-badge--ok givoly-badge--title">✓ Configuré</span>
+                                <span class="givoly-badge givoly-badge--ok givoly-badge--title">✓ <?php esc_html_e( 'Configured', 'givoly' ); ?></span>
                             <?php else : ?>
-                                <span class="givoly-badge givoly-badge--warn givoly-badge--title">Non configuré</span>
+                                <span class="givoly-badge givoly-badge--warn givoly-badge--title"><?php esc_html_e( 'Not configured', 'givoly' ); ?></span>
                             <?php endif; ?>
                         </h2>
                         <p class="description">
@@ -31,7 +31,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                             echo wp_kses_post(
                                 sprintf(
                                     /* translators: %s is the Stripe API documentation URL. */
-                                    __( 'Documentation API Stripe : <a href="%s" target="_blank" rel="noopener noreferrer">docs.stripe.com/api</a>.', 'givoly' ),
+                                    __( 'Stripe API documentation: <a href="%s" target="_blank" rel="noopener noreferrer">docs.stripe.com/api</a>.', 'givoly' ),
                                     esc_url( 'https://docs.stripe.com/api' )
                                 )
                             );
@@ -58,10 +58,10 @@ if ( ! defined( 'ABSPATH' ) ) {
                                 </td>
                             </tr>
 
-                            <tr><th colspan="2"><div class="givoly-section-sep"><?php esc_html_e( 'Clés Test', 'givoly' ); ?></div></th></tr>
+                            <tr><th colspan="2"><div class="givoly-section-sep"><?php esc_html_e( 'Test keys', 'givoly' ); ?></div></th></tr>
 
                             <tr>
-                                <th scope="row"><?php esc_html_e( 'Clé publique', 'givoly' ); ?></th>
+                                <th scope="row"><?php esc_html_e( 'Publishable key', 'givoly' ); ?></th>
                                 <td>
                                     <input type="text" name="stripe_pk_test"
                                            value="<?php echo esc_attr( $pk_test ); ?>"
@@ -69,16 +69,16 @@ if ( ! defined( 'ABSPATH' ) ) {
                                 </td>
                             </tr>
                             <tr>
-                                <th scope="row"><?php esc_html_e( 'Clé secrète', 'givoly' ); ?></th>
+                                <th scope="row"><?php esc_html_e( 'Secret key', 'givoly' ); ?></th>
                                 <td>
                                     <?php $this->secret_field( 'stripe_sk_test', $has_sk_test, 'sk_test_…' ); ?>
                                 </td>
                             </tr>
 
-                            <tr><th colspan="2"><div class="givoly-section-sep"><?php esc_html_e( 'Clés Live', 'givoly' ); ?></div></th></tr>
+                            <tr><th colspan="2"><div class="givoly-section-sep"><?php esc_html_e( 'Live keys', 'givoly' ); ?></div></th></tr>
 
                             <tr>
-                                <th scope="row"><?php esc_html_e( 'Clé publique', 'givoly' ); ?></th>
+                                <th scope="row"><?php esc_html_e( 'Publishable key', 'givoly' ); ?></th>
                                 <td>
                                     <input type="text" name="stripe_pk_live"
                                            value="<?php echo esc_attr( $pk_live ); ?>"
@@ -86,7 +86,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                                 </td>
                             </tr>
                             <tr>
-                                <th scope="row"><?php esc_html_e( 'Clé secrète', 'givoly' ); ?></th>
+                                <th scope="row"><?php esc_html_e( 'Secret key', 'givoly' ); ?></th>
                                 <td>
                                     <?php $this->secret_field( 'stripe_sk_live', $has_sk_live, 'sk_live_…' ); ?>
                                 </td>
@@ -95,11 +95,11 @@ if ( ! defined( 'ABSPATH' ) ) {
                             <tr><th colspan="2"><div class="givoly-section-sep"><?php esc_html_e( 'Webhook', 'givoly' ); ?></div></th></tr>
 
                             <tr>
-                                <th scope="row"><?php esc_html_e( 'URL Webhook', 'givoly' ); ?></th>
-                                <td><?php $this->webhook_url_field( $webhook_url, 'checkout.session.completed', 'Stripe → Développeurs → Webhooks' ); ?></td>
+                                <th scope="row"><?php esc_html_e( 'Webhook URL', 'givoly' ); ?></th>
+                                <td><?php $this->webhook_url_field( $webhook_url, 'checkout.session.completed', __( 'Stripe → Developers → Webhooks', 'givoly' ) ); ?></td>
                             </tr>
                             <tr>
-                                <th scope="row"><?php esc_html_e( 'Secret Webhook', 'givoly' ); ?></th>
+                                <th scope="row"><?php esc_html_e( 'Webhook secret', 'givoly' ); ?></th>
                                 <td>
                                     <?php $this->secret_field( 'stripe_webhook_secret', $has_webhook, 'whsec_…' ); ?>
                                 </td>
@@ -108,5 +108,5 @@ if ( ! defined( 'ABSPATH' ) ) {
                         </table>
                     </div>
 
-                    <?php submit_button( __( 'Enregistrer', 'givoly' ) ); ?>
+                    <?php submit_button( __( 'Save', 'givoly' ) ); ?>
                 </div>

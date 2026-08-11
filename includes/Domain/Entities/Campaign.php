@@ -1,6 +1,6 @@
 <?php
 /**
- * Entité Campagne.
+ * Entité Campaign.
  *
  * Classe pure : aucune dépendance WordPress ou base de données.
  *

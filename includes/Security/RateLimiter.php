@@ -7,7 +7,7 @@
  *             sinon transients WordPress — universel, léger risque de race condition
  *             intentionnellement accepté pour du rate limiting.
  * Fail-open : en cas d'erreur de cache la requête est autorisée — on ne bloque
- *             jamais un donateur légitime à cause d'un problème d'infra.
+ *             jamais un donor légitime à cause d'un problème d'infra.
  *
  * @package Givoly\Security
  */

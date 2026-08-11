@@ -23,7 +23,7 @@ final class DonorsPage {
 
     public function render(): void {
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( esc_html__( 'Accès refusé.', 'givoly' ) );
+            wp_die( esc_html__( 'Access denied.', 'givoly' ) );
         }
 
         $paged        = max( 1, absint( wp_unslash( $_GET['paged'] ?? 1 ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
@@ -46,61 +46,61 @@ final class DonorsPage {
         $edit_donor     = $edit_donor_id ? $this->get_donor( $edit_donor_id ) : null;
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'Givoly — Donateurs', 'givoly' ); ?></h1>
+            <h1><?php esc_html_e( 'Givoly — Donors', 'givoly' ); ?></h1>
 
             <?php if ( isset( $_GET['givoly_tax_receipts_queued'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
                 <?php $queued = absint( wp_unslash( $_GET['givoly_tax_receipts_queued'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized ?>
                 <div class="notice notice-success is-dismissible"><p>
                     <?php /* translators: %d: number of fiscal receipts queued for delivery. */ ?>
-                    <?php printf( esc_html( _n( '%d reçu fiscal a été mis en file.', '%d reçus fiscaux ont été mis en file.', $queued, 'givoly' ) ), esc_html( (string) $queued ) ); ?>
+                    <?php printf( esc_html( _n( '%d tax receipt has been queued.', '%d tax receipts have been queued.', $queued, 'givoly' ) ), esc_html( (string) $queued ) ); ?>
                 </p></div>
             <?php endif; ?>
             <?php if ( isset( $_GET['givoly_tax_receipts_error'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
-                <div class="notice notice-error is-dismissible"><p><?php esc_html_e( 'Impossible de mettre les reçus fiscaux en file : année invalide ou aucun destinataire sélectionné.', 'givoly' ); ?></p></div>
+                <div class="notice notice-error is-dismissible"><p><?php esc_html_e( 'Unable to queue tax receipts: invalid year or no recipient selected.', 'givoly' ); ?></p></div>
             <?php endif; ?>
             <?php if ( isset( $_GET['givoly_donor_updated'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
-                <div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'La fiche donateur a été mise à jour.', 'givoly' ); ?></p></div>
+                <div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'The donor record has been updated.', 'givoly' ); ?></p></div>
             <?php endif; ?>
             <?php if ( isset( $_GET['givoly_donor_update_error'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
-                <div class="notice notice-error is-dismissible"><p><?php esc_html_e( 'La fiche n’a pas pu être mise à jour. Vérifiez l’email et les champs saisis.', 'givoly' ); ?></p></div>
+                <div class="notice notice-error is-dismissible"><p><?php esc_html_e( 'The record could not be updated. Check the email address and entered fields.', 'givoly' ); ?></p></div>
             <?php endif; ?>
 
             <?php if ( $edit_donor_id && ! $edit_donor ) : ?>
-                <div class="notice notice-error"><p><?php esc_html_e( 'Fiche donateur introuvable.', 'givoly' ); ?></p></div>
+                <div class="notice notice-error"><p><?php esc_html_e( 'Donor record not found.', 'givoly' ); ?></p></div>
             <?php elseif ( $edit_donor ) : ?>
                 <?php $this->render_edit_form( $edit_donor ); ?>
             <?php endif; ?>
 
             <div class="card" style="max-width: 1100px;">
-                <h2><?php esc_html_e( 'Envoi annuel des reçus fiscaux', 'givoly' ); ?></h2>
-                <p><?php esc_html_e( 'Prévisualisez les bénéficiaires, envoyez un reçu seul ou sélectionnez plusieurs destinataires. Les emails et les PDF sont traités en arrière-plan par lots.', 'givoly' ); ?></p>
+                <h2><?php esc_html_e( 'Annual tax receipt delivery', 'givoly' ); ?></h2>
+                <p><?php esc_html_e( 'Preview recipients, send one receipt, or select multiple recipients. Emails and PDFs are processed in batches in the background.', 'givoly' ); ?></p>
                 <form method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>">
                     <input type="hidden" name="page" value="givoly-donors">
-                    <label for="givoly-receipt-year"><strong><?php esc_html_e( 'Année fiscale', 'givoly' ); ?></strong></label>
+                    <label for="givoly-receipt-year"><strong><?php esc_html_e( 'Tax year', 'givoly' ); ?></strong></label>
                     <input type="number" id="givoly-receipt-year" name="receipt_year" min="2000" max="<?php echo esc_attr( (string) gmdate( 'Y' ) ); ?>" value="<?php echo esc_attr( (string) $receipt_year ); ?>" class="small-text">
-                    <button type="submit" class="button"><?php esc_html_e( 'Afficher les bénéficiaires', 'givoly' ); ?></button>
+                    <button type="submit" class="button"><?php esc_html_e( 'Show recipients', 'givoly' ); ?></button>
                 </form>
-                <p class="description"><?php esc_html_e( 'Les données affichées seront utilisées dans l’email et le PDF. Configurez leurs modèles dans Givoly > Réglages > Email.', 'givoly' ); ?></p>
+                <p class="description"><?php esc_html_e( 'The displayed data will be used in the email and PDF. Configure their templates in Givoly > Settings > Email.', 'givoly' ); ?></p>
 
                 <?php if ( empty( $receipt_donors ) ) : ?>
-                    <p><?php esc_html_e( 'Aucun donateur avec un don complété pour cette année.', 'givoly' ); ?></p>
+                    <p><?php esc_html_e( 'No donor has a completed donation for this year.', 'givoly' ); ?></p>
                 <?php else : ?>
-                    <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" onsubmit='return confirm(<?php echo wp_json_encode( __( 'Mettre les reçus sélectionnés en file d’envoi ?', 'givoly' ) ); ?>)'>
+                    <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" onsubmit='return confirm(<?php echo wp_json_encode( __( 'Queue the selected tax receipts for delivery?', 'givoly' ) ); ?>)'>
                         <?php wp_nonce_field( 'givoly_queue_tax_receipts' ); ?>
                         <input type="hidden" name="action" value="givoly_queue_tax_receipts">
                         <input type="hidden" name="receipt_year" value="<?php echo esc_attr( (string) $receipt_year ); ?>">
                         <p>
-                            <button type="submit" name="mode" value="selected" class="button button-primary"><?php esc_html_e( 'Mettre les sélectionnés en file', 'givoly' ); ?></button>
-                            <button type="submit" name="mode" value="all" class="button" onclick='return confirm(<?php echo wp_json_encode( __( 'Mettre tous les bénéficiaires de cette année en file ?', 'givoly' ) ); ?>)'><?php esc_html_e( 'Mettre tout en file', 'givoly' ); ?></button>
+                            <button type="submit" name="mode" value="selected" class="button button-primary"><?php esc_html_e( 'Queue selected recipients', 'givoly' ); ?></button>
+                            <button type="submit" name="mode" value="all" class="button" onclick='return confirm(<?php echo wp_json_encode( __( 'Queue all recipients for this year?', 'givoly' ) ); ?>)'><?php esc_html_e( 'Queue all recipients', 'givoly' ); ?></button>
                         </p>
                         <table class="wp-list-table widefat striped">
                             <thead><tr>
                                 <th class="check-column"><input type="checkbox" onclick="document.querySelectorAll('.givoly-receipt-check').forEach(function(c){c.checked=this.checked;}, this)"></th>
-                                <th><?php esc_html_e( 'Donateur', 'givoly' ); ?></th>
+                                <th><?php esc_html_e( 'Donor', 'givoly' ); ?></th>
                                 <th><?php esc_html_e( 'Email', 'givoly' ); ?></th>
-                                <th><?php esc_html_e( 'Montant', 'givoly' ); ?></th>
-                                <th><?php esc_html_e( 'Dons', 'givoly' ); ?></th>
-                                <th><?php esc_html_e( 'Action individuelle', 'givoly' ); ?></th>
+                                <th><?php esc_html_e( 'Amount', 'givoly' ); ?></th>
+                                <th><?php esc_html_e( 'Donations', 'givoly' ); ?></th>
+                                <th><?php esc_html_e( 'Individual action', 'givoly' ); ?></th>
                             </tr></thead>
                             <tbody>
                             <?php foreach ( $receipt_donors as $recipient ) : ?>
@@ -111,7 +111,7 @@ final class DonorsPage {
                                     <td><?php echo esc_html( $recipient->email ); ?></td>
                                     <td><?php echo esc_html( number_format_i18n( (float) $recipient->total_amount, 2 ) . ' ' . $recipient->currency ); ?></td>
                                     <td><?php echo esc_html( (string) $recipient->donation_count ); ?></td>
-                                    <td><button type="submit" name="single_donor_id" value="<?php echo esc_attr( (string) $recipient->id ); ?>" class="button button-small"><?php esc_html_e( 'Envoyer ce reçu', 'givoly' ); ?></button></td>
+                                    <td><button type="submit" name="single_donor_id" value="<?php echo esc_attr( (string) $recipient->id ); ?>" class="button button-small"><?php esc_html_e( 'Send this receipt', 'givoly' ); ?></button></td>
                                 </tr>
                             <?php endforeach; ?>
                             </tbody>
@@ -137,27 +137,27 @@ final class DonorsPage {
                 <?php endif; ?>
 
                 <?php if ( $batch_id && $batch_stats['total'] > 0 ) : ?>
-                    <h3><?php esc_html_e( 'Suivi de la dernière file', 'givoly' ); ?></h3>
+                    <h3><?php esc_html_e( 'Latest queue status', 'givoly' ); ?></h3>
                     <?php /* translators: 1: total jobs, 2: pending jobs, 3: processing jobs, 4: sent jobs, 5: failed jobs. */ ?>
-                    <p><?php printf( esc_html__( '%1$d total : %2$d en attente, %3$d en cours, %4$d envoyé(s), %5$d en échec.', 'givoly' ), esc_html( (string) $batch_stats['total'] ), esc_html( (string) $batch_stats['pending'] ), esc_html( (string) $batch_stats['processing'] ), esc_html( (string) $batch_stats['sent'] ), esc_html( (string) $batch_stats['failed'] ) ); ?></p>
-                    <table class="widefat striped"><thead><tr><th><?php esc_html_e( 'Destinataire', 'givoly' ); ?></th><th><?php esc_html_e( 'Statut', 'givoly' ); ?></th><th><?php esc_html_e( 'Erreur', 'givoly' ); ?></th></tr></thead><tbody>
+                    <p><?php printf( esc_html__( '%1$d total: %2$d pending, %3$d processing, %4$d sent, %5$d failed.', 'givoly' ), esc_html( (string) $batch_stats['total'] ), esc_html( (string) $batch_stats['pending'] ), esc_html( (string) $batch_stats['processing'] ), esc_html( (string) $batch_stats['sent'] ), esc_html( (string) $batch_stats['failed'] ) ); ?></p>
+                    <table class="widefat striped"><thead><tr><th><?php esc_html_e( 'Recipient', 'givoly' ); ?></th><th><?php esc_html_e( 'Status', 'givoly' ); ?></th><th><?php esc_html_e( 'Error', 'givoly' ); ?></th></tr></thead><tbody>
                     <?php foreach ( $batch_jobs as $job ) : ?><tr><td><?php echo esc_html( $job->recipient ); ?></td><td><?php echo esc_html( $job->status ); ?></td><td><?php echo esc_html( $job->last_error ?: '—' ); ?></td></tr><?php endforeach; ?>
                     </tbody></table>
                 <?php endif; ?>
             </div>
 
             <?php if ( empty( $donors ) ) : ?>
-                <p><?php esc_html_e( 'Aucun donateur enregistré pour l\'instant.', 'givoly' ); ?></p>
+                <p><?php esc_html_e( 'No donors have been recorded yet.', 'givoly' ); ?></p>
             <?php else : ?>
                 <table class="wp-list-table widefat fixed striped givoly-table">
                     <thead>
                         <tr>
-                            <th><?php esc_html_e( 'Numéro', 'givoly' ); ?></th>
-                            <th><?php esc_html_e( 'Donateur', 'givoly' ); ?></th>
+                            <th><?php esc_html_e( 'Donor number', 'givoly' ); ?></th>
+                            <th><?php esc_html_e( 'Donor', 'givoly' ); ?></th>
                             <th><?php esc_html_e( 'Email', 'givoly' ); ?></th>
-                            <th><?php esc_html_e( 'Total donné', 'givoly' ); ?></th>
-                            <th><?php esc_html_e( 'Nb de dons', 'givoly' ); ?></th>
-                            <th><?php esc_html_e( 'Dernier don', 'givoly' ); ?></th>
+                            <th><?php esc_html_e( 'Total donated', 'givoly' ); ?></th>
+                            <th><?php esc_html_e( 'Donation count', 'givoly' ); ?></th>
+                            <th><?php esc_html_e( 'Latest donation', 'givoly' ); ?></th>
                             <th><?php esc_html_e( 'Action', 'givoly' ); ?></th>
                         </tr>
                     </thead>
@@ -190,7 +190,7 @@ final class DonorsPage {
                                         : '—';
                                     ?>
                                 </td>
-                                <td><a class="button button-small" href="<?php echo esc_url( add_query_arg( [ 'page' => 'givoly-donors', 'edit_donor' => (int) $donor->id ], admin_url( 'admin.php' ) ) ); ?>"><?php esc_html_e( 'Modifier', 'givoly' ); ?></a></td>
+                                <td><a class="button button-small" href="<?php echo esc_url( add_query_arg( [ 'page' => 'givoly-donors', 'edit_donor' => (int) $donor->id ], admin_url( 'admin.php' ) ) ); ?>"><?php esc_html_e( 'Edit', 'givoly' ); ?></a></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -242,26 +242,26 @@ final class DonorsPage {
     private function render_edit_form( object $donor ): void {
         ?>
         <div class="card" style="max-width: 900px;">
-            <h2><?php esc_html_e( 'Modifier la fiche donateur', 'givoly' ); ?> <span class="description"><?php echo esc_html( $donor->donor_reference ?: '#' . (string) $donor->id ); ?></span></h2>
-            <p class="description"><?php esc_html_e( 'Le numéro donateur et les identifiants Stripe sont conservés. Modifier l’email ne supprime aucun don historique.', 'givoly' ); ?></p>
+            <h2><?php esc_html_e( 'Edit donor record', 'givoly' ); ?> <span class="description"><?php echo esc_html( $donor->donor_reference ?: '#' . (string) $donor->id ); ?></span></h2>
+            <p class="description"><?php esc_html_e( 'The donor number and Stripe identifiers are preserved. Editing the email address does not remove any donation history.', 'givoly' ); ?></p>
             <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
                 <?php wp_nonce_field( 'givoly_update_donor_' . (int) $donor->id, 'givoly_update_donor_nonce' ); ?>
                 <input type="hidden" name="action" value="givoly_update_donor">
                 <input type="hidden" name="donor_id" value="<?php echo esc_attr( (string) $donor->id ); ?>">
                 <table class="form-table" role="presentation">
-                    <tr><th><label for="givoly-donor-first-name"><?php esc_html_e( 'Prénom', 'givoly' ); ?></label></th><td><input class="regular-text" id="givoly-donor-first-name" name="first_name" type="text" value="<?php echo esc_attr( $donor->first_name ); ?>" required></td></tr>
-                    <tr><th><label for="givoly-donor-last-name"><?php esc_html_e( 'Nom', 'givoly' ); ?></label></th><td><input class="regular-text" id="givoly-donor-last-name" name="last_name" type="text" value="<?php echo esc_attr( $donor->last_name ); ?>" required></td></tr>
+                    <tr><th><label for="givoly-donor-first-name"><?php esc_html_e( 'First name', 'givoly' ); ?></label></th><td><input class="regular-text" id="givoly-donor-first-name" name="first_name" type="text" value="<?php echo esc_attr( $donor->first_name ); ?>" required></td></tr>
+                    <tr><th><label for="givoly-donor-last-name"><?php esc_html_e( 'Name', 'givoly' ); ?></label></th><td><input class="regular-text" id="givoly-donor-last-name" name="last_name" type="text" value="<?php echo esc_attr( $donor->last_name ); ?>" required></td></tr>
                     <tr><th><label for="givoly-donor-email"><?php esc_html_e( 'Email', 'givoly' ); ?></label></th><td><input class="regular-text" id="givoly-donor-email" name="email" type="email" value="<?php echo esc_attr( $donor->email ); ?>" required></td></tr>
-                    <tr><th><label for="givoly-donor-company"><?php esc_html_e( 'Organisation / société', 'givoly' ); ?></label></th><td><input class="regular-text" id="givoly-donor-company" name="company" type="text" value="<?php echo esc_attr( $donor->company ); ?>"></td></tr>
-                    <tr><th><label for="givoly-donor-address1"><?php esc_html_e( 'Adresse', 'givoly' ); ?></label></th><td><input class="regular-text" id="givoly-donor-address1" name="address_line1" type="text" value="<?php echo esc_attr( $donor->address_line1 ); ?>"></td></tr>
-                    <tr><th><label for="givoly-donor-address2"><?php esc_html_e( 'Complément d’adresse', 'givoly' ); ?></label></th><td><input class="regular-text" id="givoly-donor-address2" name="address_line2" type="text" value="<?php echo esc_attr( $donor->address_line2 ); ?>"></td></tr>
-                    <tr><th><label for="givoly-donor-postal-code"><?php esc_html_e( 'Code postal', 'givoly' ); ?></label></th><td><input class="regular-text" id="givoly-donor-postal-code" name="postal_code" type="text" value="<?php echo esc_attr( $donor->postal_code ); ?>"></td></tr>
-                    <tr><th><label for="givoly-donor-city"><?php esc_html_e( 'Ville', 'givoly' ); ?></label></th><td><input class="regular-text" id="givoly-donor-city" name="city" type="text" value="<?php echo esc_attr( $donor->city ); ?>"></td></tr>
-                    <tr><th><label for="givoly-donor-country"><?php esc_html_e( 'Pays', 'givoly' ); ?></label></th><td><input class="small-text" id="givoly-donor-country" name="country" type="text" maxlength="2" value="<?php echo esc_attr( $donor->country ); ?>"></td></tr>
-                    <tr><th><label for="givoly-donor-phone"><?php esc_html_e( 'Téléphone', 'givoly' ); ?></label></th><td><input class="regular-text" id="givoly-donor-phone" name="phone" type="tel" value="<?php echo esc_attr( $donor->phone ); ?>"></td></tr>
+                    <tr><th><label for="givoly-donor-company"><?php esc_html_e( 'Organization / company', 'givoly' ); ?></label></th><td><input class="regular-text" id="givoly-donor-company" name="company" type="text" value="<?php echo esc_attr( $donor->company ); ?>"></td></tr>
+                    <tr><th><label for="givoly-donor-address1"><?php esc_html_e( 'Address', 'givoly' ); ?></label></th><td><input class="regular-text" id="givoly-donor-address1" name="address_line1" type="text" value="<?php echo esc_attr( $donor->address_line1 ); ?>"></td></tr>
+                    <tr><th><label for="givoly-donor-address2"><?php esc_html_e( 'Address line 2', 'givoly' ); ?></label></th><td><input class="regular-text" id="givoly-donor-address2" name="address_line2" type="text" value="<?php echo esc_attr( $donor->address_line2 ); ?>"></td></tr>
+                    <tr><th><label for="givoly-donor-postal-code"><?php esc_html_e( 'Postal code', 'givoly' ); ?></label></th><td><input class="regular-text" id="givoly-donor-postal-code" name="postal_code" type="text" value="<?php echo esc_attr( $donor->postal_code ); ?>"></td></tr>
+                    <tr><th><label for="givoly-donor-city"><?php esc_html_e( 'City', 'givoly' ); ?></label></th><td><input class="regular-text" id="givoly-donor-city" name="city" type="text" value="<?php echo esc_attr( $donor->city ); ?>"></td></tr>
+                    <tr><th><label for="givoly-donor-country"><?php esc_html_e( 'Country', 'givoly' ); ?></label></th><td><input class="small-text" id="givoly-donor-country" name="country" type="text" maxlength="2" value="<?php echo esc_attr( $donor->country ); ?>"></td></tr>
+                    <tr><th><label for="givoly-donor-phone"><?php esc_html_e( 'Phone', 'givoly' ); ?></label></th><td><input class="regular-text" id="givoly-donor-phone" name="phone" type="tel" value="<?php echo esc_attr( $donor->phone ); ?>"></td></tr>
                 </table>
-                <?php submit_button( __( 'Enregistrer la fiche', 'givoly' ), 'primary', 'submit', false ); ?>
-                <a class="button" href="<?php echo esc_url( admin_url( 'admin.php?page=givoly-donors' ) ); ?>"><?php esc_html_e( 'Annuler', 'givoly' ); ?></a>
+                <?php submit_button( __( 'Save record', 'givoly' ), 'primary', 'submit', false ); ?>
+                <a class="button" href="<?php echo esc_url( admin_url( 'admin.php?page=givoly-donors' ) ); ?>"><?php esc_html_e( 'Cancel', 'givoly' ); ?></a>
             </form>
         </div>
         <?php

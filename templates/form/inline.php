@@ -1,6 +1,6 @@
 <?php
 /**
- * Template : Formulaire de don — Layout "inline"
+ * Template : Donation form — Layout "inline"
  *
  * Version compacte, idéale pour sidebar, widget ou footer.
  * Affiche uniquement montant + email + bouton.
@@ -29,7 +29,7 @@ $wrap_style = $config->get_inline_css_vars();
 <div class="givoly-wrap givoly-layout-inline <?php echo esc_attr( $config->get_wrap_classes() ); ?>"
      style="<?php echo esc_attr( $wrap_style ); ?>"
      role="region"
-     aria-label="<?php esc_attr_e( 'Formulaire de don', 'givoly' ); ?>">
+     aria-label="<?php esc_attr_e( 'Donation form', 'givoly' ); ?>">
 
     <form id="<?php echo esc_attr( $form_id ); ?>"
           class="givoly-form"
@@ -53,15 +53,15 @@ $wrap_style = $config->get_inline_css_vars();
             </h2>
         <?php endif; ?>
 
-        <div class="givoly-amount-grid givoly-frequency" role="group" aria-label="<?php esc_attr_e( 'Fréquence', 'givoly' ); ?>">
+        <div class="givoly-amount-grid givoly-frequency" role="group" aria-label="<?php esc_attr_e( 'Frequency', 'givoly' ); ?>">
             <label class="givoly-amount-btn">
                 <input type="radio" name="frequency" value="once" class="givoly-frequency__input" checked>
-                <span class="givoly-amount-btn__label"><?php esc_html_e( 'Une fois', 'givoly' ); ?></span>
+                <span class="givoly-amount-btn__label"><?php esc_html_e( 'One-time', 'givoly' ); ?></span>
             </label>
             <?php if ( $show_stripe_gateway ) : ?>
             <label class="givoly-amount-btn">
                 <input type="radio" name="frequency" value="monthly" class="givoly-frequency__input">
-                <span class="givoly-amount-btn__label"><?php esc_html_e( 'Mensuel', 'givoly' ); ?></span>
+                <span class="givoly-amount-btn__label"><?php esc_html_e( 'Monthly', 'givoly' ); ?></span>
             </label>
             <?php endif; ?>
         </div>
@@ -69,7 +69,7 @@ $wrap_style = $config->get_inline_css_vars();
         <!-- ── Montants ───────────────────────────────────────────────── -->
         <div class="givoly-amount-grid"
              role="group"
-             aria-label="<?php esc_attr_e( 'Choisissez un montant', 'givoly' ); ?>">
+             aria-label="<?php esc_attr_e( 'Choose an amount', 'givoly' ); ?>">
 
             <?php foreach ( $config->amounts as $amount ) : ?>
                 <label class="givoly-amount-btn">
@@ -90,7 +90,7 @@ $wrap_style = $config->get_inline_css_vars();
                        value="custom"
                        class="givoly-amount-btn__input">
                 <span class="givoly-amount-btn__label">
-                    <?php esc_html_e( 'Autre', 'givoly' ); ?>
+                    <?php esc_html_e( 'Other', 'givoly' ); ?>
                 </span>
             </label>
         </div>
@@ -107,7 +107,7 @@ $wrap_style = $config->get_inline_css_vars();
                        min="1"
                        max="100000"
                        step="1"
-                       placeholder="<?php esc_attr_e( 'Montant', 'givoly' ); ?>">
+                       placeholder="<?php esc_attr_e( 'Amount', 'givoly' ); ?>">
             </div>
         </div>
 
@@ -121,7 +121,7 @@ $wrap_style = $config->get_inline_css_vars();
                    required
                    autocomplete="email"
                    maxlength="254"
-                   placeholder="<?php esc_attr_e( 'Votre email', 'givoly' ); ?>">
+                   placeholder="<?php esc_attr_e( 'Your email', 'givoly' ); ?>">
         </div>
 
         <?php $extra_fields = $config->extra_fields; include GIVOLY_PLUGIN_DIR . 'templates/form/partials/extra-fields.php'; ?>
@@ -144,7 +144,7 @@ $wrap_style = $config->get_inline_css_vars();
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                 <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
             </svg>
-            <?php esc_html_e( 'Paiement 100% sécurisé par', 'givoly' ); ?>
+            <?php esc_html_e( '100% secure payment powered by', 'givoly' ); ?>
             <span class="givoly-form__trust-badge givoly-form__trust-badge--stripe">
                 <?php echo esc_html( $gateway_label ); ?>
             </span>

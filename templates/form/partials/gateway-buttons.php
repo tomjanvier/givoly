@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         class="givoly-btn givoly-btn--primary givoly-form__submit givoly-gateway-submit is-active<?php echo $is_card ? ' givoly-btn--card' : ''; ?>"
         data-gateway="stripe"
         data-label="<?php echo esc_attr( $config->button_text ); ?>"
-        data-label-amount="<?php echo esc_attr( $is_card ? __( 'Payer', 'givoly' ) : __( 'Faire un don de', 'givoly' ) ); ?>">
+        data-label-amount="<?php echo esc_attr( $is_card ? __( 'Pay', 'givoly' ) : __( 'Donate', 'givoly' ) ); ?>">
     <span class="givoly-btn__text">
         <?php echo esc_html( $config->button_text ); ?>
     </span>
@@ -42,13 +42,13 @@ if ( ! defined( 'ABSPATH' ) ) {
         class="HaPayButton givoly-form__submit givoly-gateway-submit"
         data-gateway="helloasso">
     <span class="HaPayButtonLogoWrap"><img class="HaPayButtonLogo" src="<?php echo esc_url( GIVOLY_PLUGIN_URL . 'assets/logo-ha.svg' ); ?>" alt="" loading="lazy" decoding="async"></span>
-    <span class="HaPayButtonLabel"><?php esc_html_e( 'Payer avec HelloAsso*', 'givoly' ); ?></span>
+    <span class="HaPayButtonLabel"><?php esc_html_e( 'Pay with HelloAsso*', 'givoly' ); ?></span>
 </button>
 
 <?php // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- local variables in an included template. ?>
 <?php $ha_other_payments_url = \Givoly\Admin\Settings::get_helloasso_other_payments_url(); ?>
 <?php if ( $ha_other_payments_url ) : ?>
-    <a href="<?php echo esc_url( $ha_other_payments_url ); ?>" class="givoly-ha-other-payments" target="_blank" rel="noopener"><?php esc_html_e( 'Autres modes de paiements', 'givoly' ); ?></a>
+    <a href="<?php echo esc_url( $ha_other_payments_url ); ?>" class="givoly-ha-other-payments" target="_blank" rel="noopener"><?php esc_html_e( 'Other payment methods', 'givoly' ); ?></a>
 <?php endif; ?>
 
 <?php $ha_notice = \Givoly\Admin\Settings::get_helloasso_button_notice(); ?>

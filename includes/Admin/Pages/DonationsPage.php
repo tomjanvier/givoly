@@ -22,38 +22,38 @@ final class DonationsPage {
 
     public function render(): void {
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( esc_html__( 'Accès refusé.', 'givoly' ) );
+            wp_die( esc_html__( 'Access denied.', 'givoly' ) );
         }
 
         // Notices
         if ( isset( $_GET['givoly_refunded'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
             echo '<div class="notice notice-success is-dismissible"><p>'
-                . esc_html__( 'Don remboursé avec succès.', 'givoly' )
+                . esc_html__( 'Donation refunded successfully.', 'givoly' )
                 . '</p></div>';
         }
         if ( isset( $_GET['givoly_refund_error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
             echo '<div class="notice notice-error is-dismissible"><p>'
-                . esc_html__( 'Erreur lors du remboursement. Vérifiez vos clés Stripe ou effectuez le remboursement depuis le dashboard Stripe.', 'givoly' )
+                . esc_html__( 'Refund failed. Check your Stripe keys or process the refund from the Stripe Dashboard.', 'givoly' )
                 . '</p></div>';
         }
         if ( isset( $_GET['givoly_subscription_cancelled'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
             echo '<div class="notice notice-success is-dismissible"><p>'
-                . esc_html__( 'La résiliation du don récurrent est programmée à la fin de la période déjà payée.', 'givoly' )
+                . esc_html__( 'Cancellation of the recurring donation is scheduled for the end of the current paid period.', 'givoly' )
                 . '</p></div>';
         }
         if ( isset( $_GET['givoly_subscription_cancel_error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
             echo '<div class="notice notice-error is-dismissible"><p>'
-                . esc_html__( 'Impossible de programmer la résiliation du don récurrent. Vérifiez vos clés Stripe et l’abonnement concerné.', 'givoly' )
+                . esc_html__( 'Unable to schedule cancellation of the recurring donation. Check your Stripe keys and the relevant subscription.', 'givoly' )
                 . '</p></div>';
         }
         if ( isset( $_GET['givoly_stripe_sync_done'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
             echo '<div class="notice notice-success is-dismissible"><p>'
-                . esc_html__( 'La récupération Stripe des six derniers mois est terminée.', 'givoly' )
+                . esc_html__( 'Stripe reconciliation for the last six months is complete.', 'givoly' )
                 . '</p></div>';
         }
         if ( isset( $_GET['givoly_stripe_sync_error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
             echo '<div class="notice notice-error is-dismissible"><p>'
-                . esc_html__( 'La récupération Stripe n’a pas pu aller jusqu’au bout. Vérifiez la clé secrète Stripe et les journaux du site.', 'givoly' )
+                . esc_html__( 'Stripe reconciliation could not be completed. Check the Stripe secret key and site logs.', 'givoly' )
                 . '</p></div>';
         }
 
@@ -69,15 +69,15 @@ final class DonationsPage {
         $total_pages = (int) ceil( $total / self::PER_PAGE );
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'Givoly — Dons', 'givoly' ); ?></h1>
+            <h1><?php esc_html_e( 'Givoly — Donations', 'givoly' ); ?></h1>
             <div class="givoly-donations-actions">
                 <a class="button button-primary" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=givoly_export_donations' . ( $status ? '&status=' . rawurlencode( $status ) : '' ) ), 'givoly_export_donations' ) ); ?>">
-                    <?php esc_html_e( 'Exporter les dons (CSV)', 'givoly' ); ?>
+                    <?php esc_html_e( 'Export donations (CSV)', 'givoly' ); ?>
                 </a>
                 <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline-block;margin-left:8px;margin-bottom:0;">
                     <?php wp_nonce_field( 'givoly_sync_stripe_now' ); ?>
                     <input type="hidden" name="action" value="givoly_sync_stripe_now">
-                    <button type="submit" class="button"><?php esc_html_e( 'Récupérer les dons Stripe (6 mois)', 'givoly' ); ?></button>
+                    <button type="submit" class="button"><?php esc_html_e( 'Fetch Stripe donations (6 months)', 'givoly' ); ?></button>
                 </form>
             </div>
 
@@ -85,12 +85,12 @@ final class DonationsPage {
             <ul class="subsubsub">
                 <?php
                 $filters = [
-                    ''          => __( 'Tous', 'givoly' ),
-                    'completed' => __( 'Complétés', 'givoly' ),
-                    'pending'   => __( 'En attente', 'givoly' ),
-                    'failed'    => __( 'Échoués', 'givoly' ),
-                    'refunded'  => __( 'Remboursés', 'givoly' ),
-                    'cancelled' => __( 'Annulés', 'givoly' ),
+                    ''          => __( 'All', 'givoly' ),
+                    'completed' => __( 'Completed', 'givoly' ),
+                    'pending'   => __( 'Pending', 'givoly' ),
+                    'failed'    => __( 'Failed', 'givoly' ),
+                    'refunded'  => __( 'Refunded', 'givoly' ),
+                    'cancelled' => __( 'Cancelled', 'givoly' ),
                 ];
                 $links = [];
                 foreach ( $filters as $s => $label ) {
@@ -103,15 +103,15 @@ final class DonationsPage {
             </ul>
 
             <?php if ( empty( $donations ) ) : ?>
-                <p><?php esc_html_e( 'Aucun don enregistré pour l\'instant.', 'givoly' ); ?></p>
+                <p><?php esc_html_e( 'No donations have been recorded yet.', 'givoly' ); ?></p>
             <?php else : ?>
                 <table class="wp-list-table widefat fixed striped givoly-table">
                     <thead>
                         <tr>
-                            <th><?php esc_html_e( 'Donateur', 'givoly' ); ?></th>
+                            <th><?php esc_html_e( 'Donor', 'givoly' ); ?></th>
                             <th><?php esc_html_e( 'Email', 'givoly' ); ?></th>
-                            <th><?php esc_html_e( 'Montant', 'givoly' ); ?></th>
-                            <th><?php esc_html_e( 'Statut', 'givoly' ); ?></th>
+                            <th><?php esc_html_e( 'Amount', 'givoly' ); ?></th>
+                            <th><?php esc_html_e( 'Status', 'givoly' ); ?></th>
                             <th><?php esc_html_e( 'Date', 'givoly' ); ?></th>
                             <th><?php esc_html_e( 'Actions', 'givoly' ); ?></th>
                         </tr>
@@ -147,12 +147,12 @@ final class DonationsPage {
                                         <form method="post"
                                               action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>"
                                               style="display:inline;"
-                                              onsubmit='return confirm(<?php echo wp_json_encode( __( 'Confirmer le remboursement de ce don ? Cette action est irréversible.', 'givoly' ) ); ?>)'>
+                                              onsubmit='return confirm(<?php echo wp_json_encode( __( 'Confirm refunding this donation? This action cannot be undone.', 'givoly' ) ); ?>)'>
                                             <?php wp_nonce_field( 'givoly_refund_donation_' . $row->id ); ?>
                                             <input type="hidden" name="action"      value="givoly_refund_donation">
                                             <input type="hidden" name="donation_id" value="<?php echo esc_attr( $row->id ); ?>">
                                             <button type="submit" class="button button-small button-link-delete">
-                                                <?php esc_html_e( 'Rembourser', 'givoly' ); ?>
+                                                <?php esc_html_e( 'Refund', 'givoly' ); ?>
                                             </button>
                                         </form>
                                         <?php $has_action = true; ?>
@@ -171,8 +171,8 @@ final class DonationsPage {
                                            target="_blank"
                                            rel="noopener"
                                            class="button button-small"
-                                           title="<?php esc_attr_e( 'Rembourser depuis le dashboard HelloAsso', 'givoly' ); ?>">
-                                           <?php esc_html_e( 'Rembourser ↗', 'givoly' ); ?>
+                                           title="<?php esc_attr_e( 'Refund from the HelloAsso dashboard', 'givoly' ); ?>">
+                                           <?php esc_html_e( 'Refund ↗', 'givoly' ); ?>
                                         </a>
                                         <?php $has_action = true; ?>
                                     <?php endif; ?>
@@ -181,12 +181,12 @@ final class DonationsPage {
                                         <form method="post"
                                               action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>"
                                               style="display:inline;"
-                                              onsubmit='return confirm(<?php echo wp_json_encode( __( 'Confirmer l’arrêt des prochains prélèvements ? Le donateur conservera l’accès jusqu’à la fin de la période déjà payée.', 'givoly' ) ); ?>)'>
+                                              onsubmit='return confirm(<?php echo wp_json_encode( __( 'Confirm stopping future payments? The donor will retain access until the end of the current paid period.', 'givoly' ) ); ?>)'>
                                             <?php wp_nonce_field( 'givoly_cancel_subscription_' . $row->id ); ?>
                                             <input type="hidden" name="action"      value="givoly_cancel_subscription">
                                             <input type="hidden" name="donation_id" value="<?php echo esc_attr( $row->id ); ?>">
                                             <button type="submit" class="button button-small">
-                                                <?php esc_html_e( 'Annuler le récurrent', 'givoly' ); ?>
+                                                <?php esc_html_e( 'Cancel recurring donation', 'givoly' ); ?>
                                             </button>
                                         </form>
                                         <?php $has_action = true; ?>

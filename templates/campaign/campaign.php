@@ -4,11 +4,11 @@
  *
  * Variables injectées par CampaignWidget :
  *   @var \Givoly\Domain\Entities\Campaign $campaign
- *   @var float  $collected    Montant total collecté
+ *   @var float  $collected    Amount total collecté
  *   @var int    $donor_count  Nombre de donateurs uniques
  *   @var float  $percentage   Pourcentage de progression (0-100)
- *   @var bool   $is_ended     Campagne terminée ou archivée
- *   @var \Givoly\Form\DonationForm|null $donation_form  Formulaire de don (null si campagne terminée)
+ *   @var bool   $is_ended     Campaign terminée ou archivée
+ *   @var \Givoly\Form\DonationForm|null $donation_form  Donation form (null si campagne terminée)
  *   @var bool   $show_description
  *   @var bool   $show_title
  *
@@ -26,7 +26,7 @@ $currency_symbol = \Givoly\Form\FormConfig::currency_symbol( $campaign->get_curr
 $format_amount = static fn( float $amount ): string =>
     number_format( $amount, 0, ',', ' ' ) . ' ' . $currency_symbol;
 
-$display_title = preg_replace( '/^\s*Don\s+[àa]\s+/iu', '', $campaign->get_title() );
+$display_title = preg_replace( '/^\s*Donation\s+[àa]\s+/iu', '', $campaign->get_title() );
 if ( ! is_string( $display_title ) || '' === trim( $display_title ) ) {
     $display_title = $campaign->get_title();
 }
@@ -46,7 +46,7 @@ if ( ! is_string( $display_title ) || '' === trim( $display_title ) ) {
     <?php /* ── Formulaire ou message de fin ─────────────────────────────── */ ?>
     <?php if ( $is_ended ) : ?>
         <div class="givoly-campaign__ended">
-            <?php esc_html_e( 'Cette campagne est terminée. Merci pour votre générosité !', 'givoly' ); ?>
+            <?php esc_html_e( 'This campaign has ended. Thank you for your generosity!', 'givoly' ); ?>
         </div>
     <?php elseif ( $donation_form ) : ?>
         <div class="givoly-campaign__form">
