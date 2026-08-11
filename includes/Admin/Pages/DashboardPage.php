@@ -58,8 +58,8 @@ final class DashboardPage {
             <section class="givoly-stats" aria-label="<?php esc_attr_e( 'Donation metrics', 'givoly' ); ?>">
                 <?php self::render_stat_card( '💰', __( 'Total collected', 'givoly' ), number_format_i18n( $stats['total_amount'], 2 ) . ' €' ); ?>
                 <?php self::render_stat_card( '🎁', __( 'Completed donations', 'givoly' ), number_format_i18n( $stats['total_donations'] ) ); ?>
-                <?php self::render_stat_card( '👥', __( 'Donors actifs', 'givoly' ), number_format_i18n( $stats['total_donors'] ) ); ?>
-                <?php self::render_stat_card( '↗', __( 'Donation moyen', 'givoly' ), number_format_i18n( $stats['average_amount'], 2 ) . ' €' ); ?>
+                <?php self::render_stat_card( '👥', __( 'Active donors', 'givoly' ), number_format_i18n( $stats['total_donors'] ) ); ?>
+                <?php self::render_stat_card( '↗', __( 'Average donation', 'givoly' ), number_format_i18n( $stats['average_amount'], 2 ) . ' €' ); ?>
             </section>
 
             <div class="givoly-dashboard-grid">
@@ -104,7 +104,7 @@ final class DashboardPage {
                     <span class="description"><?php esc_html_e( 'The form automatically uses your payment and appearance settings.', 'givoly' ); ?></span>
                     <a class="button button-secondary" href="<?php echo esc_url( $support_donation_url ); ?>" target="_blank" rel="noopener noreferrer">
                         <span aria-hidden="true">♥</span>
-                        <?php esc_html_e( 'Soutenir PLAID·ACT', 'givoly' ); ?>
+                        <?php esc_html_e( 'Support PLAID·ACT', 'givoly' ); ?>
                     </a>
                 </div>
             </section>
@@ -112,7 +112,7 @@ final class DashboardPage {
             <section class="givoly-panel givoly-panel--recent" aria-labelledby="givoly-recent-title">
                 <div class="givoly-panel__heading">
                     <div>
-                        <h2 id="givoly-recent-title"><?php esc_html_e( 'Derniers donateurs', 'givoly' ); ?></h2>
+                        <h2 id="givoly-recent-title"><?php esc_html_e( 'Recent donors', 'givoly' ); ?></h2>
                         <p><?php esc_html_e( 'The latest confirmed donations appear here automatically.', 'givoly' ); ?></p>
                     </div>
                     <a class="button" href="<?php echo esc_url( admin_url( 'admin.php?page=givoly-donations' ) ); ?>">
@@ -184,7 +184,7 @@ final class DashboardPage {
             <h3><?php esc_html_e( 'Six-month trend', 'givoly' ); ?></h3>
             <?php self::render_monthly_chart( $monthly, true ); ?>
 
-            <h3><?php esc_html_e( 'Derniers donateurs', 'givoly' ); ?></h3>
+            <h3><?php esc_html_e( 'Recent donors', 'givoly' ); ?></h3>
             <?php if ( empty( $recent ) ) : ?>
                 <p><?php esc_html_e( 'No completed donations yet.', 'givoly' ); ?></p>
             <?php else : ?>
@@ -238,7 +238,7 @@ final class DashboardPage {
                         : 2;
                     $title  = sprintf(
                         /* translators: 1: month label, 2: amount, 3: number of donations. */
-                        _n( '%1$s : %2$s €, %3$d don', '%1$s : %2$s €, %3$d dons', $month['count'], 'givoly' ),
+                        _n( '%1$s: €%2$s, %3$d donation', '%1$s: €%2$s, %3$d donations', $month['count'], 'givoly' ),
                         $month['label'],
                         number_format_i18n( $month['total'], 2 ),
                         $month['count']

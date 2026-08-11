@@ -135,7 +135,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                     <div class="givoly-card givoly-card--appearance">
                         <h2 class="givoly-card__title">
                             <span class="dashicons dashicons-editor-code"></span>
-                            <?php esc_html_e( 'CSS additionnel WordPress', 'givoly' ); ?>
+                            <?php esc_html_e( 'Additional CSS in WordPress', 'givoly' ); ?>
                         </h2>
                         <p class="givoly-card__desc">
                             <?php esc_html_e( 'To customize your forms, use WordPress’s native CSS editor. Givoly does not store or execute arbitrary CSS.', 'givoly' ); ?>

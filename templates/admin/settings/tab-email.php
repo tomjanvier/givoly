@@ -113,7 +113,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                                 </tr>
                                 <tr>
                                     <th scope="row">
-                                        <label for="givoly-email-admin-donation-subject"><?php esc_html_e( 'Sujet email administrateur', 'givoly' ); ?></label>
+                                        <label for="givoly-email-admin-donation-subject"><?php esc_html_e( 'Admin email subject', 'givoly' ); ?></label>
                                     </th>
                                     <td>
                                         <input type="text" class="regular-text" id="givoly-email-admin-donation-subject" name="email_admin_donation_subject" value="<?php echo esc_attr( $email_admin_donation_subject ); ?>" placeholder="<?php esc_attr_e( '[{site_name}] New donation received — {amount}', 'givoly' ); ?>">
@@ -122,7 +122,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                                 </tr>
                                 <tr>
                                     <th scope="row">
-                                        <label for="givoly-email-admin-donation-body"><?php esc_html_e( 'Texte email administrateur', 'givoly' ); ?></label>
+                                        <label for="givoly-email-admin-donation-body"><?php esc_html_e( 'Admin email text', 'givoly' ); ?></label>
                                     </th>
                                     <td>
                                         <textarea id="givoly-email-admin-donation-body" name="email_admin_donation_body" rows="7" class="large-text" placeholder="<?php echo esc_attr( \Givoly\Admin\Settings::get_email_admin_donation_body() ); ?>"><?php echo esc_textarea( $email_admin_donation_body ); ?></textarea>
@@ -172,7 +172,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                                     <th scope="row"><label for="givoly-tax-pdf-body"><?php esc_html_e( 'PDF content', 'givoly' ); ?></label></th>
                                     <td>
                                         <textarea id="givoly-tax-pdf-body" name="tax_receipt_pdf_body" rows="12" class="large-text" placeholder="<?php echo esc_attr( \Givoly\Admin\Settings::get_tax_receipt_pdf_body() ); ?>"><?php echo esc_textarea( $tax_receipt_pdf_body ); ?></textarea>
-                                        <p class="description"><?php esc_html_e( 'Variables : {donor_name}, {first_name}, {last_name}, {year}, {amount}, {donation_count}, {association}, {association_address}, {siret}, {rna}, {fiscal_id}.', 'givoly' ); ?></p>
+                                        <p class="description"><?php esc_html_e( 'Variables: {donor_name}, {first_name}, {last_name}, {year}, {amount}, {donation_count}, {association}, {association_address}, {siret}, {rna}, {fiscal_id}.', 'givoly' ); ?></p>
                                     </td>
                                 </tr>
                                 <tr>
