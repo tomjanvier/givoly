@@ -1,10 +1,10 @@
 === Givoly ===
-Contributors: plaidact, tomjanvier
+Contributors: tomjvr
 Tags: donation, nonprofit, stripe, helloasso, fundraising
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 8.1
-Stable tag: 1.4.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -122,16 +122,11 @@ HelloAsso is used only when enabled by the administrator and chosen for a paymen
 
 == Changelog ==
 
-= 1.4.0 =
+= 1.2.0 =
 * Added HelloAsso v5 synchronization and Stripe recurring-payment reconciliation.
 * Added donor space, manual donations, recurring donation administration, and queued PDF receipt delivery.
 * Prepared English source strings, French bundled translations, and the GlotPress translation template.
 * Added UTM attribution to optional Givoly and PLAID·ACT support and branding links.
-
-= 1.3.0 =
-* Added non-destructive Givasso migration and compatibility aliases.
-
-= 1.2.0 =
 * Added the Givoly dashboard, WordPress dashboard widget, and optional nonprofit support information.
 
 = 1.1.0 =
@@ -141,4 +136,4 @@ HelloAsso is used only when enabled by the administrator and chosen for a paymen
 * Removed the plugin-owned arbitrary CSS setting and directed styling to WordPress's native CSS editor.
 
 = 1.0.0 =
-* Renamed and rebranded the plugin as Givoly.
+* Creation of the plugin.
