@@ -698,6 +698,8 @@
 }
 
 .givoly-gateway-actions { display:flex; flex-direction:column; gap:.75rem; }
+.givoly-gateway-actions .givoly-gateway-submit:not(.is-active) { opacity:.72; }
+.givoly-gateway-actions .givoly-gateway-submit.is-active { box-shadow:0 0 0 2px var(--givoly-color-primary-light,#ede9fe); }
 .HaPayButton { display:flex; align-items:center; border:1px solid #e5e7eb; border-radius:12px; text-decoration:none; background:#fff; padding:0; cursor:pointer; width:100%; min-height:56px; overflow:hidden; color:#111827; }
 .HaPayButton:hover,
 .HaPayButton:focus,
