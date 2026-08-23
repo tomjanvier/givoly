@@ -26,8 +26,8 @@ Givoly is a free, nonprofit WordPress donation plugin maintained by [PLAID·ACT]
 
 | What you need | What Givoly provides |
 | --- | --- |
-| Receive donations | Stripe Checkout and HelloAsso payment flows |
-| Build trust | Secure webhooks, no donor tracking, no remote marketing assets |
+| Receive donations | Stripe Checkout and HelloAsso payment flows, native Gutenberg blocks |
+| Build trust | Secure webhooks, no donor tracking, no remote marketing assets, GDPR export and erasure tools |
 | Know your supporters | Donor records, donation history, recurring-payment references |
 | Run a campaign | Goals, dates, descriptions, progress bars, and public forms |
 | Stay organized | CSV exports, manual donations, queued emails, receipt summaries |
@@ -43,6 +43,8 @@ Givoly is a free, nonprofit WordPress donation plugin maintained by [PLAID·ACT]
 [givoly_form]
 ```
 
+Or use the **Givoly** block category in the Gutenberg editor (donation form, campaign, total).
+
 ### Shortcodes
 
 | Shortcode | Purpose |
@@ -52,9 +54,13 @@ Givoly is a free, nonprofit WordPress donation plugin maintained by [PLAID·ACT]
 | `[givoly_campaign campaign="emergency"]` | Campaign description, progress, and donation form. |
 | `[givoly_total campaign="emergency" display="bar"]` | Compact campaign total or progress bar. |
 
+Each shortcode also exists as a native Gutenberg block with live preview and sidebar settings.
+
 ### Privacy and external services
 
 Givoly stores donation data in the site's WordPress database. It does not add telemetry, analytics pixels, tracking cookies, or unrelated remote assets. UTM parameters are limited to optional Givoly and PLAID·ACT support or branding links; they are not added to donation or donor links.
+
+Donor personal data integrates with WordPress's native privacy tools (**Settings > Privacy > Export/Erase personal data**). Erasure anonymizes donor records while retaining donation amounts, which nonprofits must keep for accounting obligations.
 
 Payment data is sent only to the gateways enabled by the administrator and used for the donation:
 
@@ -73,8 +79,8 @@ Givoly est une extension WordPress gratuite et associative, maintenue par [PLAID
 
 | Votre besoin | Ce que fait Givoly |
 | --- | --- |
-| Recevoir des dons | Paiement via Stripe Checkout et HelloAsso |
-| Rassurer les donateurs | Webhooks sécurisés, aucun suivi ajouté par l’extension |
+| Recevoir des dons | Paiement via Stripe Checkout et HelloAsso, blocs Gutenberg natifs |
+| Rassurer les donateurs | Webhooks sécurisés, aucun suivi ajouté par l’extension, outils RGPD d’export et d’effacement |
 | Suivre les soutiens | Fiches donateurs, historique, références de dons récurrents |
 | Lancer une collecte | Objectifs, dates, descriptions, jauges et formulaires publics |
 | Gagner du temps | Exports CSV, dons manuels, emails en file, reçus et PDF |
@@ -97,9 +103,13 @@ Givoly est une extension WordPress gratuite et associative, maintenue par [PLAID
 * `[givoly_campaign campaign="urgence"]` affiche une collecte complète.
 * `[givoly_total campaign="urgence" display="bar"]` affiche un total ou une jauge compacte.
 
+Chaque shortcode existe aussi en bloc Gutenberg natif (catégorie « Givoly ») avec aperçu en direct et réglages dans la barre latérale.
+
 ### Données et confidentialité
 
 Les données de dons sont enregistrées dans la base WordPress de l’association. Givoly n’ajoute ni pixels publicitaires, ni cookies de suivi, ni télémétrie sur les parcours de dons. Des paramètres UTM sont limités aux liens facultatifs de soutien et de crédit vers Givoly et PLAID·ACT.
+
+Les données personnelles des donateurs s’intègrent aux outils natifs de confidentialité de WordPress (**Réglages > Confidentialité > Exporter/Effacer les données personnelles**). L’effacement anonymise la fiche donateur tout en conservant les montants des dons, que les associations doivent garder pour leurs obligations comptables.
 
 Stripe et HelloAsso ne sont contactés que lorsqu’ils sont activés et utilisés pour un paiement, un webhook, un remboursement ou une synchronisation.
 
