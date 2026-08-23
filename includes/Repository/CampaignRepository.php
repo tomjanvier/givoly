@@ -18,6 +18,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class CampaignRepository {
 
+    private const STATS_CACHE_TTL     = 12 * HOUR_IN_SECONDS;
+    private const STATS_VERSION_OPTION = 'givoly_stats_cache_version';
+
     private string $table;
 
     public function __construct() {
@@ -91,9 +94,27 @@ final class CampaignRepository {
      * Amount total collecté + nombre de donateurs uniques pour une campagne.
      * Une seule requête pour éviter le double aller-retour DB.
      *
+     * Résultat mis en cache (transient invalidé à chaque mutation de don) :
+     * les widgets publics [givoly_total] et [givoly_campaign] n'exécutent plus
+     * de requête d'agrégation à chaque affichage de page.
+     *
      * @return array{amount: float, donors: int}
      */
     public function get_stats( int $campaign_id ): array {
+        if ( $campaign_id <= 0 ) {
+            return [ 'amount' => 0.0, 'donors' => 0 ];
+        }
+
+        $cache_key = 'givoly_stats_' . self::get_cache_version() . '_' . $campaign_id;
+        $cached    = get_transient( $cache_key );
+
+        if ( is_array( $cached ) && isset( $cached['amount'], $cached['donors'] ) ) {
+            return [
+                'amount' => (float) $cached['amount'],
+                'donors' => (int)   $cached['donors'],
+            ];
+        }
+
         global $wpdb;
 
         $row = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -107,10 +128,30 @@ final class CampaignRepository {
             ARRAY_A
         );
 
-        return [
+        $stats = [
             'amount' => (float) ( $row['amount'] ?? 0 ),
             'donors' => (int)   ( $row['donors'] ?? 0 ),
         ];
+
+        set_transient( $cache_key, $stats, self::STATS_CACHE_TTL );
+
+        return $stats;
+    }
+
+    /**
+     * Invalide le cache des stats campagnes.
+     *
+     * À appeler après toute écriture sur givoly_donations qui change un montant,
+     * un statut ou une campagne. Le bump de version rend les clés obsolètes sans
+     * requête LIKE ; le TTL sert de filet pour les transients orphelins.
+     */
+    public static function flush_stats_cache(): void {
+        $version = (int) get_option( self::STATS_VERSION_OPTION, 1 );
+        update_option( self::STATS_VERSION_OPTION, $version + 1, false );
+    }
+
+    private static function get_cache_version(): string {
+        return (string) get_option( self::STATS_VERSION_OPTION, 1 );
     }
 
     /**

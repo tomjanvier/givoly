@@ -12,6 +12,7 @@ namespace Givoly\Ajax;
 
 use Givoly\Donor\DonorReference;
 use Givoly\Mail\MailQueue;
+use Givoly\Repository\CampaignRepository;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -129,6 +130,8 @@ final class PaymentProcessor {
         $donation_id = (int) $wpdb->insert_id;
 
         if ( $donation_id > 0 ) {
+            CampaignRepository::flush_stats_cache();
+
             $payload = [
                 'donation_id' => $donation_id,
                 'email'       => $email,
@@ -189,6 +192,9 @@ final class PaymentProcessor {
         }
 
         $donation_id = (int) $wpdb->insert_id;
+
+        CampaignRepository::flush_stats_cache();
+
         $payload = [
             'donation_id' => $donation_id,
             'email'       => $email,

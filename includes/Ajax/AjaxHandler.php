@@ -378,8 +378,6 @@ final class AjaxHandler {
     }
 
     private function handle_checkout_session_completed( array $session ): void {
-        global $wpdb;
-
         $meta           = $session['metadata'] ?? [];
         $email          = sanitize_email( $meta['donor_email'] ?? '' );
         $first_name     = sanitize_text_field( $meta['donor_first_name'] ?? '' );
@@ -397,6 +395,8 @@ final class AjaxHandler {
             ? ( ( new CampaignRepository() )->find_by_slug( $campaign )?->get_id() ?? 0 )
             : 0;
 
+        // La référence de remboursement gateway (payment_intent) est déjà
+        // persistée par PaymentProcessor::process() — aucune écriture ici.
         ( new PaymentProcessor() )->process(
             gateway:        'stripe',
             transaction_id: $transaction_id,
@@ -412,18 +412,6 @@ final class AjaxHandler {
             stripe_subscription_id: $stripe_subscription_id,
             gateway_refund_ref: $payment_intent_id
         );
-
-        // Stocker la référence de remboursement gateway (Stripe: payment_intent_id)
-        if ( $payment_intent_id && $transaction_id ) {
-            $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-                $wpdb->prefix . 'givoly_donations',
-                [ 'gateway_refund_ref' => $payment_intent_id ],
-                [ 'gateway_transaction_id'   => $transaction_id ],
-                [ '%s' ],
-                [ '%s' ]
-            );
-        }
-
     }
 
     /**
@@ -544,6 +532,8 @@ final class AjaxHandler {
             [ '%s' ],
             [ '%d' ]
         );
+
+        CampaignRepository::flush_stats_cache();
     }
 
     public function handle_helloasso_webhook( \WP_REST_Request $request ): \WP_REST_Response {
@@ -706,5 +696,7 @@ final class AjaxHandler {
             [ '%s' ],
             [ '%d' ]
         );
+
+        CampaignRepository::flush_stats_cache();
     }
 }
