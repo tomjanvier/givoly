@@ -14,6 +14,12 @@
   <a href="#english">English</a> · <a href="#français">Français</a> · <a href="https://givoly.org/">Explore givoly.org</a> · <a href="https://plaidact.org/">PLAID·ACT</a>
 </p>
 
+## Instructions pour les contributeurs et agents
+
+> La lecture complète de [AGENTS.md](AGENTS.md) est obligatoire avant toute analyse, modification, validation, commit ou création de pull request. Ce fichier définit la stack, l’architecture, les conventions de code, les règles de sécurité, les commandes de validation et les garanties de compatibilité du projet.
+
+---
+
 > **Givoly is primarily designed for French nonprofits.** It includes French nonprofit fields such as SIRET and RNA, while remaining suitable for organizations using Stripe or HelloAsso anywhere.
 
 ---
