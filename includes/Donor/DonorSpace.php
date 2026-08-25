@@ -24,6 +24,10 @@ final class DonorSpace {
 
     public function register(): void {
         add_shortcode( 'givoly_donor_space', [ $this, 'render' ] );
+        // La consommation du magic link doit précéder tout envoi de contenu :
+        // elle déclenche une redirection (cookie + nettoyage d'URL), impossible
+        // depuis le rendu d'un shortcode quand les headers sont déjà partis.
+        add_action( 'init', [ $this, 'maybe_consume_magic_link' ], 1 );
         add_action( 'wp_ajax_givoly_donor_request_access', [ $this, 'request_access' ] );
         add_action( 'wp_ajax_nopriv_givoly_donor_request_access', [ $this, 'request_access' ] );
         add_action( 'wp_ajax_givoly_donor_open_portal', [ $this, 'open_stripe_portal' ] );
@@ -37,7 +41,6 @@ final class DonorSpace {
     }
 
     public function render(): string {
-        $this->consume_magic_link();
         wp_enqueue_style( 'givoly-donor-space' );
         wp_enqueue_script( 'givoly-donor-space' );
         wp_localize_script(
@@ -272,6 +275,21 @@ final class DonorSpace {
             </div>
         </section>
         <?php
+    }
+
+    /**
+     * Consomme le magic link présent dans l'URL, le cas échéant.
+     *
+     * Public : branché sur init (avant tout output). Ne fait rien sans les
+     * paramètres givoly_donor + givoly_access_token.
+     */
+    public function maybe_consume_magic_link(): void {
+        // Ne pas interférer avec les requêtes non frontend (cron, REST, AJAX).
+        if ( wp_doing_cron() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) || wp_doing_ajax() ) {
+            return;
+        }
+
+        $this->consume_magic_link();
     }
 
     private function consume_magic_link(): void {

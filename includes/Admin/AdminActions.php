@@ -81,6 +81,8 @@ final class AdminActions {
                 [ '%d' ]
             );
 
+            \Givoly\Repository\CampaignRepository::flush_stats_cache();
+
             wp_safe_redirect( add_query_arg( 'givoly_refunded', '1', $redirect_base ) );
 
         } catch ( \RuntimeException $e ) {

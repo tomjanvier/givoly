@@ -207,16 +207,17 @@
     function show_success_on_return() {
         if ( ! givolyData.success ) return;
 
-        const form = document.querySelector( '.givoly-form' );
-        if ( ! form ) return;
+        document.querySelectorAll( '.givoly-form' ).forEach( ( form ) => {
+            const messages = form.querySelector( '.givoly-form__messages' );
+            if ( ! messages ) return;
 
-        const messages = form.querySelector( '.givoly-form__messages' );
-        if ( ! messages ) return;
+            messages.hidden    = false;
+            messages.className = 'givoly-form__messages givoly-form__messages--success';
+            messages.textContent = givolyData.i18n.success_message;
+        } );
 
-        messages.hidden    = false;
-        messages.className = 'givoly-form__messages givoly-form__messages--success';
-        messages.textContent = givolyData.i18n.success_message;
-        messages.scrollIntoView( { behavior: 'smooth', block: 'nearest' } );
+        const first_messages = document.querySelector( '.givoly-form .givoly-form__messages' );
+        first_messages?.scrollIntoView( { behavior: 'smooth', block: 'nearest' } );
 
         // Nettoyer le paramètre de l'URL sans recharger la page
         const url = new URL( window.location.href );
@@ -262,15 +263,22 @@
 
     document.addEventListener( 'DOMContentLoaded', () => {
         document.querySelectorAll( '.givoly-form' ).forEach( ( form ) => new GivolyForm( form ) );
-        document.querySelectorAll( '.givoly-gateway-submit' ).forEach( ( btn ) => {
-            btn.addEventListener( 'click', () => {
-                const form = btn.closest( '.givoly-form' );
-                if ( ! form ) return;
-                const gateway = form.querySelector( '[name="gateway"]' );
-                if ( gateway ) {
-                    gateway.value = btn.dataset.gateway || 'stripe';
-                }
+        document.querySelectorAll( '.givoly-form' ).forEach( ( form ) => {
+            form.querySelectorAll( '.givoly-gateway-submit' ).forEach( ( btn ) => {
+                btn.addEventListener( 'click', () => {
+                    const gateway = form.querySelector( '[name="gateway"]' );
+                    if ( gateway ) {
+                        gateway.value = btn.dataset.gateway || 'stripe';
+                    }
 
+                    // État visuel : la passerelle choisie est mise en avant
+                    form.querySelectorAll( '.givoly-gateway-submit.is-active' ).forEach( ( active ) => {
+                        if ( active !== btn ) {
+                            active.classList.remove( 'is-active' );
+                        }
+                    } );
+                    btn.classList.add( 'is-active' );
+                } );
             } );
         } );
         show_success_on_return();

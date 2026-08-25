@@ -4,7 +4,7 @@ Tags: donation, nonprofit, stripe, helloasso, fundraising
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 8.1
-Stable tag: 1.4.0
+Stable tag: 1.5.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -21,6 +21,7 @@ Built and maintained by [PLAID·ACT](https://plaidact.org), Givoly is free softw
 = What Givoly includes =
 
 * Donation forms with `[givoly_form]`, five visual themes, and card, inline, or flat layouts.
+* Native Gutenberg blocks for the donation form, campaign widget, and total widget, with live previews.
 * Stripe Checkout and HelloAsso payments, with signed webhooks and WP-Cron reconciliation for missed payments.
 * Recurring Stripe donation handling, including paid invoice imports, subscription management, and refunds from the donations screen.
 * Donor records, a secure passwordless donor area via `[givoly_donor_space]`, donation history, and PDF downloads.
@@ -29,6 +30,7 @@ Built and maintained by [PLAID·ACT](https://plaidact.org), Givoly is free softw
 * Customizable emails, queued delivery, annual receipt summaries, and individual or batch PDF receipt sending.
 * CSV exports protected against spreadsheet formula injection.
 * French nonprofit fields including SIRET, RNA, and tax approval information.
+* GDPR tools: personal data export and erasure through WordPress's native privacy screens.
 
 = Quick start =
 
@@ -121,6 +123,14 @@ HelloAsso is used only when enabled by the administrator and chosen for a paymen
 * Privacy: https://www.helloasso.com/confidentialite
 
 == Changelog ==
+
+= 1.5.0 =
+* Added native Gutenberg blocks for the donation form, campaign, and total widgets, with server-rendered previews.
+* Added GDPR personal data exporter and eraser integrated with WordPress privacy tools; erasure anonymizes donor records while retaining donation amounts for accounting obligations.
+* Cached public campaign statistics with automatic invalidation on new donations and refunds, removing aggregate queries on every page view.
+* Removed a redundant database write in the Stripe checkout webhook.
+* Fixed donor magic-link consumption so the redirect happens before any page output.
+* Donation forms now show success messages on every form of the page after payment, and gateway buttons reflect the selected payment method.
 
 = 1.4.0 =
 * Added HelloAsso v5 synchronization and Stripe recurring-payment reconciliation.

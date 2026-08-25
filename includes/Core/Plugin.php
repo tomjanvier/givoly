@@ -38,6 +38,7 @@ final class Plugin {
     public function boot(): void {
         Installer::maybe_upgrade();
         ( new \Givoly\Core\AssetsLoader() )->register();
+        ( new \Givoly\Core\Privacy() )->register();
         ( new \Givoly\Mail\MailQueue() )->register();
         ( new \Givoly\Integration\StripeSync() )->register();
         ( new \Givoly\Integration\HelloAssoSync() )->register();
@@ -45,6 +46,7 @@ final class Plugin {
         ( new \Givoly\Admin\AdminActions() )->register();
         ( new \Givoly\Admin\Pages\SettingsPage() )->register();
         ( new \Givoly\Form\ShortcodeManager() )->register();
+        ( new \Givoly\Form\BlockRegistrar() )->register();
         ( new \Givoly\Ajax\AjaxHandler() )->register();
         ( new \Givoly\Donor\DonorSpace() )->register();
     }

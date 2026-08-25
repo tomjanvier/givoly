@@ -88,6 +88,7 @@ foreach ( [
     'givoly_ha_expires_at',
     'givoly_helloasso_last_sync_at',
     'givoly_stripe_last_invoice_sync_at',
+    'givoly_stats_cache_version',
 ] as $givoly_option ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
     delete_option( $givoly_option );
 
