@@ -145,6 +145,21 @@ final class PaymentProcessor {
             // Les webhooks restent rapides : SMTP est traité par WP-Cron.
             MailQueue::enqueue( 'donation_admin', $payload, (string) get_option( 'admin_email' ) );
             MailQueue::enqueue( 'donation_thank', $payload, $email );
+
+            // Le placement après l'idempotence et les traitements internes
+            // garantit un déclenchement unique sans interrompre les emails.
+            $this->fire_donation_completed(
+                donation_id:    $donation_id,
+                gateway:        $gateway,
+                transaction_id: $transaction_id,
+                email:          $email,
+                first_name:     $first_name,
+                last_name:      $last_name,
+                amount_cents:   $amount_cents,
+                currency:       strtoupper( $currency ),
+                campaign:       $campaign,
+                occurred_at:    gmdate( 'Y-m-d\TH:i:s\Z' )
+            );
         }
     }
 
@@ -211,10 +226,63 @@ final class PaymentProcessor {
             \Givoly\Mail\TaxReceiptService::enqueue( (int) gmdate( 'Y', strtotime( $date ) ), [ (int) $donor_id ] );
         }
 
+        // La date exposée reflète le choix de l'administrateur, pas la saisie.
+        $this->fire_donation_completed(
+            donation_id:    $donation_id,
+            gateway:        $gateway,
+            transaction_id: $transaction_id,
+            email:          $email,
+            first_name:     $first_name,
+            last_name:      $last_name,
+            amount_cents:   $amount_cents,
+            currency:       'EUR',
+            campaign:       '',
+            occurred_at:    gmdate( 'Y-m-d\TH:i:s\Z', strtotime( $created_at ) )
+        );
+
         return $donation_id;
     }
 
-// ── Helpers privés ─────────────────────────────────────────────────────
+    /**
+     * Publie une représentation stable du don pour les intégrations tierces.
+     */
+    private function fire_donation_completed(
+        int $donation_id,
+        string $gateway,
+        string $transaction_id,
+        string $email,
+        string $first_name,
+        string $last_name,
+        int $amount_cents,
+        string $currency,
+        string $campaign,
+        string $occurred_at
+    ): void {
+        $donation = [
+            'donation_id'    => $donation_id,
+            'gateway'        => $gateway,
+            'transaction_id' => $transaction_id,
+            'email'          => $email,
+            'first_name'     => $first_name,
+            'last_name'      => $last_name,
+            'amount_cents'   => $amount_cents,
+            'currency'       => $currency,
+            'campaign'       => $campaign,
+            'occurred_at'    => $occurred_at,
+        ];
+
+        /**
+         * Déclenchée après l'enregistrement d'un don confirmé et les contrôles
+         * d'idempotence, quelle que soit la passerelle utilisée.
+         *
+         * @since 1.5.0
+         *
+         * @param array<string,int|string> $donation Don normalisé destiné aux intégrations.
+         */
+        do_action( 'givoly_donation_completed', $donation );
+    }
+
+    // ── Fonctions privées ──────────────────────────────────────────────────
 
     private function get_or_create_donor( string $email, string $first_name, string $last_name ): int|false {
         global $wpdb;

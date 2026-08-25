@@ -126,6 +126,7 @@ HelloAsso is used only when enabled by the administrator and chosen for a paymen
 
 = 1.5.0 =
 * Added native Gutenberg blocks for the donation form, campaign, and total widgets, with server-rendered previews.
+* Added the `givoly_donation_completed` action for third-party integrations, fired once per confirmed donation across all gateways.
 * Added GDPR personal data exporter and eraser integrated with WordPress privacy tools; erasure anonymizes donor records while retaining donation amounts for accounting obligations.
 * Cached public campaign statistics with automatic invalidation on new donations and refunds, removing aggregate queries on every page view.
 * Removed a redundant database write in the Stripe checkout webhook.
