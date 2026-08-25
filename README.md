@@ -121,6 +121,17 @@ Stripe et HelloAsso ne sont contactés que lorsqu’ils sont activés et utilis�
 
 Pour modifier le style d’un formulaire, utilisez le module **CSS additionnel** natif de WordPress. Givoly ne stocke ni n’exécute de CSS arbitraire.
 
+### Action pour développeurs
+
+`givoly_donation_completed` — déclenchée une seule fois par don confirmé, toutes passerelles confondues (Stripe, HelloAsso, saisie manuelle), après l’enregistrement en base et les contrôles d’idempotence. Permet aux extensions tierces (CRM, plateforme de plaidoyer…) de réagir à chaque don validé :
+
+```php
+add_action( 'givoly_donation_completed', function ( array $donation ) {
+    // $donation : donation_id, gateway, transaction_id, email,
+    // first_name, last_name, amount_cents, currency, campaign, occurred_at.
+} );
+```
+
 ---
 
 ## License · Licence

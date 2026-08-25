@@ -132,6 +132,24 @@ final class PaymentProcessor {
         if ( $donation_id > 0 ) {
             CampaignRepository::flush_stats_cache();
 
+            // Action standard de confirmation : permet aux modules tiers
+            // (CRM, plateforme de plaidoyer…) de réagir à chaque don validé,
+            // quelle que soit la passerelle et y compris via les webhooks.
+            // Le placement après l'idempotence garantit un déclenchement
+            // unique par don réel.
+            do_action( 'givoly_donation_completed', [
+                'donation_id'    => $donation_id,
+                'gateway'        => $gateway,
+                'transaction_id' => $transaction_id,
+                'email'          => $email,
+                'first_name'     => $first_name,
+                'last_name'      => $last_name,
+                'amount_cents'   => $amount_cents,
+                'currency'       => strtoupper( $currency ),
+                'campaign'       => $campaign,
+                'occurred_at'    => gmdate( 'Y-m-d\TH:i:s\Z' ),
+            ] );
+
             $payload = [
                 'donation_id' => $donation_id,
                 'email'       => $email,
@@ -194,6 +212,23 @@ final class PaymentProcessor {
         $donation_id = (int) $wpdb->insert_id;
 
         CampaignRepository::flush_stats_cache();
+
+        // Même action de confirmation que pour les paiements en ligne :
+        // les dons saisis manuellement doivent être visibles des intégrations.
+        // occurred_at reflète la date choisie par l'administrateur, pas la
+        // date de saisie.
+        do_action( 'givoly_donation_completed', [
+            'donation_id'    => $donation_id,
+            'gateway'        => $gateway,
+            'transaction_id' => $transaction_id,
+            'email'          => $email,
+            'first_name'     => $first_name,
+            'last_name'      => $last_name,
+            'amount_cents'   => $amount_cents,
+            'currency'       => 'EUR',
+            'campaign'       => '',
+            'occurred_at'    => gmdate( 'Y-m-d\TH:i:s\Z', strtotime( $created_at ) ),
+        ] );
 
         $payload = [
             'donation_id' => $donation_id,
