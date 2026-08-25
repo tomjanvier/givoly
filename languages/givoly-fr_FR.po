@@ -32,6 +32,18 @@ msgstr "Accès refusé."
 msgid "Givoly"
 msgstr "Givoly"
 
+#: includes/Form/BlockRegistrar.php:67 assets/js/givoly-blocks.js:143
+msgid "Givoly donation form"
+msgstr "Formulaire de don Givoly"
+
+#: includes/Form/BlockRegistrar.php:90 assets/js/givoly-blocks.js:178
+msgid "Givoly campaign"
+msgstr "Campagne Givoly"
+
+#: includes/Form/BlockRegistrar.php:111 assets/js/givoly-blocks.js:211
+msgid "Givoly campaign total"
+msgstr "Total de campagne Givoly"
+
 #: includes/Admin/AdminMenu.php:34
 msgid "Dashboard"
 msgstr "Tableau de bord"
@@ -1017,8 +1029,8 @@ msgstr "Givoly — Profil donateur et dons"
 msgid "Givoly — Donor data eraser"
 msgstr "Givoly — Effacement des données donateurs"
 
-#. translators: %d is the donation position in the exported history.
-#: includes/Core/Privacy.php:94
+#. translators: %d correspond à la position du don dans l'historique exporté.
+#: includes/Core/Privacy.php:107
 #, php-format
 msgid "Donation %1$d — %2$s"
 msgstr "Don %1$d — %2$s"
