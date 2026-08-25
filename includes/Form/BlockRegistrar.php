@@ -51,10 +51,21 @@ final class BlockRegistrar {
             return;
         }
 
+        wp_register_script(
+            'givoly-blocks',
+            GIVOLY_PLUGIN_URL . 'assets/js/givoly-blocks.js',
+            [ 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n', 'wp-server-side-render' ],
+            GIVOLY_VERSION,
+            true
+        );
+        wp_set_script_translations( 'givoly-blocks', 'givoly' );
+
         register_block_type(
             'givoly/form',
             [
                 'api_version'     => 2,
+                'title'           => __( 'Givoly donation form', 'givoly' ),
+                'category'        => 'givoly',
                 'editor_script'   => 'givoly-blocks',
                 'render_callback' => [ $this, 'render_form_block' ],
                 'attributes'      => [
@@ -76,6 +87,8 @@ final class BlockRegistrar {
             'givoly/campaign',
             [
                 'api_version'     => 2,
+                'title'           => __( 'Givoly campaign', 'givoly' ),
+                'category'        => 'givoly',
                 'editor_script'   => 'givoly-blocks',
                 'render_callback' => [ $this, 'render_campaign_block' ],
                 'attributes'      => [
@@ -95,6 +108,8 @@ final class BlockRegistrar {
             'givoly/total',
             [
                 'api_version'     => 2,
+                'title'           => __( 'Givoly campaign total', 'givoly' ),
+                'category'        => 'givoly',
                 'editor_script'   => 'givoly-blocks',
                 'render_callback' => [ $this, 'render_total_block' ],
                 'attributes'      => [
@@ -143,15 +158,6 @@ final class BlockRegistrar {
     // ── Assets éditeur ─────────────────────────────────────────────────────
 
     public function enqueue_editor_assets(): void {
-        wp_enqueue_script(
-            'givoly-blocks',
-            GIVOLY_PLUGIN_URL . 'assets/js/givoly-blocks.js',
-            [ 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n', 'wp-server-side-render' ],
-            GIVOLY_VERSION,
-            true
-        );
-        wp_set_script_translations( 'givoly-blocks', 'givoly' );
-
         // Le CSS public garantit un aperçu fidèle des formulaires dans l'éditeur.
         wp_enqueue_style(
             'givoly-frontend-editor-preview',

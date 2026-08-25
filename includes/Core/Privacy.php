@@ -6,10 +6,11 @@
  *   Réglages > Confidentialité > Exporter / Effacer les données personnelles.
  *
  * L'exporteur restitue la fiche donateur et l'historique complet des dons.
- * L'effaceur anonymise la fiche donateur (noms, coordonnées, identifiants
- * Stripe, jetons) et purge le message libre associé à chaque don. Les montants
- * sont conservés : une association a l'obligation légale de garder la trace
- * de ses recettes (comptabilité, justificatifs fiscaux).
+ * L'effaceur anonymise la fiche donateur (référence, compte WordPress, noms,
+ * coordonnées, identifiants Stripe, jetons), purge les sessions et la file
+ * d'emails correspondante, puis retire le message libre associé à chaque don.
+ * Les montants sont conservés : une association a l'obligation légale de
+ * garder la trace de ses recettes (comptabilité, justificatifs fiscaux).
  *
  * @package Givoly\Core
  */
@@ -21,6 +22,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 final class Privacy {
+
+    private const EXPORT_PAGE_SIZE = 100;
 
     public function register(): void {
         add_filter( 'wp_privacy_personal_data_exporters', [ $this, 'register_exporter' ] );
@@ -49,9 +52,10 @@ final class Privacy {
 
     /**
      * @param string $email_address
+     * @param int    $page Numéro de page demandé par WordPress.
      * @return array{data: list<array{group_id:string, group_label:string, items:array<int,array<string,mixed>>}>, done:bool}
      */
-    public function export_donor_data( string $email_address ): array {
+    public function export_donor_data( string $email_address, int $page = 1 ): array {
         global $wpdb;
 
         $email = sanitize_email( $email_address );
@@ -64,16 +68,21 @@ final class Privacy {
             return [ 'data' => [], 'done' => true ];
         }
 
+        $page          = max( 1, $page );
+        $offset        = ( $page - 1 ) * self::EXPORT_PAGE_SIZE;
         $profile_items = [];
         $donation_items = [];
+        $donations_read = 0;
 
         foreach ( $donors as $donor ) {
-            foreach ( $this->donor_export_fields( $donor ) as $key => $value ) {
-                if ( $value !== '' && $value !== null ) {
-                    $profile_items[] = [
-                        'name'  => $key,
-                        'value' => $value,
-                    ];
+            if ( 1 === $page ) {
+                foreach ( $this->donor_export_fields( $donor ) as $key => $value ) {
+                    if ( $value !== '' && $value !== null ) {
+                        $profile_items[] = [
+                            'name'  => $key,
+                            'value' => $value,
+                        ];
+                    }
                 }
             }
 
@@ -81,17 +90,21 @@ final class Privacy {
             $rows    = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->prepare(
                     "SELECT amount, currency, status, gateway, donor_message AS campaign_label, created_at
-                     FROM {$table_d} WHERE donor_id = %d ORDER BY created_at DESC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
-                    (int) $donor->id
+                     FROM {$table_d} WHERE donor_id = %d ORDER BY created_at DESC LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
+                    (int) $donor->id,
+                    self::EXPORT_PAGE_SIZE,
+                    $offset
                 ),
                 ARRAY_A
             );
 
+            $donations_read += count( $rows ?: [] );
+
             foreach ( $rows ?: [] as $index => $row ) {
                 foreach ( $this->donation_export_fields( $row ) as $key => $value ) {
                     $donation_items[] = [
-                        // translators: %d is the donation position in the exported history.
-                        'name'  => sprintf( __( 'Donation %1$d — %2$s', 'givoly' ), $index + 1, $key ),
+                        // translators: %d correspond à la position du don dans l'historique exporté.
+                        'name'  => sprintf( __( 'Donation %1$d — %2$s', 'givoly' ), $offset + $index + 1, $key ),
                         'value' => $value,
                     ];
                 }
@@ -116,7 +129,7 @@ final class Privacy {
             ];
         }
 
-        return [ 'data' => $data, 'done' => true ];
+        return [ 'data' => $data, 'done' => $donations_read < self::EXPORT_PAGE_SIZE ];
     }
 
     /**
@@ -162,9 +175,11 @@ final class Privacy {
      * Les lignes de dons sont conservées (obligations comptables) mais
      * détachées de toute donnée personnelle.
      *
+     * @param string $email_address Adresse validée par WordPress.
+     * @param int    $page Numéro de page demandé par WordPress.
      * @return array{items_removed:int, items_retained:int, messages:array<int,string>, done:bool}
      */
-    public function erase_donor_data( string $email_address ): array {
+    public function erase_donor_data( string $email_address, int $page = 1 ): array {
         global $wpdb;
 
         $response = [
@@ -179,6 +194,12 @@ final class Privacy {
             return $response;
         }
 
+        // L'effacement est atomique ; les appels de pagination suivants n'ont
+        // plus de fiche correspondant à l'adresse d'origine.
+        if ( $page > 1 ) {
+            return $response;
+        }
+
         $donors = $this->get_donors_by_email( $email );
         if ( ! $donors ) {
             return $response;
@@ -190,6 +211,8 @@ final class Privacy {
         foreach ( $donors as $donor ) {
             $donor_id = (int) $donor->id;
 
+            $this->delete_donor_sessions( $donor_id );
+
             // Message libre saisi par le donateur sur chaque don : purgé.
             $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->prepare(
@@ -200,6 +223,7 @@ final class Privacy {
 
             $anonymized = [
                 'email'                  => $this->anonymous_email( (string) $donor->email ),
+                'donor_reference'        => 'PA-ANON-' . $donor_id,
                 'first_name'             => '',
                 'last_name'              => '',
                 'company'                => null,
@@ -208,6 +232,8 @@ final class Privacy {
                 'postal_code'            => null,
                 'city'                   => null,
                 'phone'                  => null,
+                'country'                => '',
+                'wp_user_id'             => null,
                 'stripe_customer_id'     => null,
                 'stripe_subscription_id' => null,
                 'magic_token_hash'       => null,
@@ -227,6 +253,24 @@ final class Privacy {
                 $response['items_removed']++;
             }
         }
+
+        // La file persistante contient le destinataire et une copie JSON des
+        // noms et de l'adresse. Ces données opérationnelles n'ont pas à être
+        // conservées après une demande d'effacement validée.
+        $table_mail = esc_sql( $wpdb->prefix . 'givoly_email_jobs' );
+        $mail_rows  = $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->prepare(
+                "DELETE FROM {$table_mail} WHERE LOWER( recipient ) = LOWER( %s ) OR payload LIKE %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
+                $email,
+                '%' . $wpdb->esc_like( $email ) . '%'
+            )
+        );
+
+        if ( is_int( $mail_rows ) && $mail_rows > 0 ) {
+            $response['items_removed'] += $mail_rows;
+        }
+
+        $this->delete_checkout_profiles( $email );
 
         $completed = 0;
         foreach ( $donors as $donor ) {
@@ -248,6 +292,50 @@ final class Privacy {
         }
 
         return $response;
+    }
+
+    /**
+     * Invalide les sessions actives pour empêcher l'accès à la fiche anonymisée.
+     */
+    private function delete_donor_sessions( int $donor_id ): void {
+        global $wpdb;
+
+        $prefix = $wpdb->esc_like( '_transient_givoly_donor_session_' ) . '%';
+        $rows   = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->prepare(
+                "SELECT option_name, option_value FROM {$wpdb->options} WHERE option_name LIKE %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
+                $prefix
+            ),
+            ARRAY_A
+        );
+
+        foreach ( $rows ?: [] as $row ) {
+            $session = maybe_unserialize( $row['option_value'] ?? '' );
+            if ( is_array( $session ) && (int) ( $session['donor_id'] ?? 0 ) === $donor_id ) {
+                $key = substr( (string) $row['option_name'], strlen( '_transient_' ) );
+                delete_transient( $key );
+            }
+        }
+    }
+
+    /**
+     * Supprime les profils de paiement encore temporaires qui contiennent l'adresse.
+     */
+    private function delete_checkout_profiles( string $email ): void {
+        global $wpdb;
+
+        $rows = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->prepare(
+                "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s AND option_value LIKE %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
+                $wpdb->esc_like( '_transient_givoly_checkout_profile_' ) . '%',
+                '%' . $wpdb->esc_like( $email ) . '%'
+            )
+        );
+
+        foreach ( $rows ?: [] as $option_name ) {
+            $key = substr( (string) $option_name, strlen( '_transient_' ) );
+            delete_transient( $key );
+        }
     }
 
     /**

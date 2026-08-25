@@ -38,7 +38,7 @@
         return;
     }
 
-    // ── Helpers ────────────────────────────────────────────────────────────
+    // ── Fonctions utilitaires ──────────────────────────────────────────────
 
     function textControl( label, value, onChange, help ) {
         if ( ! TextControl ) {
@@ -140,6 +140,8 @@
     // ── Bloc : formulaire de don ───────────────────────────────────────────
 
     blocks.registerBlockType( 'givoly/form', {
+        title: __( 'Givoly donation form', 'givoly' ),
+        category: 'givoly',
         icon: 'heart',
         keywords: [ __( 'donation', 'givoly' ), __( 'donate', 'givoly' ), __( 'form', 'givoly' ) ],
         edit: function ( props ) {
@@ -173,6 +175,8 @@
     // ── Bloc : campagne ────────────────────────────────────────────────────
 
     blocks.registerBlockType( 'givoly/campaign', {
+        title: __( 'Givoly campaign', 'givoly' ),
+        category: 'givoly',
         icon: 'megaphone',
         keywords: [ __( 'campaign', 'givoly' ), __( 'fundraising', 'givoly' ), __( 'goal', 'givoly' ) ],
         edit: function ( props ) {
@@ -204,6 +208,8 @@
     // ── Bloc : total collecté ──────────────────────────────────────────────
 
     blocks.registerBlockType( 'givoly/total', {
+        title: __( 'Givoly campaign total', 'givoly' ),
+        category: 'givoly',
         icon: 'chart-bar',
         keywords: [ __( 'total', 'givoly' ), __( 'progress', 'givoly' ), __( 'raised', 'givoly' ) ],
         edit: function ( props ) {
