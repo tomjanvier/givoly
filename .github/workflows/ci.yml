@@ -20,6 +20,9 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Install gettext
+        run: sudo apt-get update && sudo apt-get install -y gettext
+
       - name: PHP syntax
         run: find . -name '*.php' -print0 | xargs -0 -n1 php -l
 
