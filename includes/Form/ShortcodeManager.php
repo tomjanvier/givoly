@@ -46,6 +46,16 @@ final class ShortcodeManager {
             'class'       => '',
         ], $atts, 'givoly_form' );
 
+        // Héritage de la devise : un formulaire rattaché à une campagne utilise
+        // toujours la devise enregistrée de cette campagne.
+        $campaign_slug = sanitize_text_field( $atts['campaign'] ?? '' );
+        if ( $campaign_slug !== '' ) {
+            $campaign = ( new \Givoly\Repository\CampaignRepository() )->find_by_slug( $campaign_slug );
+            if ( $campaign ) {
+                $atts['currency'] = $campaign->get_currency();
+            }
+        }
+
         // Charger les assets uniquement quand le shortcode est présent
         wp_enqueue_style( 'givoly-frontend' );
         wp_enqueue_script( 'givoly-frontend' );

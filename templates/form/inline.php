@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 $form_id = 'givoly-form-' . wp_unique_id();
 $show_stripe_gateway = in_array( $config->gateway, [ 'stripe', 'both' ], true );
-$show_helloasso_gateway = in_array( $config->gateway, [ 'helloasso', 'both' ], true );
+$show_helloasso_gateway = in_array( $config->gateway, [ 'helloasso', 'both' ], true ) && $config->currency === 'EUR';
 $default_form_gateway = $show_stripe_gateway ? 'stripe' : 'helloasso';
 
 $symbol = $config->get_currency_symbol();

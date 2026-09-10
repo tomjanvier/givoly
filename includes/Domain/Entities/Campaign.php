@@ -46,7 +46,10 @@ final class Campaign {
 
     /**
      * Une campagne est active si son statut est 'active'
-     * ET qu'elle n'est pas encore arrivée à échéance.
+     * ET qu'elle est dans sa période de validité.
+     *
+     * La date de fin est inclusive (fin de journée) : une campagne dont
+     * l'end_date est aujourd'hui reste donnable toute la journée.
      *
      * @param \DateTimeImmutable|null $now Injecté pour la testabilité (défaut : maintenant).
      */
@@ -57,7 +60,12 @@ final class Campaign {
 
         $now ??= new \DateTimeImmutable();
 
-        if ( $this->end_date !== null && $this->end_date < $now ) {
+        // Hors période de début : pas encore ouverte.
+        if ( $this->start_date !== null && $now < $this->start_date->setTime( 0, 0, 0 ) ) {
+            return false;
+        }
+
+        if ( $this->end_date !== null && $now > $this->end_date->setTime( 23, 59, 59 ) ) {
             return false;
         }
 
@@ -67,7 +75,10 @@ final class Campaign {
     /**
      * Une campagne est terminée si :
      *  - son statut est 'ended' ou 'archived', OU
-     *  - sa date de fin est passée (même si le statut est encore 'active')
+     *  - sa date de fin est passée (fin de journée incluse).
+     *
+     * Une campagne future (start_date à venir) n'est pas terminée : elle est
+     * simplement hors période et ne doit pas afficher de formulaire.
      *
      * @param \DateTimeImmutable|null $now Injecté pour la testabilité.
      */
@@ -79,7 +90,16 @@ final class Campaign {
 
         $now ??= new \DateTimeImmutable();
 
-        return $this->end_date !== null && $this->end_date < $now;
+        return $this->end_date !== null && $now > $this->end_date->setTime( 23, 59, 59 );
+    }
+
+    /**
+     * Indique si la campagne peut recevoir un don maintenant.
+     *
+     * Faux pour les brouillons, les campagnes terminées/archivées et hors période.
+     */
+    public function can_accept_donations( ?\DateTimeImmutable $now = null ): bool {
+        return $this->is_active( $now );
     }
 
     public function has_goal(): bool {

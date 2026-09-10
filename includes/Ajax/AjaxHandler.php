@@ -110,6 +110,33 @@ final class AjaxHandler {
             wp_send_json_error( [ 'message' => __( 'Invalid email address.', 'givoly' ) ], 422 );
         }
 
+        // Validation stricte de la devise : whitelist + contrainte HelloAsso EUR uniquement.
+        if ( ! \Givoly\Form\FormConfig::is_supported_currency( $currency ) ) {
+            wp_send_json_error( [ 'message' => __( 'Invalid currency.', 'givoly' ) ], 422 );
+        }
+        if ( $gateway_key === 'helloasso' && ! \Givoly\Form\FormConfig::is_supported_for_gateway( $currency, 'helloasso' ) ) {
+            wp_send_json_error( [ 'message' => __( 'HelloAsso only supports payments in euros.', 'givoly' ) ], 422 );
+        }
+
+        // Validation de la campagne : le slug doit exister et la devise
+        // enregistrée doit correspondre à celle du formulaire.
+        if ( $campaign !== '' ) {
+            $campaign_obj = ( new CampaignRepository() )->find_by_slug( $campaign );
+            if ( ! $campaign_obj ) {
+                wp_send_json_error( [ 'message' => __( 'Unknown campaign.', 'givoly' ) ], 422 );
+            }
+            if ( strtoupper( $campaign_obj->get_currency() ) !== $currency ) {
+                wp_send_json_error( [ 'message' => __( 'The currency does not match the campaign currency.', 'givoly' ) ], 422 );
+            }
+            if ( ! $campaign_obj->can_accept_donations() ) {
+                wp_send_json_error( [ 'message' => __( 'This campaign is not accepting donations at the moment.', 'givoly' ) ], 422 );
+            }
+            // HelloAsso reste EUR uniquement même via une campagne non EUR.
+            if ( $gateway_key === 'helloasso' && strtoupper( $campaign_obj->get_currency() ) !== 'EUR' ) {
+                wp_send_json_error( [ 'message' => __( 'HelloAsso only supports payments in euros.', 'givoly' ) ], 422 );
+            }
+        }
+
         $post_payment_token = $this->generate_post_payment_token();
 
         try {
@@ -601,7 +628,9 @@ final class AjaxHandler {
         $payment_meta   = is_array( $payment['metadata'] ?? null ) ? $payment['metadata'] : [];
         $metadata       = array_merge( $metadata, $payment_meta );
         $campaign       = sanitize_text_field( (string) ( $metadata['campaign'] ?? '' ) );
-        $currency       = strtoupper( sanitize_text_field( (string) ( $metadata['currency'] ?? $payment['currency'] ?? 'EUR' ) ) );
+        // HelloAsso ne traite que l'euro : forcer EUR côté serveur même si un
+        // metadata historique porte une autre devise.
+        $currency       = 'EUR';
         $email          = sanitize_email( (string) ( $payment_payer['email'] ?? $data['payerEmail'] ?? $order['payerEmail'] ?? '' ) );
         $first_name     = sanitize_text_field( (string) ( $payment_payer['firstName'] ?? $payment_payer['firstname'] ?? '' ) );
         $last_name      = sanitize_text_field( (string) ( $payment_payer['lastName'] ?? $payment_payer['lastname'] ?? '' ) );

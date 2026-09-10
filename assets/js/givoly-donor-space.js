@@ -67,18 +67,25 @@
 
         document.querySelectorAll( '[data-givoly-cancel-start]' ).forEach( function ( button ) {
             button.addEventListener( 'click', function () {
-                var retention = button.closest( '.givoly-donor-space__subscription' ).querySelector( '[data-givoly-retention]' );
+                var wrapper = button.closest( '.givoly-donor-space__subscription' );
+                var retention = wrapper.querySelector( '[data-givoly-retention]' );
                 retention.hidden = false;
-                button.hidden = true;
+                // Mémoriser l'abonnement visé pour la confirmation.
+                retention.dataset.subscriptionId = button.getAttribute( 'data-subscription-id' ) || '';
+                wrapper.querySelectorAll( '[data-givoly-cancel-start]' ).forEach( function ( other ) {
+                    other.hidden = true;
+                } );
             } );
         } );
 
         document.querySelectorAll( '[data-givoly-cancel-confirm]' ).forEach( function ( button ) {
             button.addEventListener( 'click', function () {
                 var wrapper = button.closest( '.givoly-donor-space__subscription' );
+                var retention = wrapper.querySelector( '[data-givoly-retention]' );
                 var message = wrapper.querySelector( '[data-givoly-message]' );
+                var subscriptionId = retention.dataset.subscriptionId || '';
                 button.disabled = true;
-                request( 'givoly_donor_cancel_subscription' ).then( function ( result ) {
+                request( 'givoly_donor_cancel_subscription', { subscription_id: subscriptionId } ).then( function ( result ) {
                     showMessage( message, result.data && result.data.message ? result.data.message : window.givolyDonorSpaceData.i18n.genericError, ! result.success );
                 } ).catch( function () {
                     showMessage( message, window.givolyDonorSpaceData.i18n.genericError, true );

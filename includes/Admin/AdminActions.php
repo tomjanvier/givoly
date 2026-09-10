@@ -27,6 +27,10 @@ final class AdminActions {
         add_action( 'admin_post_givoly_queue_tax_receipts', [ $this, 'handle_queue_tax_receipts' ] );
         add_action( 'admin_post_givoly_add_manual_donation', [ $this, 'handle_add_manual_donation' ] );
         add_action( 'admin_post_givoly_update_donor', [ $this, 'handle_update_donor' ] );
+        add_action( 'admin_post_givoly_platform_check', [ $this, 'handle_platform_check' ] );
+        add_action( 'admin_post_givoly_platform_register', [ $this, 'handle_platform_register' ] );
+        add_action( 'admin_post_givoly_platform_sync_campaigns', [ $this, 'handle_platform_sync_campaigns' ] );
+        add_action( 'admin_post_givoly_platform_sync_now', [ $this, 'handle_platform_sync_now' ] );
         // Compatibilité avec l'action utilisée par les versions précédentes.
         add_action( 'admin_post_givoly_send_yearly_tax_receipts', [ $this, 'handle_send_yearly_tax_receipts' ] );
     }
@@ -94,37 +98,63 @@ final class AdminActions {
     }
 
     public function handle_cancel_subscription(): void {
-        $donation_id = absint( wp_unslash( $_POST['donation_id'] ?? 0 ) );
+        // Annulation explicite d'un abonnement : l'identifiant Stripe exact est
+        // requis. On n'agit jamais depuis le seul champ historique
+        // donors.stripe_subscription_id. Un donation_id isolé ne suffit pas :
+        // seul donations.stripe_subscription_id (rattachement exact) est accepté
+        // en repli, après vérification dans la table d'abonnements.
+        $subscription_id_raw = sanitize_text_field( wp_unslash( $_POST['subscription_id'] ?? '' ) );
+        $donation_id         = absint( wp_unslash( $_POST['donation_id'] ?? 0 ) );
 
-        check_admin_referer( 'givoly_cancel_subscription_' . $donation_id );
+        $nonce_id = $subscription_id_raw !== '' ? $subscription_id_raw : (string) $donation_id;
+        check_admin_referer( 'givoly_cancel_subscription_' . $nonce_id );
 
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( esc_html__( 'Access denied.', 'givoly' ) );
         }
 
         $redirect_base = admin_url( 'admin.php?page=givoly-donations' );
-        if ( ! $donation_id ) {
-            wp_safe_redirect( add_query_arg( 'givoly_subscription_cancel_error', '1', $redirect_base ) );
-            exit;
-        }
 
         global $wpdb;
 
-        $subscription_id = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-            $wpdb->prepare(
-                "SELECT dn.stripe_subscription_id
-                 FROM {$wpdb->prefix}givoly_donations d
-                 INNER JOIN {$wpdb->prefix}givoly_donors dn ON dn.id = d.donor_id
-                 WHERE d.id = %d AND d.gateway = 'stripe'
-                 LIMIT 1",
-                $donation_id
-            )
-        );
+        if ( $subscription_id_raw === '' && $donation_id > 0 ) {
+            // Repli strict : rattachement exact porté par la ligne de don elle-même.
+            $linked = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+                $wpdb->prepare(
+                    "SELECT stripe_subscription_id
+                     FROM {$wpdb->prefix}givoly_donations
+                     WHERE id = %d AND gateway = 'stripe'
+                     LIMIT 1",
+                    $donation_id
+                )
+            );
+            if ( is_string( $linked ) && $linked !== '' ) {
+                $subscription_id_raw = $linked;
+            }
+        }
 
-        if ( ! is_string( $subscription_id ) || $subscription_id === '' ) {
+        if ( $subscription_id_raw === '' ) {
             wp_safe_redirect( add_query_arg( 'givoly_subscription_cancel_error', '1', $redirect_base ) );
             exit;
         }
+
+        $subscription = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->prepare(
+                "SELECT id, donor_id, stripe_subscription_id, status
+                 FROM {$wpdb->prefix}givoly_subscriptions
+                 WHERE stripe_subscription_id = %s
+                 LIMIT 1",
+                $subscription_id_raw
+            ),
+            ARRAY_A
+        );
+
+        if ( ! $subscription || empty( $subscription['stripe_subscription_id'] ) ) {
+            wp_safe_redirect( add_query_arg( 'givoly_subscription_cancel_error', '1', $redirect_base ) );
+            exit;
+        }
+
+        $subscription_id = (string) $subscription['stripe_subscription_id'];
 
         try {
             $cancelled = ( new StripeGateway( Settings::get_stripe_secret_key() ) )->cancel_subscription_at_period_end( $subscription_id );
@@ -132,9 +162,11 @@ final class AdminActions {
                 throw new \RuntimeException( 'Stripe did not confirm the scheduled cancellation.' );
             }
 
+            ( new \Givoly\Repository\SubscriptionRepository() )->mark_cancel_at_period_end( (int) $subscription['id'] );
+
             wp_safe_redirect( add_query_arg( 'givoly_subscription_cancelled', '1', $redirect_base ) );
         } catch ( \Throwable $exception ) {
-            error_log( '[Givoly] Erreur annulation abonnement #' . $donation_id . ' : ' . \Givoly\Core\Format::redact_secrets( $exception->getMessage() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            error_log( '[Givoly] Erreur annulation abonnement : ' . \Givoly\Core\Format::redact_secrets( $exception->getMessage() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
             wp_safe_redirect( add_query_arg( 'givoly_subscription_cancel_error', '1', $redirect_base ) );
         }
 
@@ -385,6 +417,78 @@ final class AdminActions {
             'givoly_tax_receipts_year'   => $year,
             'givoly_tax_receipts_batch'  => $result['batch_id'],
         ], admin_url( 'admin.php?page=givoly-donors' ) ) );
+        exit;
+    }
+
+    // ── Plateforme Givoly ────────────────────────────────────────────────
+    // Actions manuelles explicites : aucun appel distant n'est déclenché sans
+    // geste administrateur (ou file de dons confirmés si activée).
+
+    public function handle_platform_check(): void {
+        check_admin_referer( 'givoly_platform_check' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( esc_html__( 'Access denied.', 'givoly' ) );
+        }
+
+        $redirect_base = add_query_arg( [ 'page' => 'givoly-settings', 'tab' => 'platform' ], admin_url( 'admin.php' ) );
+        $ok            = ( new \Givoly\Integration\PlatformSync() )->check_now();
+
+        wp_safe_redirect( add_query_arg( $ok ? 'givoly_platform_ok' : 'givoly_platform_error', '1', $redirect_base ) );
+        exit;
+    }
+
+    public function handle_platform_register(): void {
+        check_admin_referer( 'givoly_platform_register' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( esc_html__( 'Access denied.', 'givoly' ) );
+        }
+
+        $redirect_base = add_query_arg( [ 'page' => 'givoly-settings', 'tab' => 'platform' ], admin_url( 'admin.php' ) );
+
+        try {
+            ( new \Givoly\Integration\PlatformSync() )->register_site_now();
+            wp_safe_redirect( add_query_arg( 'givoly_platform_registered', '1', $redirect_base ) );
+        } catch ( \Throwable $exception ) {
+            error_log( '[Givoly] Platform register failed: ' . \Givoly\Core\Format::redact_secrets( $exception->getMessage() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            \Givoly\Admin\Settings::record_platform_check( 'error', $exception->getMessage() );
+            wp_safe_redirect( add_query_arg( 'givoly_platform_error', '1', $redirect_base ) );
+        }
+        exit;
+    }
+
+    public function handle_platform_sync_campaigns(): void {
+        check_admin_referer( 'givoly_platform_sync_campaigns' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( esc_html__( 'Access denied.', 'givoly' ) );
+        }
+
+        $redirect_base = add_query_arg( [ 'page' => 'givoly-settings', 'tab' => 'platform' ], admin_url( 'admin.php' ) );
+
+        try {
+            $synced = ( new \Givoly\Integration\PlatformSync() )->sync_campaigns_now();
+            wp_safe_redirect( add_query_arg( [ 'givoly_platform_synced' => $synced ], $redirect_base ) );
+        } catch ( \Throwable $exception ) {
+            error_log( '[Givoly] Platform campaign sync failed: ' . \Givoly\Core\Format::redact_secrets( $exception->getMessage() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            \Givoly\Admin\Settings::record_platform_check( 'error', $exception->getMessage() );
+            wp_safe_redirect( add_query_arg( 'givoly_platform_error', '1', $redirect_base ) );
+        }
+        exit;
+    }
+
+    public function handle_platform_sync_now(): void {
+        check_admin_referer( 'givoly_platform_sync_now' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( esc_html__( 'Access denied.', 'givoly' ) );
+        }
+
+        $redirect_base = add_query_arg( [ 'page' => 'givoly-settings', 'tab' => 'platform' ], admin_url( 'admin.php' ) );
+        $ok            = ( new \Givoly\Integration\PlatformSync() )->run();
+
+        wp_safe_redirect( add_query_arg( $ok ? 'givoly_platform_synced_now' : 'givoly_platform_error', '1', $redirect_base ) );
         exit;
     }
 }

@@ -101,10 +101,13 @@ final class CampaignsPage {
         $description = wp_kses_post( wp_unslash( $_POST['description'] ?? '' ) );
         $goal_raw    = sanitize_text_field( wp_unslash( $_POST['goal_amount'] ?? '' ) );
         $goal_amount = $goal_raw !== '' ? abs( (float) $goal_raw ) : null;
-        $currency    = sanitize_text_field( wp_unslash( $_POST['currency'] ?? 'EUR' ) );
+        $currency    = strtoupper( sanitize_text_field( wp_unslash( $_POST['currency'] ?? 'EUR' ) ) );
         $start_raw   = sanitize_text_field( wp_unslash( $_POST['start_date'] ?? '' ) );
         $end_raw     = sanitize_text_field( wp_unslash( $_POST['end_date'] ?? '' ) );
         $status      = sanitize_key( wp_unslash( $_POST['status'] ?? Campaign::STATUS_DRAFT ) );
+        // Interface native WordPress pour choisir l'image (media library).
+        $featured_image = absint( wp_unslash( $_POST['featured_image'] ?? 0 ) );
+        $featured_image = $featured_image > 0 ? $featured_image : null;
 
         if ( ! $title ) {
             $this->redirect_with_error( $id, 'title_required' );
@@ -139,6 +142,17 @@ final class CampaignsPage {
             $end_date   = null;
         }
 
+        // Cohérence des périodes : une date de début postérieure à la fin est refusée.
+        if ( $start_date && $end_date && $start_date->format( 'Y-m-d' ) > $end_date->format( 'Y-m-d' ) ) {
+            $this->redirect_with_error( $id, 'invalid_dates' );
+            return;
+        }
+
+        // Vérifier que l'image choisie existe réellement dans la médiathèque.
+        if ( $featured_image !== null && ! wp_attachment_is_image( $featured_image ) ) {
+            $featured_image = null;
+        }
+
         $campaign = new Campaign(
             id:          $id,
             title:       $title,
@@ -149,6 +163,7 @@ final class CampaignsPage {
             goal_amount: $goal_amount,
             start_date:  $start_date,
             end_date:    $end_date,
+            featured_image: $featured_image,
         );
 
         $saved = $this->repo->save( $campaign );
@@ -165,9 +180,16 @@ final class CampaignsPage {
     private function render_list(): void {
         $campaigns = $this->repo->find_all();
 
-        // Une seule requête agrégée pour toutes les stats — pas de N+1
-        $ids        = array_map( fn( $c ) => $c->get_id(), $campaigns );
-        $stats_map  = $this->repo->get_stats_batch( $ids );
+        // Stats filtrées par devise propre de chaque campagne : on évite ainsi
+        // toute somme inter-devises. La liste admin reste petite (N requêtes
+        // ciblées plutôt qu'un batch multidevise approximatif).
+        $stats_map = [];
+        foreach ( $campaigns as $campaign_item ) {
+            $stats_map[ $campaign_item->get_id() ] = $this->repo->get_stats(
+                $campaign_item->get_id(),
+                $campaign_item->get_currency()
+            );
+        }
         ?>
         <div class="wrap">
             <h1 class="wp-heading-inline"><?php esc_html_e( 'Campaigns', 'givoly' ); ?></h1>
@@ -295,6 +317,7 @@ final class CampaignsPage {
                     <?php
                     match ( sanitize_key( wp_unslash( $_GET['givoly_error'] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
                         'slug_exists'    => esc_html_e( 'This slug is already used by another campaign.', 'givoly' ),
+                        'invalid_dates'  => esc_html_e( 'The start date must be before the end date.', 'givoly' ),
                         default          => esc_html_e( 'The title is required.', 'givoly' ),
                     };
                     ?>
@@ -388,6 +411,50 @@ final class CampaignsPage {
                                     </option>
                                 <?php endforeach; ?>
                             </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><?php esc_html_e( 'Featured image', 'givoly' ); ?></th>
+                        <td>
+                            <?php
+                            wp_enqueue_media();
+                            $current_image = $is_edit ? ( $campaign->get_featured_image() ?? 0 ) : 0;
+                            ?>
+                            <input type="hidden" id="givoly-featured-image" name="featured_image" value="<?php echo esc_attr( (string) $current_image ); ?>">
+                            <div id="givoly-featured-image-preview" style="margin-bottom:8px;">
+                                <?php if ( $current_image ) : ?>
+                                    <?php echo wp_get_attachment_image( $current_image, 'thumbnail' ); ?>
+                                <?php endif; ?>
+                            </div>
+                            <button type="button" class="button" id="givoly-featured-image-choose"><?php esc_html_e( 'Choose an image', 'givoly' ); ?></button>
+                            <button type="button" class="button button-link-delete" id="givoly-featured-image-remove"><?php esc_html_e( 'Remove', 'givoly' ); ?></button>
+                            <p class="description"><?php esc_html_e( 'Optional image shown at the top of the public campaign widget.', 'givoly' ); ?></p>
+                            <script>
+                            ( function() {
+                                var frame;
+                                var input = document.getElementById( 'givoly-featured-image' );
+                                var preview = document.getElementById( 'givoly-featured-image-preview' );
+                                var choose = document.getElementById( 'givoly-featured-image-choose' );
+                                var remove = document.getElementById( 'givoly-featured-image-remove' );
+                                if ( ! input || ! choose || ! remove ) { return; }
+                                choose.addEventListener( 'click', function( e ) {
+                                    e.preventDefault();
+                                    if ( frame ) { frame.open(); return; }
+                                    frame = wp.media( { title: 'Featured image', multiple: false, library: { type: 'image' } } );
+                                    frame.on( 'select', function() {
+                                        var attachment = frame.state().get( 'selection' ).first().toJSON();
+                                        input.value = attachment.id;
+                                        preview.innerHTML = '<img src="' + attachment.sizes.thumbnail.url + '" alt="">';
+                                    } );
+                                    frame.open();
+                                } );
+                                remove.addEventListener( 'click', function( e ) {
+                                    e.preventDefault();
+                                    input.value = '';
+                                    preview.innerHTML = '';
+                                } );
+                            } )();
+                            </script>
                         </td>
                     </tr>
                 </table>
