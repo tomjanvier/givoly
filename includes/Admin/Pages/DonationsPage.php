@@ -177,22 +177,17 @@ final class DonationsPage {
                                         <?php $has_action = true; ?>
                                     <?php endif; ?>
 
-                                    <?php if ( $row->gateway === 'stripe' && ! empty( $row->stripe_subscription_id ) ) : ?>
-                                        <form method="post"
-                                              action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>"
-                                              style="display:inline;"
-                                              onsubmit='return confirm(<?php echo wp_json_encode( __( 'Confirm stopping future payments? The donor will retain access until the end of the current paid period.', 'givoly' ) ); ?>)'>
-                                            <?php wp_nonce_field( 'givoly_cancel_subscription_' . $row->id ); ?>
-                                            <input type="hidden" name="action"      value="givoly_cancel_subscription">
-                                            <input type="hidden" name="donation_id" value="<?php echo esc_attr( $row->id ); ?>">
-                                            <button type="submit" class="button button-small">
-                                                <?php esc_html_e( 'Cancel recurring donation', 'givoly' ); ?>
-                                            </button>
-                                        </form>
-                                        <?php $has_action = true; ?>
+                                    <?php if ( ! empty( $row->stripe_subscription_id ) ) : ?>
+                                        <br><small>
+                                            <?php esc_html_e( 'Subscription:', 'givoly' ); ?>
+                                            <code><?php echo esc_html( $row->stripe_subscription_id ); ?></code>
+                                        </small>
+                                        <?php /* Pas d'action d'annulation ici : un don unique ne porte
+                                            jamais d'annulation. La résiliation se fait depuis la fiche
+                                            donateur, sur l'abonnement explicitement associé. */ ?>
                                     <?php endif; ?>
 
-                                    <?php if ( ! $has_action ) : ?>
+                                    <?php if ( ! $has_action && empty( $row->stripe_subscription_id ) ) : ?>
                                         —
                                     <?php endif; ?>
                                 </td>
@@ -218,7 +213,7 @@ final class DonationsPage {
 
         $select = "SELECT d.id, d.amount, d.currency, d.status, d.created_at,
                           d.gateway, d.gateway_refund_ref,
-                          dn.stripe_subscription_id,
+                          d.stripe_subscription_id,
                           dn.donor_reference, dn.first_name, dn.last_name, dn.email
                    FROM {$table_d} d
                    LEFT JOIN {$table_dn} dn ON d.donor_id = dn.id";

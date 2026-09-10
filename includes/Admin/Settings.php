@@ -355,6 +355,22 @@ final class Settings {
             && self::get_helloasso_org_slug() !== '';
     }
 
+    // ── Plateforme Givoly ────────────────────────────────────────────────
+    // Connexion opt-in vers la plateforme SaaS (tableau de bord centralisé).
+    // Désactivée par défaut : aucun appel distant tant que l'administrateur
+    // ne l'active pas explicitement avec une URL et une clé API valides.
+
+    const OPT_PLATFORM_ENABLED         = 'givoly_platform_enabled';
+    const OPT_PLATFORM_BASE_URL        = 'givoly_platform_base_url';
+    const OPT_PLATFORM_API_KEY         = 'givoly_platform_api_key';
+    const OPT_PLATFORM_ORGANIZATION_ID = 'givoly_platform_organization_id';
+    const OPT_PLATFORM_SYNC_DONATIONS  = 'givoly_platform_sync_donations';
+    const OPT_PLATFORM_SYNC_CAMPAIGNS  = 'givoly_platform_sync_campaigns';
+    const OPT_PLATFORM_SITE_ID         = 'givoly_platform_site_id';
+    const OPT_PLATFORM_LAST_CHECK_AT   = 'givoly_platform_last_check_at';
+    const OPT_PLATFORM_LAST_STATUS     = 'givoly_platform_last_status';
+    const OPT_PLATFORM_LAST_ERROR      = 'givoly_platform_last_error';
+
     // ── Default gateway ──────────────────────────────────────────────
 
     public static function get_default_gateway(): string {
@@ -366,13 +382,109 @@ final class Settings {
         return in_array( $gw, self::get_enabled_gateways(), true ) ? $gw : self::get_enabled_gateways()[0];
     }
 
+    // ── Plateforme Givoly : lecture ──────────────────────────────────────
+
+    public static function is_platform_enabled(): bool {
+        return (string) self::get_compat_option( self::OPT_PLATFORM_ENABLED, '0' ) === '1';
+    }
+
+    public static function get_platform_base_url(): string {
+        return (string) self::get_compat_option( self::OPT_PLATFORM_BASE_URL, '' );
+    }
+
+    public static function get_platform_api_key(): string {
+        return (string) self::get_compat_option( self::OPT_PLATFORM_API_KEY, '' );
+    }
+
+    public static function get_platform_organization_id(): string {
+        return (string) self::get_compat_option( self::OPT_PLATFORM_ORGANIZATION_ID, '' );
+    }
+
+    public static function should_sync_platform_donations(): bool {
+        return (string) self::get_compat_option( self::OPT_PLATFORM_SYNC_DONATIONS, '1' ) === '1';
+    }
+
+    public static function should_sync_platform_campaigns(): bool {
+        return (string) self::get_compat_option( self::OPT_PLATFORM_SYNC_CAMPAIGNS, '1' ) === '1';
+    }
+
+    public static function get_platform_site_id(): string {
+        return (string) self::get_compat_option( self::OPT_PLATFORM_SITE_ID, '' );
+    }
+
+    public static function get_platform_last_status(): string {
+        return (string) self::get_compat_option( self::OPT_PLATFORM_LAST_STATUS, '' );
+    }
+
+    public static function get_platform_last_check_at(): string {
+        return (string) self::get_compat_option( self::OPT_PLATFORM_LAST_CHECK_AT, '' );
+    }
+
+    public static function get_platform_last_error(): string {
+        return (string) self::get_compat_option( self::OPT_PLATFORM_LAST_ERROR, '' );
+    }
+
+    /**
+     * La connexion n'est utilisable que si l'administrateur l'a activée
+     * avec une URL et une clé API renseignées.
+     */
+    public static function is_platform_configured(): bool {
+        return self::is_platform_enabled()
+            && self::get_platform_base_url() !== ''
+            && self::get_platform_api_key() !== '';
+    }
+
+    /**
+     * Fabrique le client HTTP Plateforme, ou null si non configuré.
+     *
+     * L'URL est normalisée (https imposé sauf localhost) ; une URL invalide
+     * équivaut à une connexion non configurée, sans appel distant.
+     */
+    public static function get_platform_client(): ?\Givoly\Gateway\PlatformGateway {
+        if ( ! self::is_platform_configured() ) {
+            return null;
+        }
+
+        $base_url = \Givoly\Gateway\PlatformGateway::normalize_base_url( self::get_platform_base_url() );
+        if ( $base_url === '' ) {
+            return null;
+        }
+
+        return new \Givoly\Gateway\PlatformGateway( $base_url, self::get_platform_api_key() );
+    }
+
+    /**
+     * Mémorise le résultat d'un contrôle de santé (statut + erreur expurgée).
+     */
+    public static function record_platform_check( string $status, string $error = '' ): void {
+        // Troncature sans dépendance mbstring (non garantie sur tous les hébergeurs).
+        $preview = sanitize_text_field( $error );
+        $preview = function_exists( 'mb_substr' ) ? mb_substr( $preview, 0, 500 ) : substr( $preview, 0, 500 );
+        update_option( self::OPT_PLATFORM_LAST_CHECK_AT, current_time( 'mysql', true ), false );
+        update_option( self::OPT_PLATFORM_LAST_STATUS, sanitize_key( $status ), false );
+        update_option( self::OPT_PLATFORM_LAST_ERROR, $preview, false );
+    }
+
+    /**
+     * Invalide l'enregistrement local quand l'URL, la clé ou l'organisation change.
+     */
+    public static function reset_platform_registration(): void {
+        delete_option( self::OPT_PLATFORM_SITE_ID );
+        update_option( self::OPT_PLATFORM_LAST_STATUS, 'unknown', false );
+        update_option( self::OPT_PLATFORM_LAST_ERROR, '', false );
+    }
+
     // ── Écriture ───────────────────────────────────────────────────────────
 
     /**
      * Sauvegarde les réglages depuis $_POST.
-     * N'écrase pas une clé secrète si l'user soumet une valeur vide.
+     * N'écrase pas une clé secrète si l'user soumet une valeur vide, sauf
+     * suppression explicite via une case `clear_<option>` protégée par nonce.
      */
     public static function save_from_post( array $post ): void {
+        // Suppressions explicites de secrets (rotation/révocation).
+        self::maybe_clear_secrets( $post );
+
         $mode = in_array( $post['stripe_mode'] ?? '', [ 'test', 'live' ], true )
             ? $post['stripe_mode']
             : 'test';
@@ -404,18 +516,60 @@ final class Settings {
         update_option( self::OPT_POST_PAYMENT_SHOW_ADDRESS, isset( $post['post_payment_show_address'] ) ? '1' : '0', false );
         update_option( self::OPT_PUBLIC_BRANDING_ENABLED, isset( $post['public_branding_enabled'] ) ? '1' : '0', false );
 
+        // HelloAsso : purger les jetons OAuth si le mode, le client ou l'organisation change.
+        // Un jeton sandbox ne doit jamais être réutilisé en live (et inversement).
+        $old_ha_mode   = (string) get_option( self::OPT_HA_MODE, 'sandbox' );
+        $old_ha_org    = (string) get_option( self::OPT_HA_ORG_SLUG, '' );
+        $old_ha_client = (string) get_option( self::OPT_HA_CLIENT_ID, '' );
+        $old_ha_secret = (string) get_option( self::OPT_HA_CLIENT_SECRET, '' );
+
         // HelloAsso
         $ha_mode = in_array( $post['ha_mode'] ?? '', [ 'sandbox', 'live' ], true )
             ? $post['ha_mode']
             : 'sandbox';
-        update_option( self::OPT_HA_MODE,     $ha_mode,                                          false );
-        update_option( self::OPT_HA_ORG_SLUG, sanitize_text_field( $post['ha_org_slug'] ?? '' ), false );
+        $new_ha_org = sanitize_text_field( $post['ha_org_slug'] ?? '' );
+        update_option( self::OPT_HA_MODE,     $ha_mode,      false );
+        update_option( self::OPT_HA_ORG_SLUG, $new_ha_org,   false );
         self::update_secret( self::OPT_HA_CLIENT_ID,     $post['ha_client_id']     ?? '' );
         self::update_secret( self::OPT_HA_CLIENT_SECRET, $post['ha_client_secret'] ?? '' );
         self::update_secret( self::OPT_HA_SIGNATURE_KEY, $post['ha_signature_key'] ?? '' );
+
+        $new_ha_client = (string) get_option( self::OPT_HA_CLIENT_ID, '' );
+        $new_ha_secret = (string) get_option( self::OPT_HA_CLIENT_SECRET, '' );
+        if ( $old_ha_mode !== $ha_mode
+            || $old_ha_org !== $new_ha_org
+            || $old_ha_client !== $new_ha_client
+            || $old_ha_secret !== $new_ha_secret
+        ) {
+            self::purge_helloasso_tokens();
+        }
         update_option( self::OPT_HA_BUTTON_NOTICE, sanitize_text_field( $post['ha_button_notice'] ?? '' ), false );
         update_option( self::OPT_HA_OTHER_PAYMENTS_URL, esc_url_raw( $post['ha_other_payments_url'] ?? '' ), false );
         update_option( self::OPT_HA_ONCE_USE_OTHER_PAYMENTS_URL, isset( $post['ha_once_use_other_payments_url'] ) ? '1' : '0', false );
+
+        // Plateforme Givoly (opt-in, désactivée par défaut).
+        $old_platform_url = (string) get_option( self::OPT_PLATFORM_BASE_URL, '' );
+        $old_platform_key = (string) get_option( self::OPT_PLATFORM_API_KEY, '' );
+        $old_platform_org = (string) get_option( self::OPT_PLATFORM_ORGANIZATION_ID, '' );
+
+        update_option( self::OPT_PLATFORM_ENABLED, isset( $post['platform_enabled'] ) ? '1' : '0', false );
+        update_option( self::OPT_PLATFORM_BASE_URL, esc_url_raw( trim( (string) ( $post['platform_base_url'] ?? '' ) ) ), false );
+        update_option( self::OPT_PLATFORM_ORGANIZATION_ID, sanitize_text_field( $post['platform_organization_id'] ?? '' ), false );
+        self::update_secret( self::OPT_PLATFORM_API_KEY, $post['platform_api_key'] ?? '' );
+        update_option( self::OPT_PLATFORM_SYNC_DONATIONS, isset( $post['platform_sync_donations'] ) ? '1' : '0', false );
+        update_option( self::OPT_PLATFORM_SYNC_CAMPAIGNS, isset( $post['platform_sync_campaigns'] ) ? '1' : '0', false );
+
+        // Tout changement d'URL, de clé ou d'organisation invalide
+        // l'enregistrement local : l'administrateur doit ré-enregistrer le site.
+        $new_platform_url = (string) get_option( self::OPT_PLATFORM_BASE_URL, '' );
+        $new_platform_key = (string) get_option( self::OPT_PLATFORM_API_KEY, '' );
+        $new_platform_org = (string) get_option( self::OPT_PLATFORM_ORGANIZATION_ID, '' );
+        if ( $old_platform_url !== $new_platform_url
+            || $old_platform_key !== $new_platform_key
+            || $old_platform_org !== $new_platform_org
+        ) {
+            self::reset_platform_registration();
+        }
 
         // Default gateway
         $default_gw = in_array( $post['default_gateway'] ?? '', [ 'stripe', 'helloasso' ], true )
@@ -436,9 +590,9 @@ final class Settings {
         update_option( self::OPT_TAX_RECEIPT_PDF_TITLE,  sanitize_text_field( $post['tax_receipt_pdf_title'] ?? '' ), false );
         update_option( self::OPT_TAX_RECEIPT_PDF_BODY,   sanitize_textarea_field( $post['tax_receipt_pdf_body'] ?? '' ), false );
         update_option( self::OPT_TAX_RECEIPT_PDF_FOOTER, sanitize_textarea_field( $post['tax_receipt_pdf_footer'] ?? '' ), false );
-        // Couleur : valider le format hex avant de sauvegarder
+        // Couleur : valider le format hex avant de sauvegarder (#rgb ou #rrggbb uniquement).
         $color = sanitize_text_field( $post['email_primary_color'] ?? '' );
-        if ( preg_match( '/^#[0-9a-fA-F]{3,6}$/', $color ) ) {
+        if ( preg_match( '/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $color ) ) {
             update_option( self::OPT_EMAIL_PRIMARY_COLOR, $color, false );
         }
 
@@ -481,6 +635,55 @@ final class Settings {
     }
 
     // ── Helpers privés ─────────────────────────────────────────────────────
+
+    /**
+     * Suppression explicite et protégée des secrets configurés.
+     *
+     * Une case `clear_<option>` cochée (protégée par le nonce des réglages)
+     * supprime définitivement la valeur, pour permettre rotation et révocation
+     * depuis l'interface sans passer par la base de données.
+     */
+    private static function maybe_clear_secrets( array $post ): void {
+        $clearable = [
+            self::OPT_STRIPE_SK_TEST    => 'clear_stripe_sk_test',
+            self::OPT_STRIPE_SK_LIVE    => 'clear_stripe_sk_live',
+            self::OPT_WEBHOOK_SECRET    => 'clear_stripe_webhook_secret',
+            self::OPT_HA_CLIENT_ID      => 'clear_ha_client_id',
+            self::OPT_HA_CLIENT_SECRET  => 'clear_ha_client_secret',
+            self::OPT_HA_SIGNATURE_KEY  => 'clear_ha_signature_key',
+            self::OPT_PLATFORM_API_KEY  => 'clear_platform_api_key',
+        ];
+
+        foreach ( $clearable as $option => $field ) {
+            if ( isset( $post[ $field ] ) && (string) $post[ $field ] === '1' ) {
+                delete_option( $option );
+            }
+        }
+
+        // Toute suppression de la clé Plateforme invalide l'enregistrement local.
+        if ( isset( $post['clear_platform_api_key'] ) ) {
+            self::reset_platform_registration();
+        }
+
+        // Toute suppression d'identifiant HelloAsso invalide les jetons en cache.
+        if ( isset( $post['clear_ha_client_id'], $post['clear_ha_client_secret'] )
+            || isset( $post['clear_ha_client_id'] )
+            || isset( $post['clear_ha_client_secret'] ) ) {
+            self::purge_helloasso_tokens();
+        }
+    }
+
+    /**
+     * Purge les jetons OAuth HelloAsso en cache.
+     *
+     * À appeler quand le mode, le client ou l'organisation change, ou quand un
+     * secret est supprimé : évite de réutiliser un jeton sandbox en live.
+     */
+    public static function purge_helloasso_tokens(): void {
+        delete_option( \Givoly\Gateway\HelloAssoGateway::OPT_ACCESS_TOKEN );
+        delete_option( \Givoly\Gateway\HelloAssoGateway::OPT_REFRESH_TOKEN );
+        delete_option( \Givoly\Gateway\HelloAssoGateway::OPT_EXPIRES_AT );
+    }
 
     /**
      * Ne met à jour un secret que si l'user a saisi une vraie valeur.

@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Givoly 1.5.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-23 23:15+0200\n"
+"POT-Creation-Date: 2026-09-10 12:18+0200\n"
 "PO-Revision-Date: 2026-08-11 00:00+0000\n"
 "Last-Translator: Givoly contributors\n"
 "Language-Team: French\n"
@@ -13,22 +13,28 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: includes/Admin/AdminActions.php:40 includes/Admin/AdminActions.php:102
-#: includes/Admin/AdminActions.php:148 includes/Admin/AdminActions.php:163
-#: includes/Admin/AdminActions.php:264 includes/Admin/AdminActions.php:306
-#: includes/Admin/AdminActions.php:363
-#: includes/Admin/Pages/CampaignsPage.php:55
-#: includes/Admin/Pages/DashboardPage.php:21
-#: includes/Admin/Pages/DonationsPage.php:25
-#: includes/Admin/Pages/DonorsPage.php:26
-#: includes/Admin/Pages/ManualDonationPage.php:18
-#: includes/Admin/Pages/SettingsPage.php:122
-#: includes/Admin/Pages/SettingsPage.php:324
-msgid "Access denied."
-msgstr "Accès refusé."
+#: includes/Form/DonationForm.php:58
+msgid "Powered by Givoly"
+msgstr "Propulsé par Givoly"
 
-#: includes/Admin/AdminMenu.php:24 includes/Admin/AdminMenu.php:25
-#: includes/Form/BlockRegistrar.php:42
+#: includes/Form/DonationForm.php:59
+msgid "Discover Givoly"
+msgstr "Découvrir Givoly"
+
+#: includes/Form/CampaignTotalWidget.php:51
+#, php-format
+msgid "%s collected"
+msgstr "%s collectés"
+
+#: includes/Form/CampaignTotalWidget.php:60
+#, php-format
+msgid "%d donation"
+msgid_plural "%d donations"
+msgstr[0] "%d don"
+msgstr[1] "%d dons"
+
+#: includes/Form/BlockRegistrar.php:42 includes/Admin/AdminMenu.php:24
+#: includes/Admin/AdminMenu.php:25 assets/js/givoly-blocks.js:112
 msgid "Givoly"
 msgstr "Givoly"
 
@@ -44,60 +50,193 @@ msgstr "Campagne Givoly"
 msgid "Givoly campaign total"
 msgstr "Total de campagne Givoly"
 
-#: includes/Admin/AdminMenu.php:34
-msgid "Dashboard"
-msgstr "Tableau de bord"
+#: includes/Form/FormConfig.php:127
+msgid "Make a donation"
+msgstr "Faire un don"
 
-#: includes/Admin/AdminMenu.php:40 includes/Admin/Pages/CampaignsPage.php:173
-msgid "Campaigns"
-msgstr "Campagnes"
+#: includes/Form/FormConfig.php:128
+msgid "Donate now"
+msgstr "Donner maintenant"
 
-#: includes/Admin/AdminMenu.php:46 includes/Admin/Pages/DonorsPage.php:102
-msgid "Donations"
-msgstr "Dons"
+#: includes/Core/AssetsLoader.php:78 includes/Donor/DonorSpace.php:53
+msgid "An error occurred. Please try again."
+msgstr "Une erreur est survenue. Veuillez réessayer."
 
-#: includes/Admin/AdminMenu.php:51 includes/Admin/Pages/DashboardPage.php:179
-msgid "Donors"
-msgstr "Donateurs"
+#: includes/Core/AssetsLoader.php:79
+msgid "Please select or enter a valid amount (minimum €1)."
+msgstr "Veuillez sélectionner ou saisir un montant valide (min. 1 €)."
 
-#: includes/Admin/AdminMenu.php:56
-#: includes/Admin/Pages/ManualDonationPage.php:22
-msgid "Add a manual donation"
-msgstr "Ajouter un don manuel"
+#: includes/Core/AssetsLoader.php:80
+msgid "Please enter a valid email address."
+msgstr "Veuillez saisir une adresse email valide."
 
-#: includes/Admin/AdminMenu.php:61 includes/Admin/Pages/SettingsPage.php:214
-msgid "Settings"
-msgstr "Réglages"
+#: includes/Core/AssetsLoader.php:81
+msgid "Please enter your first and last name."
+msgstr "Veuillez saisir votre prénom et votre nom."
 
-#: includes/Admin/AdminMenu.php:89 templates/admin/settings/tab-general.php:23
-msgid "Free, nonprofit, no surprises."
-msgstr "Gratuit, associatif, sans mauvaise surprise."
+#: includes/Core/AssetsLoader.php:82
+msgid "Thank you for your donation! Your generosity makes a difference."
+msgstr "Merci pour votre don ! Votre générosité fait la différence."
 
-#. translators: 1: PLAID·ACT link, 2: Givoly link.
-#: includes/Admin/AdminMenu.php:96
+#: includes/Core/Privacy.php:35
+msgid "Givoly — Donor profile and donations"
+msgstr "Givoly — Profil donateur et dons"
+
+#: includes/Core/Privacy.php:44
+msgid "Givoly — Donor data eraser"
+msgstr "Givoly — Effacement des données donateurs"
+
+#: includes/Core/Privacy.php:107
+#, php-format
+msgid "Donation %1$d — %2$s"
+msgstr "Don %1$d — %2$s"
+
+#: includes/Core/Privacy.php:119
+msgid "Givoly — Donor profile"
+msgstr "Givoly — Profil donateur"
+
+#: includes/Core/Privacy.php:127
+msgid "Givoly — Donation history"
+msgstr "Givoly — Historique des dons"
+
+#: includes/Core/Privacy.php:140 includes/Admin/Pages/DonorsPage.php:155
+#: includes/Donor/DonorSpace.php:254
+msgid "Donor number"
+msgstr "Numéro donor"
+
+#: includes/Core/Privacy.php:141 includes/Donor/DonorSpace.php:230
+msgid "Email address"
+msgstr "Adresse e-mail"
+
+#: includes/Core/Privacy.php:142 includes/Admin/Pages/ManualDonationPage.php:33
+#: includes/Admin/Pages/DonorsPage.php:310 templates/form/card.php:145
+msgid "First name"
+msgstr "Prénom"
+
+#: includes/Core/Privacy.php:143
+msgid "Last name"
+msgstr "Nom"
+
+#: includes/Core/Privacy.php:144
+msgid "Company"
+msgstr "Société"
+
+#: includes/Core/Privacy.php:145 includes/Admin/Pages/DonorsPage.php:314
+#: templates/form/card.php:248 templates/admin/settings/tab-association.php:34
+msgid "Address"
+msgstr "Adresse"
+
+#: includes/Core/Privacy.php:152 includes/Admin/Pages/DonorsPage.php:319
+#: templates/form/card.php:237 templates/form/partials/extra-fields.php:18
+msgid "Phone"
+msgstr "Téléphone"
+
+#: includes/Core/Privacy.php:153
+msgid "Registration date"
+msgstr "Date d’inscription"
+
+#: includes/Core/Privacy.php:163 includes/Admin/Pages/DonationsPage.php:115
+#: includes/Admin/Pages/DashboardPage.php:145 includes/Donor/DonorSpace.php:296
+msgid "Date"
+msgstr "Date"
+
+#: includes/Core/Privacy.php:164 includes/Admin/Pages/DonationsPage.php:113
+#: includes/Admin/Pages/DashboardPage.php:143
+#: includes/Admin/Pages/DonorsPage.php:101 includes/Donor/DonorSpace.php:296
+#: templates/form/inline.php:110 assets/js/givoly-blocks.js:226
+msgid "Amount"
+msgstr "Montant"
+
+#: includes/Core/Privacy.php:165 includes/Admin/Pages/DonationsPage.php:114
+#: includes/Admin/Pages/CampaignsPage.php:220
+#: includes/Admin/Pages/CampaignsPage.php:396
+#: includes/Admin/Pages/DonorsPage.php:143
+#: includes/Admin/Pages/DonorsPage.php:332
+msgid "Status"
+msgstr "Statut"
+
+#: includes/Core/Privacy.php:166 includes/Admin/Pages/ManualDonationPage.php:38
+msgid "Payment method"
+msgstr "Moyen de paiement"
+
+#: includes/Core/Privacy.php:167 includes/Admin/Pages/DashboardPage.php:144
+msgid "Campaign"
+msgstr "Campagne"
+
+#: includes/Core/Privacy.php:289
+msgid ""
+"Donation amounts were kept for accounting and tax obligations. All personal "
+"information attached to them has been removed."
+msgstr ""
+"Les montants des dons sont conservés pour les obligations comptables et "
+"fiscales. Toutes les informations personnelles associées ont été supprimées."
+
+#: includes/Core/Format.php:21 includes/Admin/Pages/DonationsPage.php:89
+#: includes/Admin/Pages/CampaignsPage.php:266
+#: includes/Admin/Pages/CampaignsPage.php:272
+#: includes/Admin/Pages/CampaignsPage.php:403
+msgid "Completed"
+msgstr "Terminée"
+
+#: includes/Core/Format.php:22 includes/Admin/Pages/DonationsPage.php:90
+msgid "Pending"
+msgstr "En attente"
+
+#: includes/Core/Format.php:23 includes/Admin/Pages/DonationsPage.php:91
+msgid "Failed"
+msgstr "Échoués"
+
+#: includes/Core/Format.php:24 includes/Admin/Pages/DonationsPage.php:92
+msgid "Refunded"
+msgstr "Remboursés"
+
+#: includes/Core/Format.php:25 includes/Admin/Pages/DonationsPage.php:93
+msgid "Cancelled"
+msgstr "Annulés"
+
+#: includes/Mail/MailQueue.php:215
+msgid "General"
+msgstr "Générale"
+
+#: includes/Mail/MailQueue.php:219
+msgid "donor"
+msgstr "donateur"
+
+#: includes/Mail/MailQueue.php:248
+msgid "Your donor space access"
+msgstr "Votre accès à l’espace donor"
+
+#: includes/Mail/MailQueue.php:251
 #, php-format
 msgid ""
-"%2$s is maintained by %1$s, a nonprofit organization defending human rights."
-" The goal is simple: give nonprofits a clear way to accept donations through"
-" WordPress, with no required subscription and no commission added by the "
-"plugin."
+"Hello,\n"
+"\n"
+"Click this link to access your donor space:\n"
+"%s\n"
+"\n"
+"This link expires in 15 minutes. If you did not request it, ignore this "
+"email."
 msgstr ""
-"%2$s est maintenu par %1$s, une association à but non lucratif de défense "
-"des Droits humains. L’objectif est simple : proposer aux associations un "
-"outil clair pour recevoir des dons en ligne depuis WordPress, sans "
-"abonnement imposé et sans commission ajoutée par le plugin."
+"Bonjour,\n"
+"\n"
+"Cliquez sur ce lien pour accéder à votre espace donateur :\n"
+"%s\n"
+"\n"
+"Ce lien expire dans 15 minutes. Si vous n’êtes pas à l’origine de cette "
+"demande, ignorez cet email."
 
-#: includes/Admin/AdminMenu.php:110
-msgid "PLAID·ACT"
-msgstr "PLAID·ACT"
+#: includes/Mail/MailQueue.php:270
+msgid "dear donor"
+msgstr "cher donateur"
 
-#: includes/Admin/AdminMenu.php:114
-msgid "Make a donation to help"
-msgstr "Faire un don pour aider"
+#: includes/Mail/MailQueue.php:277 includes/Mail/MailQueue.php:278
+#: includes/Mail/MailQueue.php:279 includes/Mail/MailQueue.php:280
+msgid "not provided"
+msgstr "non renseigné"
 
-#: includes/Admin/AdminMenu.php:131
-msgid "Givoly — Donations received"
-msgstr "Givoly — Dons reçus"
+#: includes/Integration/PlatformSync.php:190
+msgid "Platform connection is not configured."
+msgstr "La connexion à la plateforme n’est pas configurée."
 
 #: includes/Admin/Settings.php:216 templates/admin/settings/tab-email.php:97
 msgid "Thank you for your donation — {site_name}"
@@ -153,7 +292,9 @@ msgid ""
 "RNA: {rna}\n"
 "Tax approval / ruling: {fiscal_id}\n"
 "\n"
-"This message helps with year-end reporting. Verify the organization's information and attach your official tax receipt if required before using it as supporting documentation.\n"
+"This message helps with year-end reporting. Verify the organization's "
+"information and attach your official tax receipt if required before using it "
+"as supporting documentation.\n"
 "\n"
 "Thank you for your support."
 msgstr ""
@@ -169,7 +310,9 @@ msgstr ""
 "RNA : {rna}\n"
 "Agrément / rescrit fiscal : {fiscal_id}\n"
 "\n"
-"Ce message facilite l'envoi de fin d'année. Vérifiez les informations de l'association et joignez votre reçu fiscal officiel si nécessaire avant utilisation comme justificatif.\n"
+"Ce message facilite l'envoi de fin d'année. Vérifiez les informations de "
+"l'association et joignez votre reçu fiscal officiel si nécessaire avant "
+"utilisation comme justificatif.\n"
 "\n"
 "Merci pour votre soutien."
 
@@ -209,365 +352,78 @@ msgstr ""
 "Ce récapitulatif accompagne l’e-mail et ne remplace pas un reçu fiscal "
 "officiel lorsque celui-ci est requis."
 
-#: includes/Admin/Pages/CampaignsPage.php:66
-#: includes/Admin/Pages/CampaignsPage.php:84
-msgid "Campaign not found."
-msgstr "Campagne introuvable."
+#: includes/Admin/AdminMenu.php:34
+msgid "Dashboard"
+msgstr "Tableau de bord"
 
-#: includes/Admin/Pages/CampaignsPage.php:80
-msgid "Invalid action."
-msgstr "Action invalide."
+#: includes/Admin/AdminMenu.php:40 includes/Admin/Pages/CampaignsPage.php:195
+#: templates/admin/settings/tab-platform.php:105
+msgid "Campaigns"
+msgstr "Campagnes"
 
-#: includes/Admin/Pages/CampaignsPage.php:95 includes/Ajax/AjaxHandler.php:81
-#: includes/Ajax/AjaxHandler.php:151
-msgid "Invalid request."
-msgstr "Requête invalide."
+#: includes/Admin/AdminMenu.php:46 includes/Admin/Pages/DonorsPage.php:102
+#: templates/admin/settings/tab-platform.php:96
+msgid "Donations"
+msgstr "Dons"
 
-#: includes/Admin/Pages/CampaignsPage.php:175
-msgid "Add"
-msgstr "Ajouter"
+#: includes/Admin/AdminMenu.php:51 includes/Admin/Pages/DashboardPage.php:186
+msgid "Donors"
+msgstr "Donateurs"
 
-#: includes/Admin/Pages/CampaignsPage.php:180
-msgid "Campaign saved."
-msgstr "Campagne enregistrée."
+#: includes/Admin/AdminMenu.php:56
+#: includes/Admin/Pages/ManualDonationPage.php:22
+msgid "Add a manual donation"
+msgstr "Ajouter un don manuel"
 
-#: includes/Admin/Pages/CampaignsPage.php:186
-msgid "Campaign archived."
-msgstr "Campagne archivée."
+#: includes/Admin/AdminMenu.php:61 includes/Admin/Pages/SettingsPage.php:228
+#: assets/js/givoly-blocks.js:97
+msgid "Settings"
+msgstr "Réglages"
 
-#: includes/Admin/Pages/CampaignsPage.php:193
-msgid "Title"
-msgstr "Titre"
+#: includes/Admin/AdminMenu.php:89 templates/admin/settings/tab-general.php:23
+msgid "Free, nonprofit, no surprises."
+msgstr "Gratuit, associatif, sans mauvaise surprise."
 
-#: includes/Admin/Pages/CampaignsPage.php:194
-#: includes/Admin/Pages/CampaignsPage.php:318
-msgid "Slug"
-msgstr "Slug"
-
-#: includes/Admin/Pages/CampaignsPage.php:195
-msgid "Goal"
-msgstr "Objectif"
-
-#: includes/Admin/Pages/CampaignsPage.php:196
-msgid "Collected"
-msgstr "Collecté"
-
-#: includes/Admin/Pages/CampaignsPage.php:197
-msgid "Progress"
-msgstr "Progression"
-
-#: includes/Admin/Pages/CampaignsPage.php:198
-#: includes/Admin/Pages/CampaignsPage.php:373
-#: includes/Admin/Pages/DonationsPage.php:114
-#: includes/Admin/Pages/DonorsPage.php:143 includes/Core/Privacy.php:152
-msgid "Status"
-msgstr "Statut"
-
-#: includes/Admin/Pages/CampaignsPage.php:199
-msgid "End date"
-msgstr "Fin"
-
-#: includes/Admin/Pages/CampaignsPage.php:200
-#: includes/Admin/Pages/DonationsPage.php:116
-msgid "Actions"
-msgstr "Actions"
-
-#: includes/Admin/Pages/CampaignsPage.php:206
-msgid "No campaigns found."
-msgstr "Aucune campagne."
-
-#: includes/Admin/Pages/CampaignsPage.php:243
-msgid "End date has passed"
-msgstr "Date de fin dépassée"
-
-#: includes/Admin/Pages/CampaignsPage.php:244
-#: includes/Admin/Pages/CampaignsPage.php:250
-#: includes/Admin/Pages/CampaignsPage.php:380
-#: includes/Admin/Pages/DonationsPage.php:89 includes/Core/Format.php:21
-msgid "Completed"
-msgstr "Terminée"
-
-#: includes/Admin/Pages/CampaignsPage.php:248
-#: includes/Admin/Pages/CampaignsPage.php:378
-msgid "Draft"
-msgstr "Brouillon"
-
-#: includes/Admin/Pages/CampaignsPage.php:249
-#: includes/Admin/Pages/CampaignsPage.php:379
-msgid "Active"
-msgstr "Active"
-
-#: includes/Admin/Pages/CampaignsPage.php:251
-#: includes/Admin/Pages/CampaignsPage.php:381
-msgid "Archived"
-msgstr "Archivée"
-
-#: includes/Admin/Pages/CampaignsPage.php:259
-#: includes/Admin/Pages/DonorsPage.php:193
-msgid "Edit"
-msgstr "Modifier"
-
-#: includes/Admin/Pages/CampaignsPage.php:263
-msgid "Archive this campaign?"
-msgstr "Archiver cette campagne ?"
-
-#: includes/Admin/Pages/CampaignsPage.php:264
-msgid "Archive"
-msgstr "Archiver"
-
-#: includes/Admin/Pages/CampaignsPage.php:279
-msgid "New campaign"
-msgstr "Nouvelle campagne"
-
-#. translators: %s: campaign title
-#: includes/Admin/Pages/CampaignsPage.php:282
+#: includes/Admin/AdminMenu.php:96
 #, php-format
-msgid "Edit: %s"
-msgstr "Modifier : %s"
-
-#: includes/Admin/Pages/CampaignsPage.php:288
-msgid "Back to list"
-msgstr "Retour à la liste"
-
-#: includes/Admin/Pages/CampaignsPage.php:297
-msgid "This slug is already used by another campaign."
-msgstr "Ce slug est déjà utilisé par une autre campagne."
-
-#: includes/Admin/Pages/CampaignsPage.php:298
-msgid "The title is required."
-msgstr "Le titre est obligatoire."
-
-#: includes/Admin/Pages/CampaignsPage.php:311
-msgid "Title *"
-msgstr "Titre *"
-
-#: includes/Admin/Pages/CampaignsPage.php:322
-msgid "Lowercase letters, numbers, and hyphens only."
-msgstr "Minuscules, chiffres et tirets uniquement."
-
-#: includes/Admin/Pages/CampaignsPage.php:323
 msgid ""
-"Identifier used in the [givoly_campaign campaign=\"slug\"] shortcode. "
-"Automatically generated from the title if empty."
+"%2$s is maintained by %1$s, a nonprofit organization defending human rights. "
+"The goal is simple: give nonprofits a clear way to accept donations through "
+"WordPress, with no required subscription and no commission added by the "
+"plugin."
 msgstr ""
-"Identifiant utilisé dans le shortcode [givoly_campaign campaign=\"slug\"]. "
-"Auto-généré depuis le titre si vide."
+"%2$s est maintenu par %1$s, une association à but non lucratif de défense "
+"des Droits humains. L’objectif est simple : proposer aux associations un "
+"outil clair pour recevoir des dons en ligne depuis WordPress, sans "
+"abonnement imposé et sans commission ajoutée par le plugin."
 
-#: includes/Admin/Pages/CampaignsPage.php:327
-msgid "Description"
-msgstr "Description"
+#: includes/Admin/AdminMenu.php:110
+msgid "PLAID·ACT"
+msgstr "PLAID·ACT"
 
-#: includes/Admin/Pages/CampaignsPage.php:335
-msgid "Fundraising goal"
-msgstr "Objectif de collecte"
+#: includes/Admin/AdminMenu.php:114
+msgid "Make a donation to help"
+msgstr "Faire un don pour aider"
 
-#: includes/Admin/Pages/CampaignsPage.php:340
-msgid "Leave blank for a fundraiser with no goal."
-msgstr "Laisser vide pour une collecte sans objectif."
+#: includes/Admin/AdminMenu.php:131
+msgid "Givoly — Donations received"
+msgstr "Givoly — Dons reçus"
 
-#: includes/Admin/Pages/CampaignsPage.php:344
-msgid "Currency"
-msgstr "Devise"
-
-#: includes/Admin/Pages/CampaignsPage.php:357
-msgid "Dates"
-msgstr "Dates"
-
-#: includes/Admin/Pages/CampaignsPage.php:360
-msgid "Start:"
-msgstr "Début :"
-
-#: includes/Admin/Pages/CampaignsPage.php:366
-msgid "End:"
-msgstr "Fin :"
-
-#: includes/Admin/Pages/CampaignsPage.php:397
-msgid "Update"
-msgstr "Mettre à jour"
-
-#: includes/Admin/Pages/CampaignsPage.php:397
-msgid "Create campaign"
-msgstr "Créer la campagne"
-
-#: includes/Admin/Pages/DashboardPage.php:39
-msgid "Givoly — Dashboard"
-msgstr "Givoly — Tableau de bord"
-
-#: includes/Admin/Pages/DashboardPage.php:40
-msgid "A clear view of donations received and the next useful actions."
-msgstr "Une vue claire des dons reçus et des prochaines actions utiles."
-
-#: includes/Admin/Pages/DashboardPage.php:43
-msgid "View all donations"
-msgstr "Voir tous les dons"
-
-#: includes/Admin/Pages/DashboardPage.php:50
-msgid "Stripe is not configured yet."
-msgstr "Stripe n'est pas encore configuré."
-
-#: includes/Admin/Pages/DashboardPage.php:52
-msgid "Configure now →"
-msgstr "Configurer maintenant →"
-
-#: includes/Admin/Pages/DashboardPage.php:58
-msgid "Donation metrics"
-msgstr "Indicateurs des dons"
-
-#: includes/Admin/Pages/DashboardPage.php:59
-#: includes/Admin/Pages/DashboardPage.php:171
-msgid "Total collected"
-msgstr "Total collecté"
-
-#: includes/Admin/Pages/DashboardPage.php:60
-#: includes/Admin/Pages/DashboardPage.php:72
-#: includes/Admin/Pages/DashboardPage.php:175
-msgid "Completed donations"
-msgstr "Dons complétés"
-
-#: includes/Admin/Pages/DashboardPage.php:61
-msgid "Active donors"
-msgstr "Donateurs actifs"
-
-#: includes/Admin/Pages/DashboardPage.php:62
-msgid "Average donation"
-msgstr "Don moyen"
-
-#: includes/Admin/Pages/DashboardPage.php:69
-msgid "Donation trends"
-msgstr "Évolution des dons"
-
-#: includes/Admin/Pages/DashboardPage.php:70
-msgid "Completed amounts over the last six months."
-msgstr "Montants complétés sur les six derniers mois."
-
-#: includes/Admin/Pages/DashboardPage.php:78
-msgid "Next steps"
-msgstr "À faire ensuite"
-
-#: includes/Admin/Pages/DashboardPage.php:79
-msgid "Keep your donation space ready for your next campaign."
-msgstr "Gardez votre espace de dons prêt pour votre prochaine campagne."
-
-#: includes/Admin/Pages/DashboardPage.php:81
-msgid "Check settings"
-msgstr "Vérifier les réglages"
-
-#: includes/Admin/Pages/DashboardPage.php:82
-msgid "Customize emails"
-msgstr "Personnaliser les emails"
-
-#: includes/Admin/Pages/DashboardPage.php:83
-msgid "Create a campaign"
-msgstr "Créer une campagne"
-
-#: includes/Admin/Pages/DashboardPage.php:91
-msgid "Add a donation form"
-msgstr "Ajouter un formulaire de don"
-
-#: includes/Admin/Pages/DashboardPage.php:92
-msgid ""
-"Copy this shortcode into a WordPress page or post to display your form."
-msgstr ""
-"Copiez ce shortcode dans une page ou un article WordPress pour afficher "
-"votre formulaire."
-
-#: includes/Admin/Pages/DashboardPage.php:100
-msgid "Copy shortcode"
-msgstr "Copier le shortcode"
-
-#: includes/Admin/Pages/DashboardPage.php:104
-msgid "The form automatically uses your payment and appearance settings."
-msgstr ""
-"Le formulaire reprend automatiquement vos réglages de paiement et "
-"d’apparence."
-
-#: includes/Admin/Pages/DashboardPage.php:107
-msgid "Support PLAID·ACT"
-msgstr "Soutenir PLAID·ACT"
-
-#: includes/Admin/Pages/DashboardPage.php:115
-#: includes/Admin/Pages/DashboardPage.php:187
-msgid "Recent donors"
-msgstr "Derniers donateurs"
-
-#: includes/Admin/Pages/DashboardPage.php:116
-msgid "The latest confirmed donations appear here automatically."
-msgstr "Les derniers dons confirmés apparaissent ici automatiquement."
-
-#: includes/Admin/Pages/DashboardPage.php:119
-msgid "Open the full list"
-msgstr "Ouvrir la liste complète"
-
-#: includes/Admin/Pages/DashboardPage.php:126
-#: includes/Admin/Pages/DonationsPage.php:106
-msgid "No donations have been recorded yet."
-msgstr "Aucun don enregistré pour l’instant."
-
-#: includes/Admin/Pages/DashboardPage.php:127
-msgid "Confirmed donations will appear in this table."
-msgstr "Les dons confirmés apparaîtront dans ce tableau."
-
-#: includes/Admin/Pages/DashboardPage.php:134
-#: includes/Admin/Pages/DonationsPage.php:111
-#: includes/Admin/Pages/DonorsPage.php:99
-#: includes/Admin/Pages/DonorsPage.php:156 includes/Donor/DonorSpace.php:186
-msgid "Donor"
-msgstr "Donateur"
-
-#: includes/Admin/Pages/DashboardPage.php:135
-#: includes/Admin/Pages/DonationsPage.php:112
-#: includes/Admin/Pages/DonorsPage.php:100
-#: includes/Admin/Pages/DonorsPage.php:157
-#: includes/Admin/Pages/DonorsPage.php:254
-#: includes/Admin/Pages/ManualDonationPage.php:35
-#: templates/admin/settings/tab-association.php:64 templates/form/card.php:174
-msgid "Email"
-msgstr "E-mail"
-
-#: includes/Admin/Pages/DashboardPage.php:136
-#: includes/Admin/Pages/DonationsPage.php:113
-#: includes/Admin/Pages/DonorsPage.php:101 includes/Core/Privacy.php:151
-#: includes/Donor/DonorSpace.php:262 templates/form/inline.php:110
-msgid "Amount"
-msgstr "Montant"
-
-#: includes/Admin/Pages/DashboardPage.php:137 includes/Core/Privacy.php:154
-msgid "Campaign"
-msgstr "Campagne"
-
-#: includes/Admin/Pages/DashboardPage.php:138
-#: includes/Admin/Pages/DonationsPage.php:115 includes/Core/Privacy.php:150
-#: includes/Donor/DonorSpace.php:262
-msgid "Date"
-msgstr "Date"
-
-#: includes/Admin/Pages/DashboardPage.php:184
-msgid "Six-month trend"
-msgstr "Évolution sur six mois"
-
-#: includes/Admin/Pages/DashboardPage.php:189
-msgid "No completed donations yet."
-msgstr "Aucun don complété pour l’instant."
-
-#: includes/Admin/Pages/DashboardPage.php:205
-msgid "Open the Givoly dashboard"
-msgstr "Ouvrir le tableau de bord Givoly"
-
-#: includes/Admin/Pages/DashboardPage.php:232
-msgid "Chart of completed donation amounts over the last six months"
-msgstr "Graphique des montants de dons complétés sur les six derniers mois"
-
-#. translators: 1: month label, 2: amount, 3: number of donations.
-#: includes/Admin/Pages/DashboardPage.php:241
-#, php-format
-msgid "%1$s: €%2$s, %3$d donation"
-msgid_plural "%1$s: €%2$s, %3$d donations"
-msgstr[0] "%1$s : %2$s €, %3$d don"
-msgstr[1] "%1$s : %2$s €, %3$d dons"
-
-#: includes/Admin/Pages/DashboardPage.php:255
-msgid "Amounts will appear after your first completed donations."
-msgstr "Les montants apparaîtront après vos premiers dons complétés."
+#: includes/Admin/AdminActions.php:44 includes/Admin/AdminActions.php:113
+#: includes/Admin/AdminActions.php:180 includes/Admin/AdminActions.php:195
+#: includes/Admin/AdminActions.php:296 includes/Admin/AdminActions.php:338
+#: includes/Admin/AdminActions.php:395 includes/Admin/AdminActions.php:431
+#: includes/Admin/AdminActions.php:445 includes/Admin/AdminActions.php:465
+#: includes/Admin/AdminActions.php:485
+#: includes/Admin/Pages/DonationsPage.php:25
+#: includes/Admin/Pages/SettingsPage.php:123
+#: includes/Admin/Pages/SettingsPage.php:345
+#: includes/Admin/Pages/CampaignsPage.php:55
+#: includes/Admin/Pages/ManualDonationPage.php:18
+#: includes/Admin/Pages/DashboardPage.php:21
+#: includes/Admin/Pages/DonorsPage.php:26
+msgid "Access denied."
+msgstr "Accès refusé."
 
 #: includes/Admin/Pages/DonationsPage.php:31
 msgid "Donation refunded successfully."
@@ -591,8 +447,8 @@ msgstr ""
 
 #: includes/Admin/Pages/DonationsPage.php:46
 msgid ""
-"Unable to schedule cancellation of the recurring donation. Check your Stripe"
-" keys and the relevant subscription."
+"Unable to schedule cancellation of the recurring donation. Check your Stripe "
+"keys and the relevant subscription."
 msgstr ""
 "Impossible de programmer la résiliation du don récurrent. Vérifiez vos clés "
 "Stripe et l’abonnement concerné."
@@ -625,21 +481,32 @@ msgstr "Récupérer les dons Stripe (6 mois)"
 msgid "All"
 msgstr "Tous"
 
-#: includes/Admin/Pages/DonationsPage.php:90 includes/Core/Format.php:22
-msgid "Pending"
-msgstr "En attente"
+#: includes/Admin/Pages/DonationsPage.php:106
+#: includes/Admin/Pages/DashboardPage.php:133
+msgid "No donations have been recorded yet."
+msgstr "Aucun don enregistré pour l’instant."
 
-#: includes/Admin/Pages/DonationsPage.php:91 includes/Core/Format.php:23
-msgid "Failed"
-msgstr "Échoués"
+#: includes/Admin/Pages/DonationsPage.php:111
+#: includes/Admin/Pages/DashboardPage.php:141
+#: includes/Admin/Pages/DonorsPage.php:99
+#: includes/Admin/Pages/DonorsPage.php:156 includes/Donor/DonorSpace.php:198
+msgid "Donor"
+msgstr "Donateur"
 
-#: includes/Admin/Pages/DonationsPage.php:92 includes/Core/Format.php:24
-msgid "Refunded"
-msgstr "Remboursés"
+#: includes/Admin/Pages/DonationsPage.php:112
+#: includes/Admin/Pages/ManualDonationPage.php:35
+#: includes/Admin/Pages/DashboardPage.php:142
+#: includes/Admin/Pages/DonorsPage.php:100
+#: includes/Admin/Pages/DonorsPage.php:157
+#: includes/Admin/Pages/DonorsPage.php:312 templates/form/card.php:174
+#: templates/admin/settings/tab-association.php:64
+msgid "Email"
+msgstr "E-mail"
 
-#: includes/Admin/Pages/DonationsPage.php:93 includes/Core/Format.php:25
-msgid "Cancelled"
-msgstr "Annulés"
+#: includes/Admin/Pages/DonationsPage.php:116
+#: includes/Admin/Pages/CampaignsPage.php:222
+msgid "Actions"
+msgstr "Actions"
 
 #: includes/Admin/Pages/DonationsPage.php:150
 msgid "Confirm refunding this donation? This action cannot be undone."
@@ -657,23 +524,434 @@ msgstr "Rembourser depuis le dashboard HelloAsso"
 msgid "Refund ↗"
 msgstr "Rembourser ↗"
 
-#: includes/Admin/Pages/DonationsPage.php:184
-msgid ""
-"Confirm stopping future payments? The donor will retain access until the end"
-" of the current paid period."
-msgstr ""
-"Confirmer l’arrêt des prochains prélèvements ? Le donateur conservera "
-"l’accès jusqu’à la fin de la période déjà payée."
+#: includes/Admin/Pages/DonationsPage.php:182
+msgid "Subscription:"
+msgstr "Abonnement :"
 
-#: includes/Admin/Pages/DonationsPage.php:189
-msgid "Cancel recurring donation"
-msgstr "Annuler le don récurrent"
+#: includes/Admin/Pages/SettingsPage.php:250
+#: includes/Admin/Pages/SettingsPage.php:297
+#: templates/admin/settings/tab-stripe.php:24
+#: templates/admin/settings/tab-general.php:61
+#: templates/admin/settings/tab-general.php:73
+#: templates/admin/settings/tab-helloasso.php:24
+msgid "Configured"
+msgstr "Configuré"
+
+#: includes/Admin/Pages/SettingsPage.php:252
+#: templates/admin/settings/tab-stripe.php:26
+#: templates/admin/settings/tab-general.php:63
+#: templates/admin/settings/tab-general.php:75
+#: templates/admin/settings/tab-helloasso.php:26
+msgid "Not configured"
+msgstr "Non configuré"
+
+#: includes/Admin/Pages/SettingsPage.php:286
+msgid "(already configured — leave blank to keep)"
+msgstr "(déjà configuré — laisser vide pour conserver)"
+
+#: includes/Admin/Pages/SettingsPage.php:300
+msgid "Delete this secret"
+msgstr "Supprimer ce secret"
+
+#: includes/Admin/Pages/SettingsPage.php:317
+msgid "Copy"
+msgstr "Copier"
+
+#: includes/Admin/Pages/SettingsPage.php:324
+#, php-format
+msgid "Enter this in: %s."
+msgstr "À renseigner dans : %s."
+
+#: includes/Admin/Pages/SettingsPage.php:328
+msgid "Event to enable:"
+msgstr "Événement à activer :"
+
+#: includes/Admin/Pages/SettingsPage.php:353
+msgid "Settings saved."
+msgstr "Réglages enregistrés."
+
+#: includes/Admin/Pages/CampaignsPage.php:66
+#: includes/Admin/Pages/CampaignsPage.php:84
+msgid "Campaign not found."
+msgstr "Campagne introuvable."
+
+#: includes/Admin/Pages/CampaignsPage.php:80
+msgid "Invalid action."
+msgstr "Action invalide."
+
+#: includes/Admin/Pages/CampaignsPage.php:95 includes/Ajax/AjaxHandler.php:81
+#: includes/Ajax/AjaxHandler.php:178
+msgid "Invalid request."
+msgstr "Requête invalide."
+
+#: includes/Admin/Pages/CampaignsPage.php:197
+msgid "Add"
+msgstr "Ajouter"
+
+#: includes/Admin/Pages/CampaignsPage.php:202
+msgid "Campaign saved."
+msgstr "Campagne enregistrée."
+
+#: includes/Admin/Pages/CampaignsPage.php:208
+msgid "Campaign archived."
+msgstr "Campagne archivée."
+
+#: includes/Admin/Pages/CampaignsPage.php:215
+msgid "Title"
+msgstr "Titre"
+
+#: includes/Admin/Pages/CampaignsPage.php:216
+#: includes/Admin/Pages/CampaignsPage.php:341
+msgid "Slug"
+msgstr "Slug"
+
+#: includes/Admin/Pages/CampaignsPage.php:217
+msgid "Goal"
+msgstr "Objectif"
+
+#: includes/Admin/Pages/CampaignsPage.php:218
+msgid "Collected"
+msgstr "Collecté"
+
+#: includes/Admin/Pages/CampaignsPage.php:219
+msgid "Progress"
+msgstr "Progression"
+
+#: includes/Admin/Pages/CampaignsPage.php:221
+msgid "End date"
+msgstr "Fin"
+
+#: includes/Admin/Pages/CampaignsPage.php:228
+msgid "No campaigns found."
+msgstr "Aucune campagne."
+
+#: includes/Admin/Pages/CampaignsPage.php:265
+msgid "End date has passed"
+msgstr "Date de fin dépassée"
+
+#: includes/Admin/Pages/CampaignsPage.php:270
+#: includes/Admin/Pages/CampaignsPage.php:401
+msgid "Draft"
+msgstr "Brouillon"
+
+#: includes/Admin/Pages/CampaignsPage.php:271
+#: includes/Admin/Pages/CampaignsPage.php:402
+msgid "Active"
+msgstr "Active"
+
+#: includes/Admin/Pages/CampaignsPage.php:273
+#: includes/Admin/Pages/CampaignsPage.php:404
+msgid "Archived"
+msgstr "Archivée"
+
+#: includes/Admin/Pages/CampaignsPage.php:281
+#: includes/Admin/Pages/DonorsPage.php:200
+msgid "Edit"
+msgstr "Modifier"
+
+#: includes/Admin/Pages/CampaignsPage.php:285
+msgid "Archive this campaign?"
+msgstr "Archiver cette campagne ?"
+
+#: includes/Admin/Pages/CampaignsPage.php:286
+msgid "Archive"
+msgstr "Archiver"
+
+#: includes/Admin/Pages/CampaignsPage.php:301
+msgid "New campaign"
+msgstr "Nouvelle campagne"
+
+#: includes/Admin/Pages/CampaignsPage.php:304
+#, php-format
+msgid "Edit: %s"
+msgstr "Modifier : %s"
+
+#: includes/Admin/Pages/CampaignsPage.php:310
+msgid "Back to list"
+msgstr "Retour à la liste"
+
+#: includes/Admin/Pages/CampaignsPage.php:319
+msgid "This slug is already used by another campaign."
+msgstr "Ce slug est déjà utilisé par une autre campagne."
+
+#: includes/Admin/Pages/CampaignsPage.php:320
+msgid "The start date must be before the end date."
+msgstr "La date de début doit être antérieure à la date de fin."
+
+#: includes/Admin/Pages/CampaignsPage.php:321
+msgid "The title is required."
+msgstr "Le titre est obligatoire."
+
+#: includes/Admin/Pages/CampaignsPage.php:334
+msgid "Title *"
+msgstr "Titre *"
+
+#: includes/Admin/Pages/CampaignsPage.php:345
+msgid "Lowercase letters, numbers, and hyphens only."
+msgstr "Minuscules, chiffres et tirets uniquement."
+
+#: includes/Admin/Pages/CampaignsPage.php:346
+msgid ""
+"Identifier used in the [givoly_campaign campaign=\"slug\"] shortcode. "
+"Automatically generated from the title if empty."
+msgstr ""
+"Identifiant utilisé dans le shortcode [givoly_campaign campaign=\"slug\"]. "
+"Auto-généré depuis le titre si vide."
+
+#: includes/Admin/Pages/CampaignsPage.php:350
+msgid "Description"
+msgstr "Description"
+
+#: includes/Admin/Pages/CampaignsPage.php:358
+msgid "Fundraising goal"
+msgstr "Objectif de collecte"
+
+#: includes/Admin/Pages/CampaignsPage.php:363
+msgid "Leave blank for a fundraiser with no goal."
+msgstr "Laisser vide pour une collecte sans objectif."
+
+#: includes/Admin/Pages/CampaignsPage.php:367
+#: includes/Admin/Pages/DonorsPage.php:333 assets/js/givoly-blocks.js:160
+msgid "Currency"
+msgstr "Devise"
+
+#: includes/Admin/Pages/CampaignsPage.php:380
+msgid "Dates"
+msgstr "Dates"
+
+#: includes/Admin/Pages/CampaignsPage.php:383
+msgid "Start:"
+msgstr "Début :"
+
+#: includes/Admin/Pages/CampaignsPage.php:389
+msgid "End:"
+msgstr "Fin :"
+
+#: includes/Admin/Pages/CampaignsPage.php:417
+msgid "Featured image"
+msgstr "Image mise en avant"
+
+#: includes/Admin/Pages/CampaignsPage.php:429
+msgid "Choose an image"
+msgstr "Choisir une image"
+
+#: includes/Admin/Pages/CampaignsPage.php:430
+msgid "Remove"
+msgstr "Retirer"
+
+#: includes/Admin/Pages/CampaignsPage.php:431
+msgid "Optional image shown at the top of the public campaign widget."
+msgstr "Image facultative affichée en haut du widget public de campagne."
+
+#: includes/Admin/Pages/CampaignsPage.php:464
+msgid "Update"
+msgstr "Mettre à jour"
+
+#: includes/Admin/Pages/CampaignsPage.php:464
+msgid "Create campaign"
+msgstr "Créer la campagne"
+
+#: includes/Admin/Pages/ManualDonationPage.php:24
+msgid "The manual donation was saved. Emails have been queued."
+msgstr "Le don manuel a été enregistré. Les emails ont été mis en file."
+
+#: includes/Admin/Pages/ManualDonationPage.php:26
+msgid "The manual donation could not be saved. Check the fields."
+msgstr "Le don manuel n’a pas pu être enregistré. Vérifiez les champs."
+
+#: includes/Admin/Pages/ManualDonationPage.php:28
+msgid ""
+"Add a donation received by bank transfer, cheque, or cash. The donation will "
+"be recorded as completed."
+msgstr ""
+"Ajoutez un don reçu par virement, chèque ou espèces. Le don sera "
+"comptabilisé comme complété."
+
+#: includes/Admin/Pages/ManualDonationPage.php:34
+#: includes/Admin/Pages/DonorsPage.php:311 templates/form/card.php:159
+#: templates/admin/settings/tab-association.php:30
+msgid "Name"
+msgstr "Nom"
+
+#: includes/Admin/Pages/ManualDonationPage.php:36
+msgid "Amount (€)"
+msgstr "Montant (€)"
+
+#: includes/Admin/Pages/ManualDonationPage.php:37
+msgid "Donation date"
+msgstr "Date du don"
+
+#: includes/Admin/Pages/ManualDonationPage.php:38
+msgid "Bank transfer"
+msgstr "Virement"
+
+#: includes/Admin/Pages/ManualDonationPage.php:38
+msgid "Cheque"
+msgstr "Chèque"
+
+#: includes/Admin/Pages/ManualDonationPage.php:38
+msgid "Cash"
+msgstr "Espèces"
+
+#: includes/Admin/Pages/ManualDonationPage.php:39
+msgid "Tax receipt"
+msgstr "Reçu fiscal"
+
+#: includes/Admin/Pages/ManualDonationPage.php:39
+msgid "Queue the tax receipt for delivery immediately"
+msgstr "Mettre immédiatement le reçu fiscal en file d’envoi"
+
+#: includes/Admin/Pages/ManualDonationPage.php:41
+msgid "Save manual donation"
+msgstr "Enregistrer le don manuel"
+
+#: includes/Admin/Pages/DashboardPage.php:39
+msgid "Givoly — Dashboard"
+msgstr "Givoly — Tableau de bord"
+
+#: includes/Admin/Pages/DashboardPage.php:40
+msgid "A clear view of donations received and the next useful actions."
+msgstr "Une vue claire des dons reçus et des prochaines actions utiles."
+
+#: includes/Admin/Pages/DashboardPage.php:43
+msgid "View all donations"
+msgstr "Voir tous les dons"
+
+#: includes/Admin/Pages/DashboardPage.php:50
+msgid "Stripe is not configured yet."
+msgstr "Stripe n'est pas encore configuré."
+
+#: includes/Admin/Pages/DashboardPage.php:52
+msgid "Configure now →"
+msgstr "Configurer maintenant →"
+
+#: includes/Admin/Pages/DashboardPage.php:58
+msgid "Donation metrics"
+msgstr "Indicateurs des dons"
+
+#: includes/Admin/Pages/DashboardPage.php:59
+#: includes/Admin/Pages/DashboardPage.php:178
+msgid "Total collected"
+msgstr "Total collecté"
+
+#: includes/Admin/Pages/DashboardPage.php:60
+#: includes/Admin/Pages/DashboardPage.php:79
+#: includes/Admin/Pages/DashboardPage.php:182
+msgid "Completed donations"
+msgstr "Dons complétés"
+
+#: includes/Admin/Pages/DashboardPage.php:61
+msgid "Active donors"
+msgstr "Donateurs actifs"
+
+#: includes/Admin/Pages/DashboardPage.php:67
+msgid "See totals by currency"
+msgstr "Voir les totaux par devise"
+
+#: includes/Admin/Pages/DashboardPage.php:69
+msgid "Average donation"
+msgstr "Don moyen"
+
+#: includes/Admin/Pages/DashboardPage.php:76
+msgid "Donation trends"
+msgstr "Évolution des dons"
+
+#: includes/Admin/Pages/DashboardPage.php:77
+msgid "Completed amounts over the last six months."
+msgstr "Montants complétés sur les six derniers mois."
+
+#: includes/Admin/Pages/DashboardPage.php:85
+msgid "Next steps"
+msgstr "À faire ensuite"
+
+#: includes/Admin/Pages/DashboardPage.php:86
+msgid "Keep your donation space ready for your next campaign."
+msgstr "Gardez votre espace de dons prêt pour votre prochaine campagne."
+
+#: includes/Admin/Pages/DashboardPage.php:88
+msgid "Check settings"
+msgstr "Vérifier les réglages"
+
+#: includes/Admin/Pages/DashboardPage.php:89
+msgid "Customize emails"
+msgstr "Personnaliser les emails"
+
+#: includes/Admin/Pages/DashboardPage.php:90
+msgid "Create a campaign"
+msgstr "Créer une campagne"
+
+#: includes/Admin/Pages/DashboardPage.php:98
+msgid "Add a donation form"
+msgstr "Ajouter un formulaire de don"
+
+#: includes/Admin/Pages/DashboardPage.php:99
+msgid "Copy this shortcode into a WordPress page or post to display your form."
+msgstr ""
+"Copiez ce shortcode dans une page ou un article WordPress pour afficher "
+"votre formulaire."
+
+#: includes/Admin/Pages/DashboardPage.php:107
+msgid "Copy shortcode"
+msgstr "Copier le shortcode"
+
+#: includes/Admin/Pages/DashboardPage.php:111
+msgid "The form automatically uses your payment and appearance settings."
+msgstr ""
+"Le formulaire reprend automatiquement vos réglages de paiement et "
+"d’apparence."
+
+#: includes/Admin/Pages/DashboardPage.php:114
+msgid "Support PLAID·ACT"
+msgstr "Soutenir PLAID·ACT"
+
+#: includes/Admin/Pages/DashboardPage.php:122
+#: includes/Admin/Pages/DashboardPage.php:194
+msgid "Recent donors"
+msgstr "Derniers donateurs"
+
+#: includes/Admin/Pages/DashboardPage.php:123
+msgid "The latest confirmed donations appear here automatically."
+msgstr "Les derniers dons confirmés apparaissent ici automatiquement."
+
+#: includes/Admin/Pages/DashboardPage.php:126
+msgid "Open the full list"
+msgstr "Ouvrir la liste complète"
+
+#: includes/Admin/Pages/DashboardPage.php:134
+msgid "Confirmed donations will appear in this table."
+msgstr "Les dons confirmés apparaîtront dans ce tableau."
+
+#: includes/Admin/Pages/DashboardPage.php:191
+msgid "Six-month trend"
+msgstr "Évolution sur six mois"
+
+#: includes/Admin/Pages/DashboardPage.php:196
+msgid "No completed donations yet."
+msgstr "Aucun don complété pour l’instant."
+
+#: includes/Admin/Pages/DashboardPage.php:212
+msgid "Open the Givoly dashboard"
+msgstr "Ouvrir le tableau de bord Givoly"
+
+#: includes/Admin/Pages/DashboardPage.php:243
+msgid "Chart of completed donation amounts over the last six months"
+msgstr "Graphique des montants de dons complétés sur les six derniers mois"
+
+#: includes/Admin/Pages/DashboardPage.php:256
+#, php-format
+msgid "%1$s: %2$s, %3$d donation"
+msgid_plural "%1$s: %2$s, %3$d donations"
+msgstr[0] "%1$s : %2$s, %3$d don"
+msgstr[1] "%1$s : %2$s, %3$d dons"
+
+#: includes/Admin/Pages/DashboardPage.php:270
+msgid "Amounts will appear after your first completed donations."
+msgstr "Les montants apparaîtront après vos premiers dons complétés."
 
 #: includes/Admin/Pages/DonorsPage.php:49
 msgid "Givoly — Donors"
 msgstr "Givoly — Donateurs"
 
-#. translators: %d: number of fiscal receipts queued for delivery.
 #: includes/Admin/Pages/DonorsPage.php:55
 #, php-format
 msgid "%d tax receipt has been queued."
@@ -762,8 +1040,6 @@ msgstr "Envoyer ce reçu"
 msgid "Latest queue status"
 msgstr "Suivi de la dernière file"
 
-#. translators: 1: total jobs, 2: pending jobs, 3: processing jobs, 4: sent
-#. jobs, 5: failed jobs.
 #: includes/Admin/Pages/DonorsPage.php:142
 #, php-format
 msgid "%1$d total: %2$d pending, %3$d processing, %4$d sent, %5$d failed."
@@ -782,16 +1058,11 @@ msgstr "Erreur"
 msgid "No donors have been recorded yet."
 msgstr "Aucun donor enregistré pour l'instant."
 
-#: includes/Admin/Pages/DonorsPage.php:155 includes/Core/Privacy.php:127
-#: includes/Donor/DonorSpace.php:234
-msgid "Donor number"
-msgstr "Numéro donor"
-
 #: includes/Admin/Pages/DonorsPage.php:158
 msgid "Total donated"
 msgstr "Total donné"
 
-#: includes/Admin/Pages/DonorsPage.php:159
+#: includes/Admin/Pages/DonorsPage.php:159 assets/js/givoly-blocks.js:227
 msgid "Donation count"
 msgstr "Nb de dons"
 
@@ -800,14 +1071,15 @@ msgid "Latest donation"
 msgstr "Dernier don"
 
 #: includes/Admin/Pages/DonorsPage.php:161
+#: includes/Admin/Pages/DonorsPage.php:334
 msgid "Action"
 msgstr "Action"
 
-#: includes/Admin/Pages/DonorsPage.php:245
+#: includes/Admin/Pages/DonorsPage.php:303
 msgid "Edit donor record"
 msgstr "Modifier la fiche donateur"
 
-#: includes/Admin/Pages/DonorsPage.php:246
+#: includes/Admin/Pages/DonorsPage.php:304
 msgid ""
 "The donor number and Stripe identifiers are preserved. Editing the email "
 "address does not remove any donation history."
@@ -815,150 +1087,188 @@ msgstr ""
 "Le numéro donor et les identifiants Stripe sont conservés. Edit l’email ne "
 "supprime aucun don historique."
 
-#: includes/Admin/Pages/DonorsPage.php:252
-#: includes/Admin/Pages/ManualDonationPage.php:33
-#: includes/Core/Privacy.php:129 templates/form/card.php:145
-msgid "First name"
-msgstr "Prénom"
-
-#: includes/Admin/Pages/DonorsPage.php:253
-#: includes/Admin/Pages/ManualDonationPage.php:34
-#: templates/admin/settings/tab-association.php:30 templates/form/card.php:159
-msgid "Name"
-msgstr "Nom"
-
-#: includes/Admin/Pages/DonorsPage.php:255
+#: includes/Admin/Pages/DonorsPage.php:313
 msgid "Organization / company"
 msgstr "Organization / société"
 
-#: includes/Admin/Pages/DonorsPage.php:256 includes/Core/Privacy.php:132
-#: templates/admin/settings/tab-association.php:34 templates/form/card.php:248
-msgid "Address"
-msgstr "Adresse"
-
-#: includes/Admin/Pages/DonorsPage.php:257
+#: includes/Admin/Pages/DonorsPage.php:315
 msgid "Address line 2"
 msgstr "Complément d’adresse"
 
-#: includes/Admin/Pages/DonorsPage.php:258
-#: templates/admin/settings/tab-association.php:38 templates/form/card.php:253
+#: includes/Admin/Pages/DonorsPage.php:316 templates/form/card.php:253
+#: templates/admin/settings/tab-association.php:38
 msgid "Postal code"
 msgstr "Code postal"
 
-#: includes/Admin/Pages/DonorsPage.php:259
-#: templates/admin/settings/tab-association.php:42 templates/form/card.php:257
+#: includes/Admin/Pages/DonorsPage.php:317 templates/form/card.php:257
+#: templates/admin/settings/tab-association.php:42
 msgid "City"
 msgstr "Ville"
 
-#: includes/Admin/Pages/DonorsPage.php:260
+#: includes/Admin/Pages/DonorsPage.php:318
 msgid "Country"
 msgstr "Pays"
 
-#: includes/Admin/Pages/DonorsPage.php:261 includes/Core/Privacy.php:139
-#: templates/form/card.php:237 templates/form/partials/extra-fields.php:18
-msgid "Phone"
-msgstr "Téléphone"
-
-#: includes/Admin/Pages/DonorsPage.php:263
+#: includes/Admin/Pages/DonorsPage.php:321
 msgid "Save record"
 msgstr "Enregistrer la fiche"
 
-#: includes/Admin/Pages/DonorsPage.php:264
+#: includes/Admin/Pages/DonorsPage.php:322
 msgid "Cancel"
 msgstr "Annuler"
 
-#: includes/Admin/Pages/ManualDonationPage.php:24
-msgid "The manual donation was saved. Emails have been queued."
-msgstr "Le don manuel a été enregistré. Les emails ont été mis en file."
+#: includes/Admin/Pages/DonorsPage.php:325
+msgid "Stripe subscriptions"
+msgstr "Abonnements Stripe"
 
-#: includes/Admin/Pages/ManualDonationPage.php:26
-msgid "The manual donation could not be saved. Check the fields."
-msgstr "Le don manuel n’a pas pu être enregistré. Vérifiez les champs."
+#: includes/Admin/Pages/DonorsPage.php:327
+msgid "No known Stripe subscription for this donor."
+msgstr "Aucun abonnement Stripe connu pour ce donateur."
 
-#: includes/Admin/Pages/ManualDonationPage.php:28
+#: includes/Admin/Pages/DonorsPage.php:331
+msgid "Subscription"
+msgstr "Abonnement"
+
+#: includes/Admin/Pages/DonorsPage.php:344
 msgid ""
-"Add a donation received by bank transfer, cheque, or cash. The donation will"
-" be recorded as completed."
+"Confirm stopping future payments? The donor will retain access until the end "
+"of the current paid period."
 msgstr ""
-"Ajoutez un don reçu par virement, chèque ou espèces. Le don sera "
-"comptabilisé comme complété."
+"Confirmer l’arrêt des prochains prélèvements ? Le donateur conservera "
+"l’accès jusqu’à la fin de la période déjà payée."
 
-#: includes/Admin/Pages/ManualDonationPage.php:36
-msgid "Amount (€)"
-msgstr "Montant (€)"
+#: includes/Admin/Pages/DonorsPage.php:348
+msgid "Cancel recurring donation"
+msgstr "Annuler le don récurrent"
 
-#: includes/Admin/Pages/ManualDonationPage.php:37
-msgid "Donation date"
-msgstr "Date du don"
+#: includes/Donor/DonorSpace.php:54 includes/Donor/DonorSpace.php:116
+msgid ""
+"If a donor record exists for this address, a secure link has just been sent."
+msgstr ""
+"Si une fiche donor existe pour cette adresse, un lien sécurisé vient d’être "
+"envoyé."
 
-#: includes/Admin/Pages/ManualDonationPage.php:38
-#: includes/Core/Privacy.php:153
-msgid "Payment method"
-msgstr "Moyen de paiement"
+#: includes/Donor/DonorSpace.php:55 includes/Donor/DonorSpace.php:159
+msgid "Your cancellation is scheduled for the end of the current paid period."
+msgstr "Votre résiliation est programmée à la fin de la période déjà payée."
 
-#: includes/Admin/Pages/ManualDonationPage.php:38
-msgid "Bank transfer"
-msgstr "Virement"
+#: includes/Donor/DonorSpace.php:82
+msgid "Too many requests. Please wait before trying again."
+msgstr "Trop de demandes. Veuillez patienter avant de réessayer."
 
-#: includes/Admin/Pages/ManualDonationPage.php:38
-msgid "Cheque"
-msgstr "Chèque"
+#: includes/Donor/DonorSpace.php:88 includes/Ajax/AjaxHandler.php:110
+#: includes/Ajax/AjaxHandler.php:186
+msgid "Invalid email address."
+msgstr "Email invalide."
 
-#: includes/Admin/Pages/ManualDonationPage.php:38
-msgid "Cash"
-msgstr "Espèces"
+#: includes/Donor/DonorSpace.php:123
+msgid "No manageable Stripe subscription is associated with your record."
+msgstr "Aucun abonnement Stripe gérable n’est associé à votre fiche."
 
-#: includes/Admin/Pages/ManualDonationPage.php:39
-msgid "Tax receipt"
-msgstr "Reçu fiscal"
+#: includes/Donor/DonorSpace.php:134
+msgid "The Stripe portal is temporarily unavailable."
+msgstr "Le portail Stripe est momentanément indisponible."
 
-#: includes/Admin/Pages/ManualDonationPage.php:39
-msgid "Queue the tax receipt for delivery immediately"
-msgstr "Mettre immédiatement le reçu fiscal en file d’envoi"
+#: includes/Donor/DonorSpace.php:142 includes/Donor/DonorSpace.php:148
+#: includes/Donor/DonorSpace.php:153
+msgid "No active Stripe subscription is associated with your record."
+msgstr "Aucun abonnement Stripe actif n’est associé à votre fiche."
 
-#: includes/Admin/Pages/ManualDonationPage.php:41
-msgid "Save manual donation"
-msgstr "Enregistrer le don manuel"
+#: includes/Donor/DonorSpace.php:161
+msgid "Cancellation is temporarily unavailable."
+msgstr "La résiliation est momentanément indisponible."
 
-#: includes/Admin/Pages/SettingsPage.php:235
-#: includes/Admin/Pages/SettingsPage.php:280
-#: templates/admin/settings/tab-general.php:61
-#: templates/admin/settings/tab-general.php:73
-#: templates/admin/settings/tab-helloasso.php:24
-#: templates/admin/settings/tab-stripe.php:24
-msgid "Configured"
-msgstr "Configuré"
+#: includes/Donor/DonorSpace.php:175
+msgid "The receipt link is invalid or has expired."
+msgstr "Lien de reçu invalide ou expiré."
 
-#: includes/Admin/Pages/SettingsPage.php:237
-#: templates/admin/settings/tab-general.php:63
-#: templates/admin/settings/tab-general.php:75
-#: templates/admin/settings/tab-helloasso.php:26
-#: templates/admin/settings/tab-stripe.php:26
-msgid "Not configured"
-msgstr "Non configuré"
+#: includes/Donor/DonorSpace.php:193
+msgid "Receipt not found."
+msgstr "Reçu introuvable."
 
-#: includes/Admin/Pages/SettingsPage.php:269
-msgid "(already configured — leave blank to keep)"
-msgstr "(déjà configuré — laisser vide pour conserver)"
+#: includes/Donor/DonorSpace.php:227 includes/Donor/DonorSpace.php:255
+msgid "Your donor space"
+msgstr "Votre espace donateur"
 
-#: includes/Admin/Pages/SettingsPage.php:296
-msgid "Copy"
-msgstr "Copier"
+#: includes/Donor/DonorSpace.php:228
+msgid ""
+"Enter the email address used for your donations. We will send you a secure "
+"passwordless link."
+msgstr ""
+"Saisissez l’adresse utilisée pour vos dons. Nous vous enverrons un lien "
+"sécurisé, sans mot de passe."
 
-#. translators: %s is the name of the destination service (e.g. "Stripe" or
-#. "HelloAsso").
-#: includes/Admin/Pages/SettingsPage.php:303
-#, php-format
-msgid "Enter this in: %s."
-msgstr "À renseigner dans : %s."
+#: includes/Donor/DonorSpace.php:233
+msgid "Receive my access link"
+msgstr "Recevoir mon lien d’accès"
 
-#: includes/Admin/Pages/SettingsPage.php:307
-msgid "Event to enable:"
-msgstr "Événement à activer :"
+#: includes/Donor/DonorSpace.php:258
+msgid "Log out"
+msgstr "Se déconnecter"
 
-#: includes/Admin/Pages/SettingsPage.php:332
-msgid "Settings saved."
-msgstr "Réglages enregistrés."
+#: includes/Donor/DonorSpace.php:263
+msgid "My monthly donations"
+msgstr "Mes dons mensuels"
+
+#: includes/Donor/DonorSpace.php:264
+msgid ""
+"You can change the amount or payment method in the secure Stripe portal."
+msgstr ""
+"Vous pouvez modifier le montant ou les moyens de paiement depuis le portail "
+"sécurisé Stripe."
+
+#: includes/Donor/DonorSpace.php:265
+msgid "Manage my subscriptions"
+msgstr "Gérer mes abonnements"
+
+#: includes/Donor/DonorSpace.php:274
+msgid "I want to cancel this subscription"
+msgstr "Je souhaite résilier cet abonnement"
+
+#: includes/Donor/DonorSpace.php:279
+msgid ""
+"No active subscription with direct cancellation is known. Use the Stripe "
+"portal to manage your payments."
+msgstr ""
+"Aucun abonnement actif avec résiliation directe connu. Utilisez le portail "
+"Stripe pour gérer vos paiements."
+
+#: includes/Donor/DonorSpace.php:282
+msgid ""
+"Before you go, you can simply reduce the amount in the Stripe portal. Every "
+"contribution directly helps the organization continue its work."
+msgstr ""
+"Avant de partir, vous pouvez simplement réduire le montant depuis le portail "
+"Stripe. Chaque contribution aide directement l’association à poursuivre ses "
+"actions."
+
+#: includes/Donor/DonorSpace.php:283
+msgid "Reduce instead of cancelling"
+msgstr "Réduire plutôt que résilier"
+
+#: includes/Donor/DonorSpace.php:284
+msgid "Confirm cancellation"
+msgstr "Confirmer la résiliation"
+
+#: includes/Donor/DonorSpace.php:291
+msgid "My donation history"
+msgstr "Historique de mes dons"
+
+#: includes/Donor/DonorSpace.php:293
+msgid "No completed donations found."
+msgstr "Aucun don complété trouvé."
+
+#: includes/Donor/DonorSpace.php:296
+msgid "Method"
+msgstr "Moyen"
+
+#: includes/Donor/DonorSpace.php:296
+msgid "Receipt"
+msgstr "Reçu"
+
+#: includes/Donor/DonorSpace.php:303
+msgid "Download PDF"
+msgstr "Télécharger le PDF"
 
 #: includes/Ajax/AjaxHandler.php:63
 msgid "Support us"
@@ -972,276 +1282,402 @@ msgstr "Trop de tentatives. Veuillez patienter une minute avant de réessayer."
 msgid "Invalid amount."
 msgstr "Montant invalide."
 
-#: includes/Ajax/AjaxHandler.php:110 includes/Ajax/AjaxHandler.php:159
-#: includes/Donor/DonorSpace.php:88
-msgid "Invalid email address."
-msgstr "Email invalide."
+#: includes/Ajax/AjaxHandler.php:115
+msgid "Invalid currency."
+msgstr "Devise invalide."
 
-#: includes/Ajax/AjaxHandler.php:143
+#: includes/Ajax/AjaxHandler.php:118 includes/Ajax/AjaxHandler.php:136
+msgid "HelloAsso only supports payments in euros."
+msgstr "HelloAsso accepte uniquement les paiements en euros."
+
+#: includes/Ajax/AjaxHandler.php:126
+msgid "Unknown campaign."
+msgstr "Campagne inconnue."
+
+#: includes/Ajax/AjaxHandler.php:129
+msgid "The currency does not match the campaign currency."
+msgstr "La devise ne correspond pas à celle de la campagne."
+
+#: includes/Ajax/AjaxHandler.php:132 templates/campaign/campaign.php:99
+msgid "This campaign is not accepting donations at the moment."
+msgstr "Cette campagne n’accepte pas les dons pour le moment."
+
+#: includes/Ajax/AjaxHandler.php:170
 msgid "There was an error creating the payment. Please try again."
 msgstr "Erreur lors de la création du paiement. Veuillez réessayer."
 
-#: includes/Ajax/AjaxHandler.php:194 includes/Ajax/AjaxHandler.php:230
+#: includes/Ajax/AjaxHandler.php:221 includes/Ajax/AjaxHandler.php:257
 msgid "Thank you, your information was saved successfully."
 msgstr "Merci, vos informations ont bien été enregistrées."
 
-#: includes/Ajax/AjaxHandler.php:197
+#: includes/Ajax/AjaxHandler.php:224
 msgid "The post-payment session is invalid or has expired."
 msgstr "Session post-paiement invalide ou expirée."
 
-#: includes/Ajax/AjaxHandler.php:201
+#: includes/Ajax/AjaxHandler.php:228
 msgid "The email address does not match the payment."
 msgstr "L’email saisi ne correspond pas au paiement."
 
-#: includes/Ajax/AjaxHandler.php:219
+#: includes/Ajax/AjaxHandler.php:246
 msgid "Unable to save the information."
 msgstr "Impossible d’enregistrer les informations."
 
-#: includes/Ajax/AjaxHandler.php:321 includes/Gateway/StripeGateway.php:49
+#: includes/Ajax/AjaxHandler.php:348 includes/Gateway/StripeGateway.php:49
 msgid "Donation"
 msgstr "Don"
 
-#: includes/Core/AssetsLoader.php:78 includes/Donor/DonorSpace.php:53
-msgid "An error occurred. Please try again."
-msgstr "Une erreur est survenue. Veuillez réessayer."
-
-#: includes/Core/AssetsLoader.php:79
-msgid "Please select or enter a valid amount (minimum €1)."
-msgstr "Veuillez sélectionner ou saisir un montant valide (min. 1 €)."
-
-#: includes/Core/AssetsLoader.php:80
-msgid "Please enter a valid email address."
-msgstr "Veuillez saisir une adresse email valide."
-
-#: includes/Core/AssetsLoader.php:81
-msgid "Please enter your first and last name."
-msgstr "Veuillez saisir votre prénom et votre nom."
-
-#: includes/Core/AssetsLoader.php:82
-msgid "Thank you for your donation! Your generosity makes a difference."
-msgstr "Merci pour votre don ! Votre générosité fait la différence."
-
-#: includes/Core/Privacy.php:32
-msgid "Givoly — Donor profile and donations"
-msgstr "Givoly — Profil donateur et dons"
-
-#: includes/Core/Privacy.php:41
-msgid "Givoly — Donor data eraser"
-msgstr "Givoly — Effacement des données donateurs"
-
-#. translators: %d correspond à la position du don dans l'historique exporté.
-#: includes/Core/Privacy.php:107
-#, php-format
-msgid "Donation %1$d — %2$s"
-msgstr "Don %1$d — %2$s"
-
-#: includes/Core/Privacy.php:106
-msgid "Givoly — Donor profile"
-msgstr "Givoly — Profil donateur"
-
-#: includes/Core/Privacy.php:114
-msgid "Givoly — Donation history"
-msgstr "Givoly — Historique des dons"
-
-#: includes/Core/Privacy.php:128 includes/Donor/DonorSpace.php:218
-msgid "Email address"
-msgstr "Adresse e-mail"
-
-#: includes/Core/Privacy.php:130
-msgid "Last name"
-msgstr "Nom"
-
-#: includes/Core/Privacy.php:131
-msgid "Company"
-msgstr "Société"
-
-#: includes/Core/Privacy.php:140
-msgid "Registration date"
-msgstr "Date d’inscription"
-
-#: includes/Core/Privacy.php:245
-msgid ""
-"Donation amounts were kept for accounting and tax obligations. All personal "
-"information attached to them has been removed."
-msgstr ""
-"Les montants des dons sont conservés pour les obligations comptables et "
-"fiscales. Toutes les informations personnelles associées ont été supprimées."
-
-#: includes/Donor/DonorSpace.php:54 includes/Donor/DonorSpace.php:116
-msgid ""
-"If a donor record exists for this address, a secure link has just been sent."
-msgstr ""
-"Si une fiche donor existe pour cette adresse, un lien sécurisé vient d’être "
-"envoyé."
-
-#: includes/Donor/DonorSpace.php:55 includes/Donor/DonorSpace.php:147
-msgid "Your cancellation is scheduled for the end of the current paid period."
-msgstr "Votre résiliation est programmée à la fin de la période déjà payée."
-
-#: includes/Donor/DonorSpace.php:82
-msgid "Too many requests. Please wait before trying again."
-msgstr "Trop de demandes. Veuillez patienter avant de réessayer."
-
-#: includes/Donor/DonorSpace.php:123
-msgid "No manageable Stripe subscription is associated with your record."
-msgstr "Aucun abonnement Stripe gérable n’est associé à votre fiche."
-
-#: includes/Donor/DonorSpace.php:134
-msgid "The Stripe portal is temporarily unavailable."
-msgstr "Le portail Stripe est momentanément indisponible."
-
-#: includes/Donor/DonorSpace.php:142
-msgid "No active Stripe subscription is associated with your record."
-msgstr "Aucun abonnement Stripe actif n’est associé à votre fiche."
-
-#: includes/Donor/DonorSpace.php:149
-msgid "Cancellation is temporarily unavailable."
-msgstr "La résiliation est momentanément indisponible."
-
-#: includes/Donor/DonorSpace.php:163
-msgid "The receipt link is invalid or has expired."
-msgstr "Lien de reçu invalide ou expiré."
-
-#: includes/Donor/DonorSpace.php:181
-msgid "Receipt not found."
-msgstr "Reçu introuvable."
-
-#: includes/Donor/DonorSpace.php:215 includes/Donor/DonorSpace.php:235
-msgid "Your donor space"
-msgstr "Votre espace donateur"
-
-#: includes/Donor/DonorSpace.php:216
-msgid ""
-"Enter the email address used for your donations. We will send you a secure "
-"passwordless link."
-msgstr ""
-"Saisissez l’adresse utilisée pour vos dons. Nous vous enverrons un lien "
-"sécurisé, sans mot de passe."
-
-#: includes/Donor/DonorSpace.php:221
-msgid "Receive my access link"
-msgstr "Recevoir mon lien d’accès"
-
-#: includes/Donor/DonorSpace.php:238
-msgid "Log out"
-msgstr "Se déconnecter"
-
-#: includes/Donor/DonorSpace.php:243
-msgid "My monthly donation"
-msgstr "Mon don mensuel"
-
-#: includes/Donor/DonorSpace.php:244
-msgid ""
-"You can change the amount or payment method in the secure Stripe portal."
-msgstr ""
-"Vous pouvez modifier le montant ou les moyens de paiement depuis le portail "
-"sécurisé Stripe."
-
-#: includes/Donor/DonorSpace.php:245
-msgid "Manage my subscription"
-msgstr "Gérer mon abonnement"
-
-#: includes/Donor/DonorSpace.php:246
-msgid "I want to cancel"
-msgstr "Je souhaite résilier"
-
-#: includes/Donor/DonorSpace.php:248
-msgid ""
-"Before you go, you can simply reduce the amount in the Stripe portal. Every "
-"contribution directly helps the organization continue its work."
-msgstr ""
-"Avant de partir, vous pouvez simplement réduire le montant depuis le portail"
-" Stripe. Chaque contribution aide directement l’association à poursuivre ses"
-" actions."
-
-#: includes/Donor/DonorSpace.php:249
-msgid "Reduce instead of cancelling"
-msgstr "Réduire plutôt que résilier"
-
-#: includes/Donor/DonorSpace.php:250
-msgid "Confirm cancellation"
-msgstr "Confirmer la résiliation"
-
-#: includes/Donor/DonorSpace.php:257
-msgid "My donation history"
-msgstr "Historique de mes dons"
-
-#: includes/Donor/DonorSpace.php:259
-msgid "No completed donations found."
-msgstr "Aucun don complété trouvé."
-
-#: includes/Donor/DonorSpace.php:262
-msgid "Method"
-msgstr "Moyen"
-
-#: includes/Donor/DonorSpace.php:262
-msgid "Receipt"
-msgstr "Reçu"
-
-#: includes/Donor/DonorSpace.php:269
-msgid "Download PDF"
-msgstr "Télécharger le PDF"
-
-#: includes/Form/DonationForm.php:58
-msgid "Powered by Givoly"
-msgstr "Propulsé par Givoly"
-
-#: includes/Form/DonationForm.php:59
-msgid "Discover Givoly"
-msgstr "Découvrir Givoly"
-
-#: includes/Form/FormConfig.php:127
-msgid "Make a donation"
-msgstr "Faire un don"
-
-#: includes/Form/FormConfig.php:128
-msgid "Donate now"
-msgstr "Donner maintenant"
-
-#. translators: %s is the campaign name.
 #: includes/Gateway/StripeGateway.php:47
 #, php-format
 msgid "Donation — %s"
 msgstr "Don — %s"
 
-#: includes/Mail/MailQueue.php:215
-msgid "General"
-msgstr "Générale"
+#: templates/form/card.php:31 templates/form/inline.php:32
+msgid "Donation form"
+msgstr "Formulaire de don"
 
-#: includes/Mail/MailQueue.php:219
-msgid "donor"
-msgstr "donateur"
+#: templates/form/card.php:59 templates/form/inline.php:56
+msgid "Frequency"
+msgstr "Fréquence"
 
-#: includes/Mail/MailQueue.php:248
-msgid "Your donor space access"
-msgstr "Votre accès à l’espace donor"
+#: templates/form/card.php:65
+msgid "Recurring donation"
+msgstr "Don récurrent"
 
-#. translators: %s: secure magic link.
-#: includes/Mail/MailQueue.php:251
+#: templates/form/card.php:70
+msgid "One-time donation"
+msgstr "Don unique"
+
+#: templates/form/card.php:78
+msgid "Choose your amount"
+msgstr "Choisissez votre montant"
+
+#: templates/form/card.php:102 templates/form/inline.php:93
+msgid "Other"
+msgstr "Autre"
+
+#: templates/form/card.php:110
+msgid "Custom amount"
+msgstr "Montant libre"
+
+#: templates/form/card.php:124
+msgid "e.g. 75"
+msgstr "Ex : 75"
+
+#: templates/form/card.php:128
+msgid "Minimum €1, maximum €100,000"
+msgstr "Minimum 1 €, maximum 100 000 €"
+
+#: templates/form/card.php:139
+msgid "Your information"
+msgstr "Vos informations"
+
+#: templates/form/card.php:209 templates/form/inline.php:147
+msgid "100% secure payment powered by"
+msgstr "Paiement 100% sécurisé par"
+
+#: templates/form/card.php:225
+msgid "Complete your donor profile"
+msgstr "Complétez votre profil donateur"
+
+#: templates/form/card.php:226
+msgid ""
+"Thank you! To help us support you better, please complete this information."
+msgstr ""
+"Merci ! Pour mieux vous accompagner, merci de compléter ces informations."
+
+#: templates/form/card.php:232
+msgid "Email address used for payment"
+msgstr "Email utilisé pour le paiement"
+
+#: templates/form/card.php:243 templates/form/partials/extra-fields.php:23
+msgid "Organization"
+msgstr "Organisation"
+
+#: templates/form/card.php:262
+msgid "Save my information"
+msgstr "Enregistrer mes informations"
+
+#: templates/form/inline.php:59
+msgid "One-time"
+msgstr "Une fois"
+
+#: templates/form/inline.php:64
+msgid "Monthly"
+msgstr "Mensuel"
+
+#: templates/form/inline.php:72
+msgid "Choose an amount"
+msgstr "Choisissez un montant"
+
+#: templates/form/inline.php:124
+msgid "Your email"
+msgstr "Votre email"
+
+#: templates/form/partials/extra-fields.php:28
+msgid "Message"
+msgstr "Message"
+
+#: templates/form/partials/gateway-buttons.php:22
+msgid "Pay"
+msgstr "Payer"
+
+#: templates/form/partials/gateway-buttons.php:22
+#: templates/admin/settings/tab-appearance.php:115
+#: templates/admin/settings/tab-appearance.php:123
+msgid "Donate"
+msgstr "Faire un don de"
+
+#: templates/form/partials/gateway-buttons.php:45
+msgid "Pay with HelloAsso*"
+msgstr "Payer avec HelloAsso*"
+
+#: templates/form/partials/gateway-buttons.php:51
+msgid "Other payment methods"
+msgstr "Autres modes de paiements"
+
+#: templates/admin/settings/tab-platform.php:23
+msgid "Platform connection is working."
+msgstr "La connexion à la plateforme fonctionne."
+
+#: templates/admin/settings/tab-platform.php:26
+msgid "Site registered on the platform."
+msgstr "Site enregistré sur la plateforme."
+
+#: templates/admin/settings/tab-platform.php:33
+#, php-format
+msgid "%d campaign synced to the platform."
+msgid_plural "%d campaigns synced to the platform."
+msgstr[0] "%d campagne synchronisée avec la plateforme."
+msgstr[1] "%d campagnes synchronisées avec la plateforme."
+
+#: templates/admin/settings/tab-platform.php:40
+msgid "Pending donations have been sent to the platform."
+msgstr "Les dons en attente ont été envoyés à la plateforme."
+
+#: templates/admin/settings/tab-platform.php:43
+msgid ""
+"Platform action failed. Check the URL, the API key and the status below."
+msgstr ""
+"L’action vers la plateforme a échoué. Vérifiez l’URL, la clé API et le "
+"statut ci-dessous."
+
+#: templates/admin/settings/tab-platform.php:49
+msgid "Givoly Platform"
+msgstr "Plateforme Givoly"
+
+#: templates/admin/settings/tab-platform.php:51
+msgid "Connected"
+msgstr "Connecté"
+
+#: templates/admin/settings/tab-platform.php:53
+msgid "Not connected"
+msgstr "Non connecté"
+
+#: templates/admin/settings/tab-platform.php:57
+msgid ""
+"Optional central dashboard: register this site, check its health, forward "
+"confirmed donations and push a read-only campaign snapshot. Disabled by "
+"default — nothing is sent until you enable it."
+msgstr ""
+"Tableau de bord central optionnel : enregistrez ce site, vérifiez sa santé, "
+"transmettez les dons confirmés et poussez un instantané en lecture seule des "
+"campagnes. Désactivé par défaut — rien n’est envoyé tant que vous ne "
+"l’activez pas."
+
+#: templates/admin/settings/tab-platform.php:62
+msgid "Enable the platform connection"
+msgstr "Activer la connexion à la plateforme"
+
+#: templates/admin/settings/tab-platform.php:66
+msgid "Send data to the platform (requires a URL and an API key below)."
+msgstr "Envoyer des données à la plateforme (nécessite une URL et une clé API ci-dessous)."
+
+#: templates/admin/settings/tab-platform.php:71
+msgid "Platform URL"
+msgstr "URL de la plateforme"
+
+#: templates/admin/settings/tab-platform.php:76
+msgid "Base URL of your Givoly Platform (https required, except localhost)."
+msgstr "URL de base de votre plateforme Givoly (https requis, sauf localhost)."
+
+#: templates/admin/settings/tab-platform.php:80
+msgid "API key"
+msgstr "Clé API"
+
+#: templates/admin/settings/tab-platform.php:86
+msgid "Organization ID"
+msgstr "Identifiant d’organisation"
+
+#: templates/admin/settings/tab-platform.php:91
+msgid "Optional identifier of your organization on the platform."
+msgstr "Identifiant optionnel de votre organisation sur la plateforme."
+
+#: templates/admin/settings/tab-platform.php:94
+msgid "Synchronized data"
+msgstr "Données synchronisées"
+
+#: templates/admin/settings/tab-platform.php:100
+msgid ""
+"Forward confirmed donations (amount, currency, gateway, campaign, donor name "
+"and email)."
+msgstr ""
+"Transmettre les dons confirmés (montant, devise, passerelle, campagne, nom "
+"et email du donateur)."
+
+#: templates/admin/settings/tab-platform.php:109
+msgid "Allow pushing a read-only campaign snapshot on manual action."
+msgstr "Autoriser la poussée d’un instantané en lecture seule des campagnes sur action manuelle."
+
+#: templates/admin/settings/tab-platform.php:116
+#: templates/admin/settings/tab-association.php:73
+#: templates/admin/settings/tab-stripe.php:111
+#: templates/admin/settings/tab-appearance.php:184
+#: templates/admin/settings/tab-email.php:187
+#: templates/admin/settings/tab-general.php:144
+#: templates/admin/settings/tab-helloasso.php:132
+msgid "Save"
+msgstr "Enregistrer"
+
+#: templates/admin/settings/tab-platform.php:123
+msgid "Connection status and actions"
+msgstr "État de la connexion et actions"
+
+#: templates/admin/settings/tab-platform.php:127
+msgid "Site ID"
+msgstr "Identifiant du site"
+
+#: templates/admin/settings/tab-platform.php:131
+msgid "Last check"
+msgstr "Dernier contrôle"
+
+#: templates/admin/settings/tab-platform.php:150
+msgid "Check connection"
+msgstr "Vérifier la connexion"
+
+#: templates/admin/settings/tab-platform.php:151
+msgid "Register this site"
+msgstr "Enregistrer ce site"
+
+#: templates/admin/settings/tab-platform.php:152
+msgid "Send pending donations"
+msgstr "Envoyer les dons en attente"
+
+#: templates/admin/settings/tab-platform.php:153
+msgid "Push campaigns snapshot"
+msgstr "Pousser l’instantané des campagnes"
+
+#: templates/admin/settings/tab-platform.php:163
+msgid ""
+"Expected platform endpoints: GET /api/wordpress/health, POST /api/wordpress/"
+"sites, POST /api/wordpress/donations, POST /api/wordpress/campaigns/sync."
+msgstr ""
+"Points d’entrée attendus : GET /api/wordpress/health, POST /api/wordpress/"
+"sites, POST /api/wordpress/donations, POST /api/wordpress/campaigns/sync."
+
+#: templates/admin/settings/tab-association.php:22
+msgid "Your organization"
+msgstr "Votre association"
+
+#: templates/admin/settings/tab-association.php:25
+msgid "This information identifies your organization in emails and exports."
+msgstr ""
+"Ces informations identifient votre association dans les emails et les "
+"exports."
+
+#: templates/admin/settings/tab-association.php:31
+msgid "Example Organization"
+msgstr "Association Exemple"
+
+#: templates/admin/settings/tab-association.php:35
+msgid "12 Peace Street"
+msgstr "12 rue de la Paix"
+
+#: templates/admin/settings/tab-association.php:46
+msgid "SIRET"
+msgstr "SIRET"
+
+#: templates/admin/settings/tab-association.php:49
+msgid "Or RNA number if you do not have a SIRET."
+msgstr "Ou numéro RNA si pas de SIRET."
+
+#: templates/admin/settings/tab-association.php:53
+msgid "RNA"
+msgstr "RNA"
+
+#: templates/admin/settings/tab-association.php:57
+msgid "Tax approval"
+msgstr "Agrément fiscal"
+
+#: templates/admin/settings/tab-association.php:59
+msgid "Optional"
+msgstr "Optionnel"
+
+#: templates/admin/settings/tab-association.php:60
+msgid "Issued by the French public finance administration."
+msgstr "Délivré par la Direction des finances publiques."
+
+#: templates/admin/settings/tab-association.php:67
+msgid "Sender of tax receipts."
+msgstr "Expéditeur des reçus fiscaux."
+
+#: templates/admin/settings/tab-stripe.php:34
 #, php-format
 msgid ""
-"Hello,\n"
-"\n"
-"Click this link to access your donor space:\n"
-"%s\n"
-"\n"
-"This link expires in 15 minutes. If you did not request it, ignore this email."
+"Stripe API documentation: <a href=\"%s\" target=\"_blank\" rel=\"noopener "
+"noreferrer\">docs.stripe.com/api</a>."
 msgstr ""
-"Bonjour,\n"
-"\n"
-"Cliquez sur ce lien pour accéder à votre espace donateur :\n"
-"%s\n"
-"\n"
-"Ce lien expire dans 15 minutes. Si vous n’êtes pas à l’origine de cette demande, ignorez cet email."
+"Documentation API Stripe : <a href=\"%s\" target=\"_blank\" rel=\"noopener "
+"noreferrer\">docs.stripe.com/api</a>."
 
-#: includes/Mail/MailQueue.php:270
-msgid "dear donor"
-msgstr "cher donateur"
+#: templates/admin/settings/tab-stripe.php:44
+#: templates/admin/settings/tab-helloasso.php:44
+msgid "Mode"
+msgstr "Mode"
 
-#: includes/Mail/MailQueue.php:277 includes/Mail/MailQueue.php:278
-#: includes/Mail/MailQueue.php:279 includes/Mail/MailQueue.php:280
-msgid "not provided"
-msgstr "non renseigné"
+#: templates/admin/settings/tab-stripe.php:50
+msgid "Test"
+msgstr "Test"
+
+#: templates/admin/settings/tab-stripe.php:55
+#: templates/admin/settings/tab-helloasso.php:55
+msgid "Live"
+msgstr "Production"
+
+#: templates/admin/settings/tab-stripe.php:61
+msgid "Test keys"
+msgstr "Clés Test"
+
+#: templates/admin/settings/tab-stripe.php:64
+#: templates/admin/settings/tab-stripe.php:81
+msgid "Publishable key"
+msgstr "Clé publique"
+
+#: templates/admin/settings/tab-stripe.php:72
+#: templates/admin/settings/tab-stripe.php:89
+msgid "Secret key"
+msgstr "Clé secrète"
+
+#: templates/admin/settings/tab-stripe.php:78
+msgid "Live keys"
+msgstr "Clés Live"
+
+#: templates/admin/settings/tab-stripe.php:95
+#: templates/admin/settings/tab-helloasso.php:116
+msgid "Webhook"
+msgstr "Webhook"
+
+#: templates/admin/settings/tab-stripe.php:98
+#: templates/admin/settings/tab-helloasso.php:119
+msgid "Webhook URL"
+msgstr "URL Webhook"
+
+#: templates/admin/settings/tab-stripe.php:99
+msgid "Stripe → Developers → Webhooks"
+msgstr "Stripe → Développeurs → Webhooks"
+
+#: templates/admin/settings/tab-stripe.php:102
+msgid "Webhook secret"
+msgstr "Secret Webhook"
 
 #: templates/admin/settings/tab-appearance.php:23
 msgid "Colors"
@@ -1282,12 +1718,6 @@ msgstr "Coins"
 #: templates/admin/settings/tab-appearance.php:108
 msgid "Button style"
 msgstr "Style du bouton"
-
-#: templates/admin/settings/tab-appearance.php:115
-#: templates/admin/settings/tab-appearance.php:123
-#: templates/form/partials/gateway-buttons.php:22
-msgid "Donate"
-msgstr "Faire un don de"
 
 #: templates/admin/settings/tab-appearance.php:117
 msgid "Filled"
@@ -1338,61 +1768,6 @@ msgstr "Rendu du formulaire avec vos réglages actuels sauvegardés."
 msgid "Save the settings to update the preview."
 msgstr "Enregistrez les réglages pour mettre à jour l'aperçu."
 
-#: templates/admin/settings/tab-appearance.php:184
-#: templates/admin/settings/tab-association.php:73
-#: templates/admin/settings/tab-email.php:187
-#: templates/admin/settings/tab-general.php:144
-#: templates/admin/settings/tab-helloasso.php:132
-#: templates/admin/settings/tab-stripe.php:111
-msgid "Save"
-msgstr "Enregistrer"
-
-#: templates/admin/settings/tab-association.php:22
-msgid "Your organization"
-msgstr "Votre association"
-
-#: templates/admin/settings/tab-association.php:25
-msgid "This information identifies your organization in emails and exports."
-msgstr ""
-"Ces informations identifient votre association dans les emails et les "
-"exports."
-
-#: templates/admin/settings/tab-association.php:31
-msgid "Example Organization"
-msgstr "Association Exemple"
-
-#: templates/admin/settings/tab-association.php:35
-msgid "12 Peace Street"
-msgstr "12 rue de la Paix"
-
-#: templates/admin/settings/tab-association.php:46
-msgid "SIRET"
-msgstr "SIRET"
-
-#: templates/admin/settings/tab-association.php:49
-msgid "Or RNA number if you do not have a SIRET."
-msgstr "Ou numéro RNA si pas de SIRET."
-
-#: templates/admin/settings/tab-association.php:53
-msgid "RNA"
-msgstr "RNA"
-
-#: templates/admin/settings/tab-association.php:57
-msgid "Tax approval"
-msgstr "Agrément fiscal"
-
-#: templates/admin/settings/tab-association.php:59
-msgid "Optional"
-msgstr "Optionnel"
-
-#: templates/admin/settings/tab-association.php:60
-msgid "Issued by the French public finance administration."
-msgstr "Délivré par la Direction des finances publiques."
-
-#: templates/admin/settings/tab-association.php:67
-msgid "Sender of tax receipts."
-msgstr "Expéditeur des reçus fiscaux."
-
 #: templates/admin/settings/tab-email.php:22
 msgid "Email appearance"
 msgstr "Apparence des emails"
@@ -1414,8 +1789,8 @@ msgid ""
 "Shown as the sender in the donor's inbox. If empty, the organization's name "
 "is used."
 msgstr ""
-"Affiché comme expéditeur dans la boîte email du donateur. Si vide, le nom de"
-" l'association est utilisé."
+"Affiché comme expéditeur dans la boîte email du donateur. Si vide, le nom de "
+"l'association est utilisé."
 
 #: templates/admin/settings/tab-email.php:60
 msgid "Color of the email header and amount."
@@ -1430,8 +1805,8 @@ msgid ""
 "Logo shown at the top of the email (PNG or JPG recommended, max. 300px "
 "wide). If empty, the organization's name is shown."
 msgstr ""
-"Logo affiché en haut de l'email (PNG ou JPG recommandé, max 300px de large)."
-" Si vide, le nom de l'association est affiché."
+"Logo affiché en haut de l'email (PNG ou JPG recommandé, max 300px de large). "
+"Si vide, le nom de l'association est affiché."
 
 #: templates/admin/settings/tab-email.php:81
 msgid "Logo preview"
@@ -1559,7 +1934,7 @@ msgstr ""
 "associations un outil clair pour recevoir des dons en ligne depuis "
 "WordPress, sans abonnement imposé et sans commission ajoutée par le plugin."
 
-#: templates/admin/settings/tab-general.php:33
+#: templates/admin/settings/tab-general.php:33 assets/js/givoly-blocks.js:134
 msgid "Default gateway"
 msgstr "Passerelle par défaut"
 
@@ -1592,8 +1967,7 @@ msgid "Success page"
 msgstr "Page de succès"
 
 #: templates/admin/settings/tab-general.php:95
-msgid ""
-"Shown after a successful donation. If empty, a default message is used."
+msgid "Shown after a successful donation. If empty, a default message is used."
 msgstr ""
 "Affichée après un don réussi. Si vide, un message par défaut est utilisé."
 
@@ -1641,29 +2015,18 @@ msgstr "Demander l'adresse postale complète (facultatif)"
 msgid "Shown after a successful payment return (givoly_success=1 parameter)."
 msgstr "Affiché après retour de paiement réussi (paramètre givoly_success=1)."
 
-#. translators: %s is the HelloAsso API documentation URL.
 #: templates/admin/settings/tab-helloasso.php:34
 #, php-format
 msgid ""
-"HelloAsso API documentation: <a href=\"%s\" target=\"_blank\" rel=\"noopener"
-" noreferrer\">dev.helloasso.com/docs</a>."
+"HelloAsso API documentation: <a href=\"%s\" target=\"_blank\" rel=\"noopener "
+"noreferrer\">dev.helloasso.com/docs</a>."
 msgstr ""
 "Documentation API HelloAsso : <a href=\"%s\" target=\"_blank\" "
 "rel=\"noopener noreferrer\">dev.helloasso.com/docs</a>."
 
-#: templates/admin/settings/tab-helloasso.php:44
-#: templates/admin/settings/tab-stripe.php:44
-msgid "Mode"
-msgstr "Mode"
-
 #: templates/admin/settings/tab-helloasso.php:50
 msgid "Sandbox"
 msgstr "Bac à sable"
-
-#: templates/admin/settings/tab-helloasso.php:55
-#: templates/admin/settings/tab-stripe.php:55
-msgid "Live"
-msgstr "Production"
 
 #: templates/admin/settings/tab-helloasso.php:62
 msgid "Organization slug"
@@ -1694,8 +2057,8 @@ msgid ""
 "Use the “other payment methods” link instead of the HelloAsso API for one-"
 "time donations."
 msgstr ""
-"Utiliser le lien “autres modes de paiements” au lieu de l'API HelloAsso pour"
-" les dons uniques."
+"Utiliser le lien “autres modes de paiements” au lieu de l'API HelloAsso pour "
+"les dons uniques."
 
 #: templates/admin/settings/tab-helloasso.php:108
 msgid "Text below the HelloAsso button"
@@ -1704,16 +2067,6 @@ msgstr "Texte sous bouton HelloAsso"
 #: templates/admin/settings/tab-helloasso.php:112
 msgid "* Example notice"
 msgstr "* Exemple de mention"
-
-#: templates/admin/settings/tab-helloasso.php:116
-#: templates/admin/settings/tab-stripe.php:95
-msgid "Webhook"
-msgstr "Webhook"
-
-#: templates/admin/settings/tab-helloasso.php:119
-#: templates/admin/settings/tab-stripe.php:98
-msgid "Webhook URL"
-msgstr "URL Webhook"
 
 #: templates/admin/settings/tab-helloasso.php:120
 msgid "HelloAsso partner area"
@@ -1727,147 +2080,29 @@ msgstr "Clé de signature"
 msgid "Optional — if empty, verification uses the IP address"
 msgstr "Optionnelle — si vide, vérification par IP"
 
-#. translators: %s is the Stripe API documentation URL.
-#: templates/admin/settings/tab-stripe.php:34
+#: templates/campaign/campaign.php:68
 #, php-format
-msgid ""
-"Stripe API documentation: <a href=\"%s\" target=\"_blank\" rel=\"noopener "
-"noreferrer\">docs.stripe.com/api</a>."
-msgstr ""
-"Documentation API Stripe : <a href=\"%s\" target=\"_blank\" rel=\"noopener "
-"noreferrer\">docs.stripe.com/api</a>."
+msgid "collected of %s goal"
+msgstr "collectés sur un objectif de %s"
 
-#: templates/admin/settings/tab-stripe.php:50
-msgid "Test"
-msgstr "Test"
+#: templates/campaign/campaign.php:72
+msgid "collected"
+msgstr "collectés"
 
-#: templates/admin/settings/tab-stripe.php:61
-msgid "Test keys"
-msgstr "Clés Test"
+#: templates/campaign/campaign.php:78
+#, php-format
+msgid "%d donor"
+msgid_plural "%d donors"
+msgstr[0] "%d donateur"
+msgstr[1] "%d donateurs"
 
-#: templates/admin/settings/tab-stripe.php:64
-#: templates/admin/settings/tab-stripe.php:81
-msgid "Publishable key"
-msgstr "Clé publique"
+#: templates/campaign/campaign.php:82
+msgid "Campaign progress"
+msgstr "Progression de la collecte"
 
-#: templates/admin/settings/tab-stripe.php:72
-#: templates/admin/settings/tab-stripe.php:89
-msgid "Secret key"
-msgstr "Clé secrète"
-
-#: templates/admin/settings/tab-stripe.php:78
-msgid "Live keys"
-msgstr "Clés Live"
-
-#: templates/admin/settings/tab-stripe.php:99
-msgid "Stripe → Developers → Webhooks"
-msgstr "Stripe → Développeurs → Webhooks"
-
-#: templates/admin/settings/tab-stripe.php:102
-msgid "Webhook secret"
-msgstr "Secret Webhook"
-
-#: templates/campaign/campaign.php:49
+#: templates/campaign/campaign.php:91
 msgid "This campaign has ended. Thank you for your generosity!"
 msgstr "Cette campagne est terminée. Merci pour votre générosité !"
-
-#: templates/form/card.php:31 templates/form/inline.php:32
-msgid "Donation form"
-msgstr "Formulaire de don"
-
-#: templates/form/card.php:59 templates/form/inline.php:56
-msgid "Frequency"
-msgstr "Fréquence"
-
-#: templates/form/card.php:65
-msgid "Recurring donation"
-msgstr "Don récurrent"
-
-#: templates/form/card.php:70
-msgid "One-time donation"
-msgstr "Don unique"
-
-#: templates/form/card.php:78
-msgid "Choose your amount"
-msgstr "Choisissez votre montant"
-
-#: templates/form/card.php:102 templates/form/inline.php:93
-msgid "Other"
-msgstr "Autre"
-
-#: templates/form/card.php:110
-msgid "Custom amount"
-msgstr "Montant libre"
-
-#: templates/form/card.php:124
-msgid "e.g. 75"
-msgstr "Ex : 75"
-
-#: templates/form/card.php:128
-msgid "Minimum €1, maximum €100,000"
-msgstr "Minimum 1 €, maximum 100 000 €"
-
-#: templates/form/card.php:139
-msgid "Your information"
-msgstr "Vos informations"
-
-#: templates/form/card.php:209 templates/form/inline.php:147
-msgid "100% secure payment powered by"
-msgstr "Paiement 100% sécurisé par"
-
-#: templates/form/card.php:225
-msgid "Complete your donor profile"
-msgstr "Complétez votre profil donateur"
-
-#: templates/form/card.php:226
-msgid ""
-"Thank you! To help us support you better, please complete this information."
-msgstr ""
-"Merci ! Pour mieux vous accompagner, merci de compléter ces informations."
-
-#: templates/form/card.php:232
-msgid "Email address used for payment"
-msgstr "Email utilisé pour le paiement"
-
-#: templates/form/card.php:243 templates/form/partials/extra-fields.php:23
-msgid "Organization"
-msgstr "Organisation"
-
-#: templates/form/card.php:262
-msgid "Save my information"
-msgstr "Enregistrer mes informations"
-
-#: templates/form/inline.php:59
-msgid "One-time"
-msgstr "Une fois"
-
-#: templates/form/inline.php:64
-msgid "Monthly"
-msgstr "Mensuel"
-
-#: templates/form/inline.php:72
-msgid "Choose an amount"
-msgstr "Choisissez un montant"
-
-#: templates/form/inline.php:124
-msgid "Your email"
-msgstr "Votre email"
-
-#: templates/form/partials/extra-fields.php:28
-msgid "Message"
-msgstr "Message"
-
-#: templates/form/partials/gateway-buttons.php:22
-msgid "Pay"
-msgstr "Payer"
-
-#: templates/form/partials/gateway-buttons.php:45
-msgid "Pay with HelloAsso*"
-msgstr "Payer avec HelloAsso*"
-
-#: templates/form/partials/gateway-buttons.php:51
-msgid "Other payment methods"
-msgstr "Autres modes de paiements"
 
 #: assets/js/givoly-blocks.js:113
 msgid "Classic"
@@ -1901,115 +2136,118 @@ msgstr "Aplat"
 msgid "Both gateways"
 msgstr "Les deux passerelles"
 
-#: assets/js/givoly-blocks.js:144
+#: assets/js/givoly-blocks.js:146
 msgid "donation"
 msgstr "don"
 
-#: assets/js/givoly-blocks.js:144
+#: assets/js/givoly-blocks.js:146
 msgid "donate"
 msgstr "dons"
 
-#: assets/js/givoly-blocks.js:144
+#: assets/js/givoly-blocks.js:146
 msgid "form"
 msgstr "formulaire"
 
-#: assets/js/givoly-blocks.js:156 assets/js/givoly-blocks.js:189
-#: assets/js/givoly-blocks.js:225
+#: assets/js/givoly-blocks.js:158 assets/js/givoly-blocks.js:193
+#: assets/js/givoly-blocks.js:231
 msgid "Campaign slug"
 msgstr "Identifiant de campagne"
 
-#: assets/js/givoly-blocks.js:156
+#: assets/js/givoly-blocks.js:158
 msgid "Optional. Leave empty for a general donation form."
 msgstr "Facultatif. Laissez vide pour un formulaire de don général."
 
-#: assets/js/givoly-blocks.js:157
+#: assets/js/givoly-blocks.js:159
 msgid "Preset amounts"
 msgstr "Montants prédéfinis"
 
-#: assets/js/givoly-blocks.js:157
+#: assets/js/givoly-blocks.js:159
 msgid "Comma-separated amounts, e.g. 10,25,50,100."
 msgstr "Montants séparés par des virgules, ex. 10,25,50,100."
 
-#: assets/js/givoly-blocks.js:159 assets/js/givoly-blocks.js:190
+#: assets/js/givoly-blocks.js:161 assets/js/givoly-blocks.js:194
 msgid "Theme"
 msgstr "Thème"
 
-#: assets/js/givoly-blocks.js:160
+#: assets/js/givoly-blocks.js:162
 msgid "Layout"
 msgstr "Disposition"
 
-#: assets/js/givoly-blocks.js:161
+#: assets/js/givoly-blocks.js:163
 msgid "Payment gateway"
 msgstr "Passerelle de paiement"
 
-#: assets/js/givoly-blocks.js:162
+#: assets/js/givoly-blocks.js:164
 msgid "Show title"
 msgstr "Afficher le titre"
 
-#: assets/js/givoly-blocks.js:163
+#: assets/js/givoly-blocks.js:165
 msgid "Custom title"
 msgstr "Titre personnalisé"
 
-#: assets/js/givoly-blocks.js:164
+#: assets/js/givoly-blocks.js:166
 msgid "Button text"
 msgstr "Texte du bouton"
 
-#: assets/js/givoly-blocks.js:177
+#: assets/js/givoly-blocks.js:181
 msgid "campaign"
 msgstr "campagne"
 
-#: assets/js/givoly-blocks.js:177
+#: assets/js/givoly-blocks.js:181
 msgid "fundraising"
 msgstr "collecte"
 
-#: assets/js/givoly-blocks.js:177
+#: assets/js/givoly-blocks.js:181
 msgid "goal"
 msgstr "objectif"
 
-#: assets/js/givoly-blocks.js:189
+#: assets/js/givoly-blocks.js:193
 msgid "Required. Slug of one of your Givoly campaigns."
 msgstr "Requis. Identifiant de l’une de vos campagnes Givoly."
 
-#: assets/js/givoly-blocks.js:191
+#: assets/js/givoly-blocks.js:195
 msgid "Form layout"
 msgstr "Disposition du formulaire"
 
-#: assets/js/givoly-blocks.js:192
+#: assets/js/givoly-blocks.js:196
 msgid "Show campaign title"
 msgstr "Afficher le titre de la campagne"
 
-#: assets/js/givoly-blocks.js:193
+#: assets/js/givoly-blocks.js:197
 msgid "Show description"
 msgstr "Afficher la description"
 
-#: assets/js/givoly-blocks.js:194
+#: assets/js/givoly-blocks.js:198
 msgid "Show donation form"
 msgstr "Afficher le formulaire de don"
 
-#: assets/js/givoly-blocks.js:195
+#: assets/js/givoly-blocks.js:199
 msgid "Show form title"
 msgstr "Afficher le titre du formulaire"
 
-#: assets/js/givoly-blocks.js:208
+#: assets/js/givoly-blocks.js:214
 msgid "total"
 msgstr "total"
 
-#: assets/js/givoly-blocks.js:208
+#: assets/js/givoly-blocks.js:214
 msgid "progress"
 msgstr "progression"
 
-#: assets/js/givoly-blocks.js:208
+#: assets/js/givoly-blocks.js:214
 msgid "raised"
 msgstr "collecté"
 
-#: assets/js/givoly-blocks.js:222
+#: assets/js/givoly-blocks.js:228
 msgid "Progress bar"
 msgstr "Barre de progression"
 
-#: assets/js/givoly-blocks.js:225
+#: assets/js/givoly-blocks.js:231
 msgid "Optional. Leave empty to show all donations."
 msgstr "Facultatif. Laissez vide pour afficher tous les dons."
 
-#: assets/js/givoly-blocks.js:226
+#: assets/js/givoly-blocks.js:232
 msgid "Display"
 msgstr "Affichage"
+
+#~ msgid "I want to cancel"
+#~ msgstr "Je souhaite résilier"

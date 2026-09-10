@@ -24,6 +24,7 @@ final class SettingsPage {
         'general'     => [ 'label' => 'Général',     'icon' => 'dashicons-admin-settings'    ],
         'stripe'      => [ 'label' => 'Stripe',       'icon' => 'dashicons-cart'              ],
         'helloasso'   => [ 'label' => 'HelloAsso',    'icon' => 'dashicons-heart'             ],
+        'platform'    => [ 'label' => 'Plateforme',   'icon' => 'dashicons-cloud'             ],
         'association' => [ 'label' => 'Association',  'icon' => 'dashicons-building'          ],
         'email'       => [ 'label' => 'Email',        'icon' => 'dashicons-email-alt'         ],
         'appearance'  => [ 'label' => 'Apparence',    'icon' => 'dashicons-admin-appearance'  ],
@@ -154,6 +155,19 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
         $ha_other_payments_url = Settings::get_helloasso_other_payments_url();
         $ha_once_use_other_payments_url = Settings::should_use_helloasso_other_payments_for_once();
 
+        // Plateforme Givoly (opt-in, désactivée par défaut).
+        $platform_enabled        = Settings::is_platform_enabled();
+        $platform_base_url       = Settings::get_platform_base_url();
+        $platform_org_id         = Settings::get_platform_organization_id();
+        $has_platform_api_key    = Settings::get_platform_api_key() !== '';
+        $platform_sync_donations = Settings::should_sync_platform_donations();
+        $platform_sync_campaigns = Settings::should_sync_platform_campaigns();
+        $platform_site_id        = Settings::get_platform_site_id();
+        $platform_last_status    = Settings::get_platform_last_status();
+        $platform_last_check_at  = Settings::get_platform_last_check_at();
+        $platform_last_error     = Settings::get_platform_last_error();
+        $platform_ok             = Settings::is_platform_configured() && $platform_last_status === 'ok';
+
         // Général
         $default_gateway = Settings::get_default_gateway();
         $stripe_enabled = Settings::is_stripe_enabled();
@@ -224,6 +238,7 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                     $status    = match ( $slug ) {
                         'stripe'    => $stripe_ok,
                         'helloasso' => $ha_ok,
+                        'platform'  => $platform_ok,
                         default     => null,
                     };
                     ?>
@@ -250,6 +265,8 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
 <?php include GIVOLY_PLUGIN_DIR . 'templates/admin/settings/tab-stripe.php'; ?>
 
 <?php include GIVOLY_PLUGIN_DIR . 'templates/admin/settings/tab-helloasso.php'; ?>
+
+<?php include GIVOLY_PLUGIN_DIR . 'templates/admin/settings/tab-platform.php'; ?>
 
 <?php include GIVOLY_PLUGIN_DIR . 'templates/admin/settings/tab-association.php'; ?>
 
@@ -278,6 +295,10 @@ tr:has(.givoly-section-sep) th, tr:has(.givoly-section-sep) td { padding-bottom:
                    autocomplete="new-password">
             <?php if ( $has_value ) : ?>
                 <span class="givoly-badge givoly-badge--ok">✓ <?php esc_html_e( 'Configured', 'givoly' ); ?></span>
+                <label style="font-weight:400;">
+                    <input type="checkbox" name="clear_<?php echo esc_attr( $name ); ?>" value="1">
+                    <?php esc_html_e( 'Delete this secret', 'givoly' ); ?>
+                </label>
             <?php endif; ?>
         </div>
         <?php

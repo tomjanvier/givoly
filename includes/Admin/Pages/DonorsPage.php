@@ -179,7 +179,14 @@ final class DonorsPage {
                                 <td><?php echo esc_html( $donor->email ); ?></td>
                                 <td>
                                     <strong>
-                                        <?php echo esc_html( number_format( (float) $donor->total_donated, 2, ',', ' ' ) . ' €' ); ?>
+                                        <?php
+                                        $totals = $donor->totals_by_currency ?? [];
+                                        if ( ! empty( $totals ) ) {
+                                            echo esc_html( \Givoly\Core\Format::amounts_by_currency( $totals ) );
+                                        } else {
+                                            echo esc_html( number_format( 0, 2, ',', ' ' ) . ' €' );
+                                        }
+                                        ?>
                                     </strong>
                                 </td>
                                 <td><?php echo esc_html( $donor->donation_count ); ?></td>
@@ -210,15 +217,65 @@ final class DonorsPage {
         $table_d  = $wpdb->prefix . 'givoly_donations';
         $offset   = ( $page - 1 ) * self::PER_PAGE;
 
+        // Page de donateurs d'abord (pagination stable), puis ventilation par devise.
         // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table names from $wpdb->prefix (trusted)
-        return $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+        $donors = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prepare(
-                "SELECT dn.id, dn.donor_reference, dn.first_name, dn.last_name, dn.email, dn.company, COALESCE( SUM( CASE WHEN d.status = 'completed' THEN d.amount ELSE 0 END ), 0 ) AS total_donated, COUNT( CASE WHEN d.status = 'completed' THEN 1 END ) AS donation_count, MAX( CASE WHEN d.status = 'completed' THEN d.created_at END ) AS last_donation FROM {$table_dn} dn LEFT JOIN {$table_d} d ON d.donor_id = dn.id GROUP BY dn.id ORDER BY total_donated DESC, dn.id DESC LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
+                "SELECT dn.id, dn.donor_reference, dn.first_name, dn.last_name, dn.email, dn.company FROM {$table_dn} dn ORDER BY dn.id DESC LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
                 self::PER_PAGE,
                 $offset
-            )
+            ),
+            ARRAY_A
         );
         // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
+
+        if ( empty( $donors ) ) {
+            return [];
+        }
+
+        $ids          = array_map( static fn( $row ): int => (int) $row['id'], $donors );
+        $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,PluginCheck.Security.DirectDB.UnescapedDBParameter -- placeholders built from integers, tables from $wpdb->prefix
+        $totals = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->prepare(
+                "SELECT donor_id, currency, COALESCE( SUM( CASE WHEN status = 'completed' THEN amount ELSE 0 END ), 0 ) AS currency_total, COUNT( CASE WHEN status = 'completed' THEN 1 END ) AS currency_count, MAX( CASE WHEN status = 'completed' THEN created_at END ) AS last_donation FROM {$table_d} WHERE donor_id IN ({$placeholders}) GROUP BY donor_id, currency", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,PluginCheck.Security.DirectDB.UnescapedDBParameter
+                ...$ids
+            ),
+            ARRAY_A
+        );
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,PluginCheck.Security.DirectDB.UnescapedDBParameter
+
+        $by_donor = [];
+        foreach ( (array) $totals as $row ) {
+            $donor_id = (int) ( $row['donor_id'] ?? 0 );
+            $by_donor[ $donor_id ] ??= [ 'totals' => [], 'count' => 0, 'last' => null ];
+            if ( ! empty( $row['currency'] ) && (float) ( $row['currency_total'] ?? 0 ) > 0 ) {
+                $by_donor[ $donor_id ]['totals'][ strtoupper( (string) $row['currency'] ) ] = (float) $row['currency_total'];
+            }
+            $by_donor[ $donor_id ]['count'] += (int) ( $row['currency_count'] ?? 0 );
+            if ( ! empty( $row['last_donation'] ) && ( $by_donor[ $donor_id ]['last'] === null || $row['last_donation'] > $by_donor[ $donor_id ]['last'] ) ) {
+                $by_donor[ $donor_id ]['last'] = $row['last_donation'];
+            }
+        }
+
+        $result = [];
+        foreach ( $donors as $donor ) {
+            $donor_id = (int) $donor['id'];
+            $result[] = (object) [
+                'id'                 => $donor['id'],
+                'donor_reference'    => $donor['donor_reference'],
+                'first_name'         => $donor['first_name'],
+                'last_name'          => $donor['last_name'],
+                'email'              => $donor['email'],
+                'company'            => $donor['company'],
+                'totals_by_currency' => $by_donor[ $donor_id ]['totals'] ?? [],
+                'total_donated'      => array_sum( $by_donor[ $donor_id ]['totals'] ?? [] ),
+                'donation_count'     => $by_donor[ $donor_id ]['count'] ?? 0,
+                'last_donation'      => $by_donor[ $donor_id ]['last'] ?? null,
+            ];
+        }
+
+        return $result;
     }
 
     private function count_donors(): int {
@@ -240,6 +297,7 @@ final class DonorsPage {
     }
 
     private function render_edit_form( object $donor ): void {
+        $subscriptions = ( new \Givoly\Repository\SubscriptionRepository() )->find_by_donor( (int) $donor->id );
         ?>
         <div class="card" style="max-width: 900px;">
             <h2><?php esc_html_e( 'Edit donor record', 'givoly' ); ?> <span class="description"><?php echo esc_html( $donor->donor_reference ?: '#' . (string) $donor->id ); ?></span></h2>
@@ -263,6 +321,41 @@ final class DonorsPage {
                 <?php submit_button( __( 'Save record', 'givoly' ), 'primary', 'submit', false ); ?>
                 <a class="button" href="<?php echo esc_url( admin_url( 'admin.php?page=givoly-donors' ) ); ?>"><?php esc_html_e( 'Cancel', 'givoly' ); ?></a>
             </form>
+            <?php /* ── Abonnements Stripe connus : un bloc par abonnement réel. */ ?>
+            <h3><?php esc_html_e( 'Stripe subscriptions', 'givoly' ); ?></h3>
+            <?php if ( empty( $subscriptions ) ) : ?>
+                <p class="description"><?php esc_html_e( 'No known Stripe subscription for this donor.', 'givoly' ); ?></p>
+            <?php else : ?>
+                <table class="wp-list-table widefat striped">
+                    <thead><tr>
+                        <th><?php esc_html_e( 'Subscription', 'givoly' ); ?></th>
+                        <th><?php esc_html_e( 'Status', 'givoly' ); ?></th>
+                        <th><?php esc_html_e( 'Currency', 'givoly' ); ?></th>
+                        <th><?php esc_html_e( 'Action', 'givoly' ); ?></th>
+                    </tr></thead>
+                    <tbody>
+                    <?php foreach ( $subscriptions as $subscription ) : ?>
+                        <tr>
+                            <td><code><?php echo esc_html( $subscription->stripe_subscription_id ); ?></code></td>
+                            <td><?php echo esc_html( $subscription->status ); ?></td>
+                            <td><?php echo esc_html( $subscription->currency ?: '—' ); ?></td>
+                            <td>
+                                <?php if ( $subscription->status === 'active' ) : ?>
+                                    <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline;" onsubmit='return confirm(<?php echo wp_json_encode( __( 'Confirm stopping future payments? The donor will retain access until the end of the current paid period.', 'givoly' ) ); ?>)'>
+                                        <?php wp_nonce_field( 'givoly_cancel_subscription_' . $subscription->stripe_subscription_id ); ?>
+                                        <input type="hidden" name="action" value="givoly_cancel_subscription">
+                                        <input type="hidden" name="subscription_id" value="<?php echo esc_attr( $subscription->stripe_subscription_id ); ?>">
+                                        <button type="submit" class="button button-small"><?php esc_html_e( 'Cancel recurring donation', 'givoly' ); ?></button>
+                                    </form>
+                                <?php else : ?>
+                                    —
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
         </div>
         <?php
     }
