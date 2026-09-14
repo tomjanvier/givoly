@@ -98,14 +98,19 @@ final class CampaignRepository {
      * les widgets publics [givoly_total] et [givoly_campaign] n'exécutent plus
      * de requête d'agrégation à chaque affichage de page.
      *
+     * Pour ne jamais additionner des devises différentes, passer la devise de
+     * la campagne : seuls les dons dans cette devise sont alors comptés. Les
+     * dons historiques multidevises hors devise sont exclus du total affiché.
+     *
      * @return array{amount: float, donors: int}
      */
-    public function get_stats( int $campaign_id ): array {
+    public function get_stats( int $campaign_id, string $currency = '' ): array {
         if ( $campaign_id <= 0 ) {
             return [ 'amount' => 0.0, 'donors' => 0 ];
         }
 
-        $cache_key = 'givoly_stats_' . self::get_cache_version() . '_' . $campaign_id;
+        $currency = $currency !== '' ? strtoupper( $currency ) : '';
+        $cache_key = 'givoly_stats_' . self::get_cache_version() . '_' . $campaign_id . ( $currency !== '' ? '_' . $currency : '' );
         $cached    = get_transient( $cache_key );
 
         if ( is_array( $cached ) && isset( $cached['amount'], $cached['donors'] ) ) {
@@ -117,16 +122,30 @@ final class CampaignRepository {
 
         global $wpdb;
 
-        $row = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-            $wpdb->prepare(
-                "SELECT COALESCE( SUM(amount), 0 ) AS amount,
-                        COUNT( DISTINCT donor_id )  AS donors
-                 FROM {$wpdb->prefix}givoly_donations
-                 WHERE campaign_id = %d AND status = 'completed'",
-                $campaign_id
-            ),
-            ARRAY_A
-        );
+        if ( $currency !== '' ) {
+            $row = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+                $wpdb->prepare(
+                    "SELECT COALESCE( SUM(amount), 0 ) AS amount,
+                            COUNT( DISTINCT donor_id )  AS donors
+                     FROM {$wpdb->prefix}givoly_donations
+                     WHERE campaign_id = %d AND status = 'completed' AND currency = %s",
+                    $campaign_id,
+                    $currency
+                ),
+                ARRAY_A
+            );
+        } else {
+            $row = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+                $wpdb->prepare(
+                    "SELECT COALESCE( SUM(amount), 0 ) AS amount,
+                            COUNT( DISTINCT donor_id )  AS donors
+                     FROM {$wpdb->prefix}givoly_donations
+                     WHERE campaign_id = %d AND status = 'completed'",
+                    $campaign_id
+                ),
+                ARRAY_A
+            );
+        }
 
         $stats = [
             'amount' => (float) ( $row['amount'] ?? 0 ),
@@ -173,6 +192,10 @@ final class CampaignRepository {
     /**
      * Stats agrégées pour plusieurs campagnes en une seule requête.
      * Évite le N+1 dans les listes admin.
+     *
+     * Les montants restent affichés dans la devise propre de chaque campagne :
+     * l'appelant doit filtrer par devise via get_stats() quand l'exactitude
+     * multidevise est requise côté public.
      *
      * @param int[] $campaign_ids
      * @return array<int, array{amount: float, donors: int}>  Indexé par campaign_id
@@ -278,7 +301,7 @@ final class CampaignRepository {
             );
             $id = (int) $wpdb->insert_id;
         } else {
-            $wpdb->update( $this->table, $data, [ 'id' => $campaign->get_id() ], $formats, [ '%d' ] ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->update( $this->table, array_merge( $data, [ 'updated_at' => current_time( 'mysql', true ) ] ), [ 'id' => $campaign->get_id() ], array_merge( $formats, [ '%s' ] ), [ '%d' ] ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             $id = $campaign->get_id();
         }
 

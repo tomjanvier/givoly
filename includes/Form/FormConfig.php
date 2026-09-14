@@ -203,6 +203,29 @@ final class FormConfig {
 
     public const SUPPORTED_CURRENCIES = [ 'EUR', 'USD', 'GBP', 'CHF', 'MAD' ];
 
+    // HelloAsso ne traite que l'euro : toute autre devise doit être refusée
+    // côté serveur et masquée côté interface.
+    public const HELLOASSO_CURRENCIES = [ 'EUR' ];
+
+    /**
+     * Indique si une devise est supportée par le plugin.
+     */
+    public static function is_supported_currency( string $currency ): bool {
+        return in_array( strtoupper( $currency ), self::SUPPORTED_CURRENCIES, true );
+    }
+
+    /**
+     * Indique si une devise est supportée pour une passerelle donnée.
+     */
+    public static function is_supported_for_gateway( string $currency, string $gateway ): bool {
+        $currency = strtoupper( $currency );
+        if ( $gateway === 'helloasso' ) {
+            return in_array( $currency, self::HELLOASSO_CURRENCIES, true );
+        }
+
+        return in_array( $currency, self::SUPPORTED_CURRENCIES, true );
+    }
+
     /**
      * Retourne le symbole de la devise courante.
      * Source unique — les templates ne doivent pas redéfinir ce tableau.

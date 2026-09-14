@@ -42,6 +42,7 @@ final class Plugin {
         ( new \Givoly\Mail\MailQueue() )->register();
         ( new \Givoly\Integration\StripeSync() )->register();
         ( new \Givoly\Integration\HelloAssoSync() )->register();
+        ( new \Givoly\Integration\PlatformSync() )->register();
         ( new \Givoly\Admin\AdminMenu() )->register();
         ( new \Givoly\Admin\AdminActions() )->register();
         ( new \Givoly\Admin\Pages\SettingsPage() )->register();

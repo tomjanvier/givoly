@@ -138,12 +138,24 @@ final class DonorSpace {
     public function cancel_subscription(): void {
         check_ajax_referer( 'givoly_donor_space', 'nonce' );
         $donor = $this->get_authenticated_donor();
-        if ( ! $donor || ! $donor->stripe_subscription_id ) {
+        if ( ! $donor ) {
+            wp_send_json_error( [ 'message' => __( 'No active Stripe subscription is associated with your record.', 'givoly' ) ], 404 );
+        }
+
+        // Annulation ciblée : l'abonnement exact doit être transmis et appartenir au donateur.
+        $subscription_id = sanitize_text_field( wp_unslash( $_POST['subscription_id'] ?? '' ) );
+        if ( $subscription_id === '' ) {
+            wp_send_json_error( [ 'message' => __( 'No active Stripe subscription is associated with your record.', 'givoly' ) ], 404 );
+        }
+
+        $known = ( new \Givoly\Repository\SubscriptionRepository() )->find_by_stripe_id( $subscription_id );
+        if ( ! $known || (int) $known->donor_id !== (int) $donor->id ) {
             wp_send_json_error( [ 'message' => __( 'No active Stripe subscription is associated with your record.', 'givoly' ) ], 404 );
         }
 
         try {
-            ( new StripeGateway( Settings::get_stripe_secret_key() ) )->cancel_subscription_at_period_end( (string) $donor->stripe_subscription_id );
+            ( new StripeGateway( Settings::get_stripe_secret_key() ) )->cancel_subscription_at_period_end( (string) $known->stripe_subscription_id );
+            ( new \Givoly\Repository\SubscriptionRepository() )->mark_cancel_at_period_end( (int) $known->id );
             wp_send_json_success( [ 'message' => __( 'Your cancellation is scheduled for the end of the current paid period.', 'givoly' ) ] );
         } catch ( \Throwable $exception ) {
             wp_send_json_error( [ 'message' => __( 'Cancellation is temporarily unavailable.', 'givoly' ) ], 503 );
@@ -227,6 +239,14 @@ final class DonorSpace {
 
     /** @param array<int,object> $donations */
     private function render_dashboard( object $donor, array $donations ): void {
+        $subscriptions = ( new \Givoly\Repository\SubscriptionRepository() )->find_by_donor( (int) $donor->id );
+        // Seuls les abonnements réellement connus et actifs proposent une action.
+        $active_subscriptions = array_values(
+            array_filter(
+                $subscriptions,
+                static fn( $subscription ): bool => isset( $subscription->status ) && $subscription->status === 'active'
+            )
+        );
         ?>
         <section class="givoly-donor-space" aria-labelledby="givoly-donor-space-title">
             <div class="givoly-donor-space__header">
@@ -238,12 +258,26 @@ final class DonorSpace {
                 <button type="button" class="givoly-donor-space__logout" data-givoly-logout><?php esc_html_e( 'Log out', 'givoly' ); ?></button>
             </div>
 
-            <?php if ( $donor->stripe_customer_id && $donor->stripe_subscription_id ) : ?>
+            <?php if ( $donor->stripe_customer_id ) : ?>
                 <div class="givoly-donor-space__subscription">
-                    <h3><?php esc_html_e( 'My monthly donation', 'givoly' ); ?></h3>
+                    <h3><?php esc_html_e( 'My monthly donations', 'givoly' ); ?></h3>
                     <p><?php esc_html_e( 'You can change the amount or payment method in the secure Stripe portal.', 'givoly' ); ?></p>
-                    <button type="button" data-givoly-portal><?php esc_html_e( 'Manage my subscription', 'givoly' ); ?></button>
-                    <button type="button" class="is-secondary" data-givoly-cancel-start><?php esc_html_e( 'I want to cancel', 'givoly' ); ?></button>
+                    <button type="button" data-givoly-portal><?php esc_html_e( 'Manage my subscriptions', 'givoly' ); ?></button>
+                    <?php if ( ! empty( $active_subscriptions ) ) : ?>
+                        <ul class="givoly-donor-space__subscriptions">
+                        <?php foreach ( $active_subscriptions as $subscription ) : ?>
+                            <li class="givoly-donor-space__subscription-item" data-subscription-id="<?php echo esc_attr( $subscription->stripe_subscription_id ); ?>">
+                                <code><?php echo esc_html( $subscription->stripe_subscription_id ); ?></code>
+                                <?php if ( ! empty( $subscription->currency ) ) : ?>
+                                    <span>(<?php echo esc_html( $subscription->currency ); ?>)</span>
+                                <?php endif; ?>
+                                <button type="button" class="is-secondary" data-givoly-cancel-start data-subscription-id="<?php echo esc_attr( $subscription->stripe_subscription_id ); ?>"><?php esc_html_e( 'I want to cancel this subscription', 'givoly' ); ?></button>
+                            </li>
+                        <?php endforeach; ?>
+                        </ul>
+                    <?php else : ?>
+                        <p class="description"><?php esc_html_e( 'No active subscription with direct cancellation is known. Use the Stripe portal to manage your payments.', 'givoly' ); ?></p>
+                    <?php endif; ?>
                     <div class="givoly-donor-space__retention" data-givoly-retention hidden>
                         <p><?php esc_html_e( 'Before you go, you can simply reduce the amount in the Stripe portal. Every contribution directly helps the organization continue its work.', 'givoly' ); ?></p>
                         <button type="button" data-givoly-portal><?php esc_html_e( 'Reduce instead of cancelling', 'givoly' ); ?></button>

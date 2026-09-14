@@ -53,11 +53,18 @@ final class CampaignWidget {
             return '';
         }
 
-        $stats       = $repo->get_stats( $campaign->get_id() );
+        // Les brouillons ne sont jamais publics.
+        if ( $campaign->get_status() === Campaign::STATUS_DRAFT ) {
+            return '';
+        }
+
+        // Statistiques dans la devise propre de la campagne (jamais de mélange).
+        $stats       = $repo->get_stats( $campaign->get_id(), $campaign->get_currency() );
         $collected   = $stats['amount'];
         $donor_count = $stats['donors'];
         $percentage  = $campaign->get_progress_percentage( $collected );
         $is_ended    = $campaign->is_ended();
+        $can_donate  = $campaign->can_accept_donations();
 
         // FormConfig pour le wrapper campagne — injecte les CSS vars (couleurs admin + thème)
         $wrapper_config = new FormConfig( [
@@ -65,15 +72,17 @@ final class CampaignWidget {
             'layout' => $this->layout,
         ] );
 
-        // Préparer le formulaire de don si la campagne est ouverte
+        // Préparer le formulaire de don si la campagne est ouverte.
+        // Le formulaire hérite de la devise de la campagne.
         $donation_form = null;
-        if ( $this->show_form && ! $is_ended ) {
+        if ( $this->show_form && $can_donate ) {
             wp_enqueue_style( 'givoly-frontend' );
             wp_enqueue_script( 'givoly-frontend' );
             \Givoly\Core\AssetsLoader::localize_frontend();
 
             $form_config   = new FormConfig( [
                 'campaign'   => $this->campaign_slug,
+                'currency'   => $campaign->get_currency(),
                 'layout'     => 'flat',
                 'theme'      => $this->theme,
                 'show_title' => $this->show_form_title ? 'yes' : 'no',

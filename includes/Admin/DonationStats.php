@@ -16,7 +16,13 @@ final class DonationStats {
     /**
      * Retourne les indicateurs principaux des dons complétés.
      *
-     * @return array{total_amount: float, total_donations: int, total_donors: int, average_amount: float}
+     * Pour ne jamais additionner des devises différentes, le total global est
+     * également ventilé par devise dans `by_currency` (montant + nombre de dons
+     * par code ISO). Les champs historiques `total_amount` / `average_amount`
+     * sont conservés pour compatibilité mais ne doivent plus être affichés
+     * seuls en contexte multidevise : préférer `by_currency`.
+     *
+     * @return array{total_amount: float, total_donations: int, total_donors: int, average_amount: float, by_currency: array<string, array{amount: float, count: int}>}
      */
     public static function summary(): array {
         global $wpdb;
@@ -43,13 +49,52 @@ final class DonationStats {
             'total_donations' => $total_donations,
             'total_donors'    => $total_donors,
             'average_amount' => $total_donations > 0 ? $total_amount / $total_donations : 0.0,
+            'by_currency'    => self::totals_by_currency(),
         ];
+    }
+
+    /**
+     * Totaux des dons complétés regroupés par devise (jamais de mélange).
+     *
+     * @return array<string, array{amount: float, count: int}> Indexé par code ISO (EUR, USD…).
+     */
+    public static function totals_by_currency(): array {
+        global $wpdb;
+
+        $table = esc_sql( $wpdb->prefix . 'givoly_donations' );
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
+        $rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+            "SELECT currency, COALESCE( SUM(amount), 0 ) AS amount, COUNT(*) AS donation_count
+             FROM {$table}
+             WHERE status = 'completed'
+             GROUP BY currency
+             ORDER BY currency ASC"
+        );
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
+
+        $result = [];
+        foreach ( (array) $rows as $row ) {
+            $code = strtoupper( (string) ( $row->currency ?? '' ) );
+            if ( $code === '' ) {
+                continue;
+            }
+            $result[ $code ] = [
+                'amount' => (float) $row->amount,
+                'count'  => (int) $row->donation_count,
+            ];
+        }
+
+        return $result;
     }
 
     /**
      * Retourne les six derniers mois, y compris ceux sans don.
      *
-     * @return array<int, array{key: string, label: string, total: float, count: int}>
+     * Le total mensuel historique mélangeait les devises : il est conservé pour
+     * compatibilité mais le graphique doit préférer `monthly_totals_by_currency()`
+     * qui ventile par devise. Le champ `by_currency` détaille chaque mois.
+     *
+     * @return array<int, array{key: string, label: string, total: float, count: int, by_currency: array<string, float>}>
      */
     public static function monthly_totals(): array {
         global $wpdb;
@@ -64,12 +109,13 @@ final class DonationStats {
         $rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prepare(
                 "SELECT DATE_FORMAT(created_at, '%%Y-%%m') AS month,
+                        currency,
                         COALESCE( SUM(amount), 0 ) AS total,
                         COUNT(*) AS donation_count
                  FROM {$table}
                  WHERE status = 'completed' AND created_at >= %s
-                 GROUP BY DATE_FORMAT(created_at, '%%Y-%%m')
-                 ORDER BY month ASC",
+                 GROUP BY DATE_FORMAT(created_at, '%%Y-%%m'), currency
+                 ORDER BY month ASC, currency ASC",
                 $start_date
             )
         );
@@ -77,27 +123,49 @@ final class DonationStats {
 
         $by_month = [];
         foreach ( (array) $rows as $row ) {
-            $by_month[ (string) $row->month ] = [
-                'total' => (float) $row->total,
-                'count' => (int) $row->donation_count,
-            ];
+            $key      = (string) $row->month;
+            $currency = strtoupper( (string) ( $row->currency ?? '' ) );
+            if ( ! isset( $by_month[ $key ] ) ) {
+                $by_month[ $key ] = [ 'total' => 0.0, 'count' => 0, 'by_currency' => [] ];
+            }
+            $by_month[ $key ]['total'] += (float) $row->total;
+            $by_month[ $key ]['count'] += (int) $row->donation_count;
+            if ( $currency !== '' ) {
+                $by_month[ $key ]['by_currency'][ $currency ] = (float) $row->total;
+            }
         }
 
         $months = [];
         for ( $offset = 0; $offset < 6; $offset++ ) {
             $month = $start_month->modify( '+' . $offset . ' months' );
             $key   = $month->format( 'Y-m' );
-            $value = $by_month[ $key ] ?? [ 'total' => 0.0, 'count' => 0 ];
+            $value = $by_month[ $key ] ?? [ 'total' => 0.0, 'count' => 0, 'by_currency' => [] ];
 
             $months[] = [
-                'key'   => $key,
-                'label' => wp_date( 'M', $month->getTimestamp() ),
-                'total' => $value['total'],
-                'count' => $value['count'],
+                'key'         => $key,
+                'label'       => wp_date( 'M', $month->getTimestamp() ),
+                'total'       => $value['total'],
+                'count'       => $value['count'],
+                'by_currency' => $value['by_currency'],
             ];
         }
 
         return $months;
+    }
+
+    /**
+     * Ventilation mensuelle par devise, sans jamais mélanger les montants.
+     *
+     * @return array<string, array<string, float>> Indexé par mois (Y-m) puis par devise.
+     */
+    public static function monthly_totals_by_currency(): array {
+        $months = self::monthly_totals();
+        $result = [];
+        foreach ( $months as $month ) {
+            $result[ $month['key'] ] = $month['by_currency'] ?? [];
+        }
+
+        return $result;
     }
 
     /**

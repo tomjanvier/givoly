@@ -100,7 +100,7 @@ Deactivate Givasso before activating Givoly. Givoly copies compatible settings a
 
 == Privacy ==
 
-Givoly stores donation and donor data in the site's WordPress database. It does not add analytics scripts, advertising pixels, tracking cookies, telemetry, or remote assets unrelated to payment processing. UTM parameters are used only on optional Givoly and PLAID·ACT support or branding links, not on donation or donor links.
+Givoly stores donation and donor data in the site's WordPress database. It does not add analytics scripts, advertising pixels, tracking cookies, telemetry, or remote assets unrelated to payment processing. UTM parameters are used only on optional Givoly and PLAID·ACT support or branding links, not on donation or donor links. The optional Givoly Platform connection (disabled by default) sends data only when the administrator enables and configures it — see External services.
 
 Site owners are responsible for informing donors about their own privacy practices and the payment services they enable.
 
@@ -121,6 +121,13 @@ HelloAsso is used only when enabled by the administrator and chosen for a paymen
 * Service: https://www.helloasso.com/
 * Terms: https://www.helloasso.com/cgu-utilisateur
 * Privacy: https://www.helloasso.com/confidentialite
+
+= Givoly Platform (optional) =
+
+The Givoly Platform connection is disabled by default. It is used only when the administrator enables it in **Givoly > Settings > Platform** with a platform URL and an API key, and only for the actions the administrator triggers or enables: site registration (site URL, site name, contact email, plugin version), connection health checks, forwarding of confirmed donations (amount, currency, gateway, campaign, donor first name, last name and email — no address or phone number), and a read-only campaign snapshot (slug, title, currency, status, goal, dates, collected totals). Pending donations are queued locally and sent hourly; each donation is sent once (idempotency key `givoly-donation-{id}`).
+
+* Service: the platform URL configured by the administrator
+* Terms and privacy: those of the administrator's Givoly Platform instance
 
 == Changelog ==
 

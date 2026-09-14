@@ -56,10 +56,17 @@ final class DashboardPage {
             <?php endif; ?>
 
             <section class="givoly-stats" aria-label="<?php esc_attr_e( 'Donation metrics', 'givoly' ); ?>">
-                <?php self::render_stat_card( '💰', __( 'Total collected', 'givoly' ), number_format_i18n( $stats['total_amount'], 2 ) . ' €' ); ?>
+                <?php self::render_stat_card( '💰', __( 'Total collected', 'givoly' ), \Givoly\Core\Format::amounts_by_currency( $stats['by_currency'] ?? [] ) ); ?>
                 <?php self::render_stat_card( '🎁', __( 'Completed donations', 'givoly' ), number_format_i18n( $stats['total_donations'] ) ); ?>
                 <?php self::render_stat_card( '👥', __( 'Active donors', 'givoly' ), number_format_i18n( $stats['total_donors'] ) ); ?>
-                <?php self::render_stat_card( '↗', __( 'Average donation', 'givoly' ), number_format_i18n( $stats['average_amount'], 2 ) . ' €' ); ?>
+                <?php
+                // Moyenne affichée uniquement si une seule devise : jamais de moyenne inter-devises.
+                $by_currency = $stats['by_currency'] ?? [];
+                $average_label = count( $by_currency ) === 1
+                    ? \Givoly\Core\Format::amount_with_currency( (float) reset( $by_currency )['amount'] / max( 1, $stats['total_donations'] ), (string) key( $by_currency ) )
+                    : __( 'See totals by currency', 'givoly' );
+                ?>
+                <?php self::render_stat_card( '↗', __( 'Average donation', 'givoly' ), $average_label ); ?>
             </section>
 
             <div class="givoly-dashboard-grid">
@@ -169,7 +176,7 @@ final class DashboardPage {
             <div class="givoly-wp-dashboard-widget__summary">
                 <div>
                     <span class="givoly-wp-dashboard-widget__label"><?php esc_html_e( 'Total collected', 'givoly' ); ?></span>
-                    <strong><?php echo esc_html( number_format_i18n( $stats['total_amount'], 2 ) . ' €' ); ?></strong>
+                    <strong><?php echo esc_html( \Givoly\Core\Format::amounts_by_currency( $stats['by_currency'] ?? [] ) ); ?></strong>
                 </div>
                 <div>
                     <span class="givoly-wp-dashboard-widget__label"><?php esc_html_e( 'Completed donations', 'givoly' ); ?></span>
@@ -221,7 +228,11 @@ final class DashboardPage {
     /**
      * Affiche un graphique CSS léger, sans bibliothèque externe.
      *
-     * @param array<int, array{key: string, label: string, total: float, count: int}> $monthly
+     * Les barres restent proportionnelles au total mensuel historique, mais le
+     * détail par devise est toujours affiché (jamais de somme présentée comme
+     * homogène en multidevise).
+     *
+     * @param array<int, array{key: string, label: string, total: float, count: int, by_currency?: array<string, float>}> $monthly
      */
     private static function render_monthly_chart( array $monthly, bool $compact = false ): void {
         $max_total = 0.0;
@@ -236,16 +247,20 @@ final class DashboardPage {
                     $height = $max_total > 0 && $month['total'] > 0
                         ? max( 8, (int) round( ( $month['total'] / $max_total ) * 100 ) )
                         : 2;
+                    $by_currency = $month['by_currency'] ?? [];
+                    $detail = ! empty( $by_currency )
+                        ? \Givoly\Core\Format::amounts_by_currency( $by_currency )
+                        : number_format_i18n( $month['total'], 2 );
                     $title  = sprintf(
-                        /* translators: 1: month label, 2: amount, 3: number of donations. */
-                        _n( '%1$s: €%2$s, %3$d donation', '%1$s: €%2$s, %3$d donations', $month['count'], 'givoly' ),
+                        /* translators: 1: month label, 2: amounts by currency, 3: number of donations. */
+                        _n( '%1$s: %2$s, %3$d donation', '%1$s: %2$s, %3$d donations', $month['count'], 'givoly' ),
                         $month['label'],
-                        number_format_i18n( $month['total'], 2 ),
+                        $detail,
                         $month['count']
                     );
                     ?>
                     <div class="givoly-chart__item">
-                        <span class="givoly-chart__value"><?php echo $month['total'] > 0 ? esc_html( number_format_i18n( $month['total'], 0 ) . ' €' ) : ''; ?></span>
+                        <span class="givoly-chart__value"><?php echo $month['total'] > 0 ? esc_html( $detail ) : ''; ?></span>
                         <span class="givoly-chart__bar" style="height:<?php echo esc_attr( $height . '%' ); ?>" title="<?php echo esc_attr( $title ); ?>"></span>
                         <span class="givoly-chart__label"><?php echo esc_html( $month['label'] ); ?></span>
                     </div>

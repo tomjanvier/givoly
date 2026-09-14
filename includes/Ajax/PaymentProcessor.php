@@ -80,15 +80,34 @@ final class PaymentProcessor {
         if ( ! $donor_id ) {
             throw new \RuntimeException(
                 sprintf(
-                    'Impossible de créer ou retrouver le donor. Gateway : %s | Transaction : %s | Email : %s',
+                    'Impossible de créer ou retrouver le donor. Gateway : %s | Transaction : %s',
                     esc_html( $gateway ),
-                    esc_html( $transaction_id ),
-                    esc_html( $email )
+                    esc_html( $transaction_id )
                 )
             ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
 
         $this->update_stripe_identifiers( $donor_id, $stripe_customer_id, $stripe_subscription_id );
+
+        // Rattachement exact de l'abonnement : un donateur peut en avoir plusieurs.
+        // La colonne historique donors.stripe_subscription_id est conservée pour
+        // compatibilité, mais l'annulation utilise désormais cette entité dédiée
+        // et la colonne donations.stripe_subscription_id ci-dessous.
+        $stripe_subscription_id = sanitize_text_field( $stripe_subscription_id );
+        if ( $gateway === 'stripe' && $stripe_subscription_id !== '' ) {
+            ( new \Givoly\Repository\SubscriptionRepository() )->upsert(
+                $donor_id,
+                $stripe_subscription_id,
+                $stripe_customer_id,
+                $currency,
+                $campaign_id
+            );
+        } elseif ( $gateway === 'stripe' ) {
+            $stripe_subscription_id = '';
+        } else {
+            // Seul Stripe porte des abonnements : aucun rattachement inventé.
+            $stripe_subscription_id = '';
+        }
 
         // Le message du donor est transporté dans la transient de profil
         // (liée au post_payment_token) : on le lit avant que le profil ne soit consommé.
@@ -98,6 +117,10 @@ final class PaymentProcessor {
 
         // Save le don
         $amount = $amount_cents / 100;
+        $currency = strtoupper( sanitize_text_field( $currency ) );
+        if ( ! in_array( $currency, \Givoly\Form\FormConfig::SUPPORTED_CURRENCIES, true ) ) {
+            $currency = 'EUR';
+        }
 
         $inserted = $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
             $wpdb->prefix . 'givoly_donations',
@@ -105,26 +128,56 @@ final class PaymentProcessor {
                 'donor_id'               => $donor_id,
                 'campaign_id'            => $campaign_id > 0 ? $campaign_id : null,
                 'amount'                 => $amount,
-                'currency'               => strtoupper( $currency ),
+                'currency'               => $currency,
                 'status'                 => 'completed',
                 'gateway'                => $gateway,
                 'gateway_transaction_id' => $transaction_id,
                 'gateway_refund_ref'     => $gateway_refund_ref !== '' ? $gateway_refund_ref : null,
+                'stripe_subscription_id' => $stripe_subscription_id !== '' ? $stripe_subscription_id : null,
                 'post_payment_token'     => $post_payment_token !== '' ? $post_payment_token : null,
                 'donor_message'          => $campaign ?: null,
                 'donor_notes'            => $donor_notes !== '' ? $donor_notes : null,
                 'created_at'             => current_time( 'mysql', true ),
                 'updated_at'             => current_time( 'mysql', true ),
             ],
-            [ '%d', '%d', '%f', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ]
+            [ '%d', '%d', '%f', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ]
         );
 
         if ( false === $inserted && $this->is_duplicate_entry_error( $wpdb->last_error ) ) {
             return;
         }
 
+        if ( false === $inserted && str_contains( strtolower( (string) $wpdb->last_error ), 'stripe_subscription_id' ) ) {
+            // Compatibilité transitoire : la migration v2.2 n'a pas encore ajouté
+            // la colonne de rattachement. On enregistre sans elle plutôt que de perdre le don.
+            $wpdb->last_error = '';
+            $inserted = $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+                $wpdb->prefix . 'givoly_donations',
+                [
+                    'donor_id'               => $donor_id,
+                    'campaign_id'            => $campaign_id > 0 ? $campaign_id : null,
+                    'amount'                 => $amount,
+                    'currency'               => $currency,
+                    'status'                 => 'completed',
+                    'gateway'                => $gateway,
+                    'gateway_transaction_id' => $transaction_id,
+                    'gateway_refund_ref'     => $gateway_refund_ref !== '' ? $gateway_refund_ref : null,
+                    'post_payment_token'     => $post_payment_token !== '' ? $post_payment_token : null,
+                    'donor_message'          => $campaign ?: null,
+                    'donor_notes'            => $donor_notes !== '' ? $donor_notes : null,
+                    'created_at'             => current_time( 'mysql', true ),
+                    'updated_at'             => current_time( 'mysql', true ),
+                ],
+                [ '%d', '%d', '%f', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ]
+            );
+            if ( false === $inserted && $this->is_duplicate_entry_error( $wpdb->last_error ) ) {
+                return;
+            }
+        }
+
         if ( false === $inserted ) {
-            throw new \RuntimeException( 'Unable to save the donation in the database: ' . $wpdb->last_error ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+            // Ne jamais exposer de secret : last_error ne contient que du SQL.
+            throw new \RuntimeException( 'Unable to save the donation in the database.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
 
         $donation_id = (int) $wpdb->insert_id;

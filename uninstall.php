@@ -18,6 +18,8 @@ foreach ( [
     $wpdb->prefix . 'givoly_campaigns',
     $wpdb->prefix . 'givoly_donors',
     $wpdb->prefix . 'givoly_email_jobs',
+    $wpdb->prefix . 'givoly_subscriptions',
+    $wpdb->prefix . 'givoly_platform_jobs',
     // Legacy Givasso tables are owned by the same plugin and are removed
     // only when the administrator explicitly uninstalls it.
     $wpdb->prefix . 'givasso_donations',
@@ -89,6 +91,17 @@ foreach ( [
     'givoly_helloasso_last_sync_at',
     'givoly_stripe_last_invoice_sync_at',
     'givoly_stats_cache_version',
+    // Connexion Plateforme (opt-in) : URL, clé, enregistrement et statut.
+    'givoly_platform_enabled',
+    'givoly_platform_base_url',
+    'givoly_platform_api_key',
+    'givoly_platform_organization_id',
+    'givoly_platform_sync_donations',
+    'givoly_platform_sync_campaigns',
+    'givoly_platform_site_id',
+    'givoly_platform_last_check_at',
+    'givoly_platform_last_status',
+    'givoly_platform_last_error',
 ] as $givoly_option ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
     delete_option( $givoly_option );
 
@@ -118,3 +131,4 @@ foreach ( [ 'givoly_checkout_profile_%', 'givoly_donor_session_%', 'givoly_rl_%'
 wp_clear_scheduled_hook( 'givoly_process_mail_queue' );
 wp_clear_scheduled_hook( 'givoly_sync_helloasso_payments' );
 wp_clear_scheduled_hook( 'givoly_sync_stripe_paid_invoices' );
+wp_clear_scheduled_hook( 'givoly_sync_platform' );
