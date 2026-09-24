@@ -80,8 +80,8 @@ final class Installer {
     private static function run_migrations(): bool {
         global $wpdb;
 
-        // The former plugin-owned CSS setting is intentionally discarded. CSS
-        // customization now belongs in WordPress's native CSS editor.
+        // L'ancienne option CSS du plugin est volontairement supprimée : la
+        // personnalisation passe désormais par l'éditeur CSS natif de WordPress.
         delete_option( 'givoly_appearance_custom_css' );
 
         $table = esc_sql( $wpdb->prefix . 'givoly_donations' );

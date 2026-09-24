@@ -257,17 +257,57 @@ final class Privacy {
         // La file persistante contient le destinataire et une copie JSON des
         // noms et de l'adresse. Ces données opérationnelles n'ont pas à être
         // conservées après une demande d'effacement validée.
+        // Nettoyage précis : d'abord par destinataire exact, puis analyse du
+        // contenu JSON pour éviter les faux positifs de sous-chaîne (ex: a@b.com dans aa@b.com).
         $table_mail = esc_sql( $wpdb->prefix . 'givoly_email_jobs' );
         $mail_rows  = $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prepare(
-                "DELETE FROM {$table_mail} WHERE LOWER( recipient ) = LOWER( %s ) OR payload LIKE %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
-                $email,
-                '%' . $wpdb->esc_like( $email ) . '%'
+                "DELETE FROM {$table_mail} WHERE LOWER( recipient ) = LOWER( %s )", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
+                $email
             )
         );
 
         if ( is_int( $mail_rows ) && $mail_rows > 0 ) {
             $response['items_removed'] += $mail_rows;
+        }
+
+        // File où l'email n'est pas destinataire principal mais présent dans le contenu
+        // (ex: notification admin contenant l'email donateur dans le payload). On filtre
+        // en PHP sur le JSON décodé pour éviter les correspondances partielles.
+        $candidates = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->prepare(
+                "SELECT id, payload FROM {$table_mail} WHERE payload LIKE %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
+                '%' . $wpdb->esc_like( $email ) . '%'
+            ),
+            ARRAY_A
+        );
+
+        $ids_to_delete = [];
+        foreach ( (array) $candidates as $candidate ) {
+            $payload_json = json_decode( (string) ( $candidate['payload'] ?? '' ), true );
+            if ( is_array( $payload_json ) && $this->payload_contains_email( $payload_json, $email ) ) {
+                $ids_to_delete[] = (int) $candidate['id'];
+            } elseif ( ! is_array( $payload_json ) ) {
+                // Filet de sécurité : payload non JSON mais contenant l'email exact (insensible à la casse).
+                if ( stripos( (string) ( $candidate['payload'] ?? '' ), $email ) !== false ) {
+                    $ids_to_delete[] = (int) $candidate['id'];
+                }
+            }
+        }
+
+        if ( $ids_to_delete ) {
+            $placeholders = implode( ',', array_fill( 0, count( $ids_to_delete ), '%d' ) );
+            // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,PluginCheck.Security.DirectDB.UnescapedDBParameter
+            $extra_deleted = $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+                $wpdb->prepare(
+                    "DELETE FROM {$table_mail} WHERE id IN ({$placeholders})",
+                    ...$ids_to_delete
+                )
+            );
+            // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,PluginCheck.Security.DirectDB.UnescapedDBParameter
+            if ( is_int( $extra_deleted ) && $extra_deleted > 0 ) {
+                $response['items_removed'] += $extra_deleted;
+            }
         }
 
         $this->delete_checkout_profiles( $email );
@@ -336,6 +376,30 @@ final class Privacy {
             $key = substr( (string) $option_name, strlen( '_transient_' ) );
             delete_transient( $key );
         }
+    }
+
+    /**
+     * Vérifie si le payload JSON contient exactement l'email recherché.
+     *
+     * Parcourt récursivement les valeurs pour éviter les faux positifs
+     * de sous-chaîne (ex: a@ex.com ne doit pas matcher aa@ex.com).
+     */
+    private function payload_contains_email( array $payload, string $email ): bool {
+        $needle = strtolower( $email );
+        $stack  = [ $payload ];
+
+        while ( $stack ) {
+            $current = array_pop( $stack );
+            foreach ( $current as $value ) {
+                if ( is_array( $value ) ) {
+                    $stack[] = $value;
+                } elseif ( is_string( $value ) && strtolower( $value ) === $needle ) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**

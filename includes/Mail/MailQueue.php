@@ -59,7 +59,7 @@ final class MailQueue {
         );
 
         if ( false === $inserted ) {
-            error_log( '[Givoly] Impossible de mettre un email en file : ' . $wpdb->last_error ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            error_log( '[Givoly] Impossible de mettre un email en file : ' . \Givoly\Core\Format::redact_secrets( $wpdb->last_error ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
             return 0;
         }
 

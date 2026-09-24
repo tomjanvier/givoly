@@ -152,19 +152,34 @@ final class StripeGateway {
      * @throws \RuntimeException Si la signature est invalide ou expirée.
      */
     public function verify_webhook( string $payload, string $signature_header, string $webhook_secret ): array {
-        // Stripe signe avec HMAC-SHA256 : "t=timestamp,v1=signature"
-        $parts     = $this->parse_stripe_signature( $signature_header );
-        $timestamp = $parts['t'] ?? 0;
-        $received  = $parts['v1'] ?? '';
+        // Stripe signe avec HMAC-SHA256 : "t=timestamp,v1=signature[,v1=signature2...]"
+        // En cas de rotation de clé Stripe peut envoyer plusieurs v1 : toutes doivent être essayées.
+        $parts      = $this->parse_stripe_signature( $signature_header );
+        $timestamp  = $parts['t'] ?? 0;
+        $signatures = $parts['v1'] ?? [];
+        if ( is_string( $signatures ) ) {
+            $signatures = $signatures !== '' ? [ $signatures ] : [];
+        }
 
-        // Rejeter les webhooks de plus de 5 minutes (protection replay)
+        // Rejeter les webhooks de plus de 5 minutes (protection anti-rejeu)
         if ( abs( time() - (int) $timestamp ) > 300 ) {
             throw new \RuntimeException( 'Webhook expired.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
 
-        $expected = hash_hmac( 'sha256', $timestamp . '.' . $payload, $webhook_secret );
+        if ( ! $signatures ) {
+            throw new \RuntimeException( 'Invalid webhook signature.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+        }
 
-        if ( ! hash_equals( $expected, $received ) ) {
+        $expected = hash_hmac( 'sha256', $timestamp . '.' . $payload, $webhook_secret );
+        $valid    = false;
+        foreach ( $signatures as $received ) {
+            if ( hash_equals( $expected, (string) $received ) ) {
+                $valid = true;
+                break;
+            }
+        }
+
+        if ( ! $valid ) {
             throw new \RuntimeException( 'Invalid webhook signature.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
 
@@ -236,7 +251,14 @@ final class StripeGateway {
 
         foreach ( explode( ',', $header ) as $pair ) {
             [ $key, $value ] = array_pad( explode( '=', $pair, 2 ), 2, '' );
-            $parts[ trim( $key ) ] = trim( $value );
+            $key   = trim( $key );
+            $value = trim( $value );
+            if ( $key === 'v1' ) {
+                // Conserver toutes les signatures v1 (rotation de clé).
+                $parts['v1'][] = $value;
+            } else {
+                $parts[ $key ] = $value;
+            }
         }
 
         return $parts;
