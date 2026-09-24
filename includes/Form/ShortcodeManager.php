@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-// CampaignWidget et CampaignTotalWidget sont dans le même namespace — pas de use nécessaire.
+// CampaignWidget et CampaignTotalWidget partagent le même namespace — aucun use nécessaire.
 
 final class ShortcodeManager {
 
@@ -25,7 +25,7 @@ final class ShortcodeManager {
         add_shortcode( 'givoly_total',    [ $this, 'render_total' ] );
         add_shortcode( 'givoly_campaign', [ $this, 'render_campaign' ] );
 
-        // Backward-compatible aliases for content created before the rebrand.
+        // Alias rétrocompatibles pour les contenus créés avant le changement de nom.
         add_shortcode( 'givasso',          [ $this, 'render_form' ] );
         add_shortcode( 'givasso_form',     [ $this, 'render_form' ] );
         add_shortcode( 'givasso_total',    [ $this, 'render_total' ] );

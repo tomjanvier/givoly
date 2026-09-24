@@ -118,6 +118,11 @@ final class DonorSpace {
 
     public function open_stripe_portal(): void {
         check_ajax_referer( 'givoly_donor_space', 'nonce' );
+
+        if ( ! RateLimiter::is_allowed( 'donor_portal' ) ) {
+            wp_send_json_error( [ 'message' => __( 'Too many requests. Please wait before trying again.', 'givoly' ) ], 429 );
+        }
+
         $donor = $this->get_authenticated_donor();
         if ( ! $donor || ! $donor->stripe_customer_id ) {
             wp_send_json_error( [ 'message' => __( 'No manageable Stripe subscription is associated with your record.', 'givoly' ) ], 404 );
@@ -137,6 +142,11 @@ final class DonorSpace {
 
     public function cancel_subscription(): void {
         check_ajax_referer( 'givoly_donor_space', 'nonce' );
+
+        if ( ! RateLimiter::is_allowed( 'donor_cancel' ) ) {
+            wp_send_json_error( [ 'message' => __( 'Too many requests. Please wait before trying again.', 'givoly' ) ], 429 );
+        }
+
         $donor = $this->get_authenticated_donor();
         if ( ! $donor ) {
             wp_send_json_error( [ 'message' => __( 'No active Stripe subscription is associated with your record.', 'givoly' ) ], 404 );
@@ -330,6 +340,11 @@ final class DonorSpace {
         $donor_id = absint( wp_unslash( $_GET['givoly_donor'] ?? 0 ) );
         $token    = sanitize_text_field( wp_unslash( $_GET['givoly_access_token'] ?? '' ) );
         if ( ! $donor_id || ! preg_match( '/^[a-f0-9]{64}$/', $token ) ) {
+            return;
+        }
+
+        // Limiter les tentatives de consommation de lien magique (protection par IP).
+        if ( ! RateLimiter::is_allowed( 'donor_magic_consume' ) ) {
             return;
         }
 

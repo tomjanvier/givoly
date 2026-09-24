@@ -1,7 +1,6 @@
 # Copyright (C) 2026 PLAID·ACT
 # This file is distributed under the same license as the Givoly package.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Givoly 1.5.0\n"

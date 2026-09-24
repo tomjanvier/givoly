@@ -178,6 +178,13 @@ final class AjaxHandler {
             wp_send_json_error( [ 'message' => __( 'Invalid request.', 'givoly' ) ], 403 );
         }
 
+        if ( ! RateLimiter::is_allowed( 'post_payment_details' ) ) {
+            wp_send_json_error(
+                [ 'message' => __( 'Too many attempts. Please wait one minute before trying again.', 'givoly' ) ],
+                429
+            );
+        }
+
         $email       = sanitize_email( wp_unslash( $_POST['email'] ?? '' ) );
         $raw_token   = sanitize_text_field( wp_unslash( $_POST['post_payment_token'] ?? '' ) );
         $token       = $this->sanitize_post_payment_token( $raw_token );
@@ -566,7 +573,8 @@ final class AjaxHandler {
     public function handle_helloasso_webhook( \WP_REST_Request $request ): \WP_REST_Response {
         $payload   = $request->get_body();
         $signature = (string) ( $request->get_header( 'x-helloasso-signature' ) ?: $request->get_header( 'helloasso-signature' ) );
-        $remote_ip = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ?? '' ) );
+        // Utiliser l'IP filtrée (compatible reverse proxy via filtre givoly_client_ip) pour la whitelist HelloAsso.
+        $remote_ip = \Givoly\Security\RateLimiter::get_client_ip();
 
         try {
             $gateway = new HelloAssoGateway(

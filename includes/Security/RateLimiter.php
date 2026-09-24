@@ -118,7 +118,7 @@ final class RateLimiter {
      *
      * @return string IP validée (IPv4 ou IPv6), chaîne vide si indéterminée.
      */
-    private static function get_client_ip(): string {
+    public static function get_client_ip(): string {
         $ip = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ?? '' ) );
 
         /** @var string $ip */

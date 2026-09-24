@@ -223,6 +223,8 @@ final class HelloAssoGateway {
                 throw new \RuntimeException( 'HelloAsso webhook: invalid signature.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
             }
         } else {
+            // Whitelist HelloAsso : l'IP est déjà filtrée via givoly_client_ip (RateLimiter) pour les proxies de confiance.
+            // Documenter toute IP supplémentaire si HelloAsso fait évoluer son infra.
             $allowed_ips = $this->sandbox
                 ? [ '4.233.135.234' ]
                 : [ '51.138.206.200' ];
@@ -247,7 +249,7 @@ final class HelloAssoGateway {
         $access_token = (string) get_option( self::OPT_ACCESS_TOKEN, '' );
         $expires_at   = (int) get_option( self::OPT_EXPIRES_AT, 0 );
 
-        // Hot path : token encore valide
+        // Chemin rapide : token encore valide
         if ( $access_token !== '' && $expires_at > time() + 60 ) {
             return $access_token;
         }

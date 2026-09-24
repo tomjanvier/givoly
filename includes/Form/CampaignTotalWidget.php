@@ -112,7 +112,7 @@ final class CampaignTotalWidget {
                 return [ $stats['amount'], $stats['donors'], $campaign_obj, [] ];
             }
 
-            // Backward compatibility for legacy campaign values stored in donor_message.
+            // Rétrocompatibilité : campagnes historiques stockées dans donor_message (pré-v0.7).
             $campaign_obj = null;
             // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name from $wpdb->prefix (trusted)
             $rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching

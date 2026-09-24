@@ -197,8 +197,8 @@ final class LegacyMigration {
                     continue;
                 }
             } elseif ( $legacy_id ) {
-                // Keeping the old primary key makes a retry idempotent for
-                // donations without a gateway transaction reference.
+                // Conserver l'ancien ID primaire rend la reprise idempotente pour
+                // les dons sans référence de transaction passerelle.
                 $already_exists = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM `{$current_table}` WHERE id = %d LIMIT 1", $legacy_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter
                 if ( $already_exists ) {
                     continue;
