@@ -73,7 +73,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                                            class="regular-text"
                                            placeholder="<?php echo esc_attr( 'https://your-site.com/logo.png' ); ?>">
                                     <p class="description">
-                                        <?php esc_html_e( 'Logo shown at the top of the email (PNG or JPG recommended, max. 300px wide). If empty, the organization\'s name is shown.', 'givoly' ); ?>
+                                        <?php esc_html_e( 'Your organization logo appears in each email. Givoly and PLAID·ACT are shown in the signature. Use a public HTTPS image URL; if empty, your organization name is shown.', 'givoly' ); ?>
                                     </p>
                                     <?php if ( $email_logo_url ) : ?>
                                         <div style="margin-top:8px;">
@@ -83,6 +83,35 @@ if ( ! defined( 'ABSPATH' ) ) {
                                         </div>
                                     <?php endif; ?>
                                 </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row"><?php esc_html_e( 'Email preview', 'givoly' ); ?></th>
+                                    <td>
+                                        <div style="max-width:600px;margin:12px 0 20px;padding:18px;background:#f3f6f4;border:1px solid #e5ebe7;border-radius:14px;">
+                                            <div style="background:#fff;border:1px solid #e5ebe7;border-radius:12px;overflow:hidden;">
+                                                <div style="height:5px;background:<?php echo esc_attr( $email_primary_color ); ?>;"></div>
+                                                <div style="padding:24px;text-align:center;">
+                                                    <?php if ( $email_logo_url ) : ?>
+                                                        <img src="<?php echo esc_url( $email_logo_url ); ?>" alt="" style="display:block;max-width:180px;max-height:55px;margin:0 auto;">
+                                                    <?php else : ?>
+                                                        <strong style="font-size:20px;color:#173b35;"><?php echo esc_html( \Givoly\Admin\Settings::get_assoc_name() ?: get_bloginfo( 'name' ) ); ?></strong>
+                                                    <?php endif; ?>
+                                                    <div style="width:40px;height:3px;margin:18px auto 14px;background:<?php echo esc_attr( $email_primary_color ); ?>;"></div>
+                                                    <span style="font-size:11px;font-weight:700;letter-spacing:1px;color:#70817b;"><?php esc_html_e( 'THANK YOU FOR YOUR SUPPORT', 'givoly' ); ?></span>
+                                                </div>
+                                                <div style="padding:0 28px 26px;color:#33443e;font-size:14px;line-height:1.7;">
+                                                    <p><?php esc_html_e( 'Hello Camille,', 'givoly' ); ?></p>
+                                                    <p><?php esc_html_e( 'Your generosity helps our organization move forward. Thank you for being part of this story.', 'givoly' ); ?></p>
+                                                    <div style="display:inline-block;padding:10px 18px;background:#176b55;border-radius:8px;color:#fff;font-weight:700;"><?php esc_html_e( 'A heartfelt thank you', 'givoly' ); ?></div>
+                                                </div>
+                                                <div style="padding:16px;text-align:center;border-top:1px solid #edf1ee;background:#fbfcfb;color:#78847f;font-size:11px;">
+                                                    <?php echo esc_html( \Givoly\Admin\Settings::get_assoc_name() ?: get_bloginfo( 'name' ) ); ?><br>
+                                                    <strong style="display:inline-block;margin-top:8px;color:#52655e;">Givoly</strong> <span>· <?php esc_html_e( 'Made for nonprofits by PLAID·ACT', 'givoly' ); ?></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p class="description"><?php esc_html_e( 'Preview of the shared layout used by donor and administrator emails. Your saved colors, logo, and organization name are reflected here.', 'givoly' ); ?></p>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <th scope="row">
