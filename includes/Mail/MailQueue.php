@@ -248,7 +248,7 @@ final class MailQueue {
         $subject = __( 'Your donor space access', 'givoly' );
         $body    = sprintf(
             /* translators: %s: secure magic link. */
-            __( "Hello,\n\nClick this link to access your donor space:\n%s\n\nThis link expires in 15 minutes. If you did not request it, ignore this email.", 'givoly' ),
+            __( "Hello,\n\nUse the secure button below to open your donor space and review your donation history.\n\n%s\n\nFor your security, this link expires in 15 minutes and can only be used once. If you did not request it, you can safely ignore this email.", 'givoly' ),
             $url
         );
 

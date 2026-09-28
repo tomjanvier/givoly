@@ -2095,3 +2095,118 @@ msgstr ""
 #: assets/js/givoly-blocks.js:232
 msgid "Display"
 msgstr ""
+
+#: includes/Admin/Settings.php:221
+msgid ""
+"Hello {first_name},\n"
+"\n"
+"Thank you for your donation of {amount}. Your generosity helps {site_name} "
+"continue its work. We are grateful to have you with us.\n"
+"\n"
+"With gratitude,\n"
+"{site_name}"
+msgstr ""
+
+#: includes/Admin/Settings.php:231
+msgid ""
+"A new donation has been confirmed.\n"
+"\n"
+"Donation summary\n"
+"Amount: {amount}\n"
+"Campaign: {campaign}\n"
+"Reference: #{donation_id}\n"
+"\n"
+"Donor\n"
+"Name: {first_name} {last_name}\n"
+"Email: {email}\n"
+"\n"
+"Thank you for keeping your donor records up to date."
+msgstr ""
+
+#: includes/Admin/Settings.php:241
+msgid ""
+"Hello {donor_name},\n"
+"\n"
+"Thank you for standing alongside {association}. Here is your giving summary "
+"for {year}.\n"
+"\n"
+"Your generosity\n"
+"Total donated: {amount}\n"
+"Number of donations: {donation_count}\n"
+"\n"
+"Organization details\n"
+"{association}\n"
+"{association_address}\n"
+"SIRET: {siret}\n"
+"RNA: {rna}\n"
+"Tax approval / ruling: {fiscal_id}\n"
+"\n"
+"This summary accompanies your email and does not replace an official tax "
+"receipt when one is required. Please keep the attached document with your "
+"records.\n"
+"\n"
+"With gratitude,\n"
+"{association}"
+msgstr ""
+
+#: includes/Mail/EmailRenderer.php:41
+#: templates/admin/settings/tab-email.php:109
+msgid "Made for nonprofits by PLAID·ACT"
+msgstr ""
+
+#: includes/Mail/EmailRenderer.php:42
+msgid "This message was sent by your organization."
+msgstr ""
+
+#: includes/Mail/EmailRenderer.php:62
+msgid "Open your secure link"
+msgstr ""
+
+#: includes/Mail/MailQueue.php:251
+#, php-format
+msgid ""
+"Hello,\n"
+"\n"
+"Use the secure button below to open your donor space and review your "
+"donation history.\n"
+"\n"
+"%s\n"
+"\n"
+"For your security, this link expires in 15 minutes and can only be used "
+"once. If you did not request it, you can safely ignore this email."
+msgstr ""
+
+#: templates/admin/settings/tab-email.php:76
+msgid ""
+"Your organization logo appears in each email. Givoly and PLAID·ACT are shown "
+"in the signature. Use a public HTTPS image URL; if empty, your organization "
+"name is shown."
+msgstr ""
+
+#: templates/admin/settings/tab-email.php:88
+msgid "Email preview"
+msgstr ""
+
+#: templates/admin/settings/tab-email.php:100
+msgid "THANK YOU FOR YOUR SUPPORT"
+msgstr ""
+
+#: templates/admin/settings/tab-email.php:103
+msgid "Hello Camille,"
+msgstr ""
+
+#: templates/admin/settings/tab-email.php:104
+msgid ""
+"Your generosity helps our organization move forward. Thank you for being "
+"part of this story."
+msgstr ""
+
+#: templates/admin/settings/tab-email.php:105
+msgid "A heartfelt thank you"
+msgstr ""
+
+#: templates/admin/settings/tab-email.php:113
+msgid ""
+"Preview of the shared layout used by donor and administrator emails. Your "
+"saved colors, logo, and organization name are reflected here."
+msgstr ""

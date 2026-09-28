@@ -218,7 +218,7 @@ final class Settings {
 
     public static function get_email_thank_body(): string {
         $body = (string) self::get_compat_option( self::OPT_EMAIL_THANK_BODY, '' );
-        return $body !== '' ? $body : __( "Hello {first_name},\n\nThank you for your donation of {amount}. Your support matters.", 'givoly' );
+        return $body !== '' ? $body : __( "Hello {first_name},\n\nThank you for your donation of {amount}. Your generosity helps {site_name} continue its work. We are grateful to have you with us.\n\nWith gratitude,\n{site_name}", 'givoly' );
     }
 
     public static function get_email_admin_donation_subject(): string {
@@ -228,7 +228,7 @@ final class Settings {
 
     public static function get_email_admin_donation_body(): string {
         $body = (string) self::get_compat_option( self::OPT_EMAIL_ADMIN_DONATION_BODY, '' );
-        return $body !== '' ? $body : __( "A new donation was received.\n\nID: {donation_id}\nAmount: {amount}\nDonor: {first_name} {last_name}\nEmail: {email}\nCampaign: {campaign}", 'givoly' );
+        return $body !== '' ? $body : __( "A new donation has been confirmed.\n\nDonation summary\nAmount: {amount}\nCampaign: {campaign}\nReference: #{donation_id}\n\nDonor\nName: {first_name} {last_name}\nEmail: {email}\n\nThank you for keeping your donor records up to date.", 'givoly' );
     }
 
     public static function get_email_tax_receipt_subject(): string {
@@ -238,7 +238,7 @@ final class Settings {
 
     public static function get_email_tax_receipt_body(): string {
         $body = (string) self::get_compat_option( self::OPT_EMAIL_TAX_RECEIPT_BODY, '' );
-        return $body !== '' ? $body : __( "Hello {donor_name},\n\nBelow is a summary of your donations made in {year}.\n\nTotal donated: {amount}\nNumber of donations: {donation_count}\nOrganization: {association}\nAddress: {association_address}\nSIRET: {siret}\nRNA: {rna}\nTax approval / ruling: {fiscal_id}\n\nThis message helps with year-end reporting. Verify the organization's information and attach your official tax receipt if required before using it as supporting documentation.\n\nThank you for your support.", 'givoly' );
+        return $body !== '' ? $body : __( "Hello {donor_name},\n\nThank you for standing alongside {association}. Here is your giving summary for {year}.\n\nYour generosity\nTotal donated: {amount}\nNumber of donations: {donation_count}\n\nOrganization details\n{association}\n{association_address}\nSIRET: {siret}\nRNA: {rna}\nTax approval / ruling: {fiscal_id}\n\nThis summary accompanies your email and does not replace an official tax receipt when one is required. Please keep the attached document with your records.\n\nWith gratitude,\n{association}", 'givoly' );
     }
 
     public static function should_attach_tax_receipt_pdf(): bool {
